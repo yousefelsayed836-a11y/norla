@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
@@ -8,15 +8,37 @@ import { formatEGP } from "@/lib/format";
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", city: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    whatsappNumber: "",
+    email: "",
+    address: "",
+    city: "",
+  });
+  const [shippingFee, setShippingFee] = useState(0);
+  const [depositPercent, setDepositPercent] = useState(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        setShippingFee(Number(d.settings.shippingFee) || 0);
+        setDepositPercent(d.settings.depositPercent ?? 50);
+      })
+      .catch(() => {});
+  }, []);
+
+  const grandTotal = total + shippingFee;
+  const deposit = (grandTotal * depositPercent) / 100;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.name || !form.phone || !form.address) {
-      setError("Please fill in your name, phone and address.");
+    if (!form.name || !form.phone || !form.whatsappNumber || !form.address) {
+      setError("Please fill in your name, phone, WhatsApp number and address.");
       return;
     }
     setLoading(true);
@@ -62,6 +84,12 @@ export default function CheckoutPage() {
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
           <input
+            placeholder="WhatsApp number (to confirm your order)"
+            className="w-full border border-brand-light rounded-xl px-4 py-3"
+            value={form.whatsappNumber}
+            onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
+          />
+          <input
             placeholder="Email (optional)"
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.email}
@@ -85,10 +113,11 @@ export default function CheckoutPage() {
             disabled={loading}
             className="w-full bg-brand-dark text-white py-4 rounded-full font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? "Placing order..." : `Place Order — ${formatEGP(total)}`}
+            {loading ? "Placing order..." : `Place Order — ${formatEGP(grandTotal)}`}
           </button>
           <p className="text-xs text-foreground/50 text-center">
-            Cash on delivery. Our team will contact you to confirm your order.
+            We&apos;ll contact you on WhatsApp so you can send the {depositPercent}% deposit via
+            Instagram payment or cash. The rest is paid on delivery.
           </p>
         </form>
       </div>
@@ -108,9 +137,27 @@ export default function CheckoutPage() {
             </div>
           ))}
         </div>
-        <div className="mt-4 pt-4 border-t border-brand-light flex justify-between font-semibold">
-          <span>Total</span>
-          <span className="text-brand-dark">{formatEGP(total)}</span>
+        <div className="mt-4 pt-4 border-t border-brand-light space-y-2 text-sm">
+          <div className="flex justify-between text-foreground/70">
+            <span>Subtotal</span>
+            <span>{formatEGP(total)}</span>
+          </div>
+          <div className="flex justify-between text-foreground/70">
+            <span>Shipping</span>
+            <span>{shippingFee > 0 ? formatEGP(shippingFee) : "Free"}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
+            <span>Total</span>
+            <span className="text-brand-dark">{formatEGP(grandTotal)}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-brand-dark bg-brand-light/40 rounded-lg px-3 py-2 mt-2">
+            <span>Deposit due now ({depositPercent}%)</span>
+            <span>{formatEGP(deposit)}</span>
+          </div>
+          <p className="text-xs text-foreground/50">
+            We&apos;ll message you on WhatsApp to arrange the deposit payment via Instagram or
+            cash. The remaining balance is paid on delivery.
+          </p>
         </div>
       </div>
     </div>

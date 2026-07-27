@@ -7,6 +7,7 @@ const orderSchema = z.object({
   customer: z.object({
     name: z.string().min(1),
     phone: z.string().min(1),
+    whatsappNumber: z.string().optional(),
     email: z.string().optional(),
     address: z.string().min(1),
     city: z.string().optional(),
@@ -55,15 +56,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No valid items" }, { status: 400 });
   }
 
-  const total = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const settings = await prisma.siteSetting.upsert({
+    where: { id: "singleton" },
+    update: {},
+    create: { id: "singleton" },
+  });
+
+  const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const shippingFee = Number(settings.shippingFee);
+  const total = subtotal + shippingFee;
+  const depositAmount = (total * settings.depositPercent) / 100;
 
   const order = await prisma.order.create({
     data: {
+      subtotal,
+      shippingFee,
       total,
+      depositAmount,
       customer: {
         create: {
           name: customer.name,
           phone: customer.phone,
+          whatsappNumber: customer.whatsappNumber || null,
           email: customer.email || null,
           address: customer.address,
           city: customer.city || null,

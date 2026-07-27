@@ -9,12 +9,16 @@ export default function SettingsForm({
   initialTiktok,
   initialWhatsapp,
   initialReturnPolicy,
+  initialShippingFee,
+  initialDepositPercent,
 }: {
   initialText: string;
   initialInstagram: string;
   initialTiktok: string;
   initialWhatsapp: string;
   initialReturnPolicy: string;
+  initialShippingFee: string;
+  initialDepositPercent: number;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -22,6 +26,8 @@ export default function SettingsForm({
   const [tiktok, setTiktok] = useState(initialTiktok);
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
   const [returnPolicy, setReturnPolicy] = useState(initialReturnPolicy);
+  const [shippingFee, setShippingFee] = useState(initialShippingFee);
+  const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -38,6 +44,8 @@ export default function SettingsForm({
         tiktokUrl: tiktok,
         whatsappUrl: whatsapp,
         returnPolicyText: returnPolicy,
+        shippingFee: parseFloat(shippingFee) || 0,
+        depositPercent: parseInt(depositPercent) || 0,
       }),
     });
     setSaving(false);
@@ -58,6 +66,29 @@ export default function SettingsForm({
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium block mb-1">Shipping Fee (EGP)</label>
+          <input
+            type="number"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={shippingFee}
+            onChange={(e) => setShippingFee(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium block mb-1">Deposit Required (%)</label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={depositPercent}
+            onChange={(e) => setDepositPercent(e.target.value)}
+          />
+        </div>
       </div>
 
       <div>

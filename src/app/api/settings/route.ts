@@ -15,9 +15,24 @@ export async function PUT(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { announcementText, instagramUrl, tiktokUrl, whatsappUrl, returnPolicyText } =
-    await req.json();
-  const data = { announcementText, instagramUrl, tiktokUrl, whatsappUrl, returnPolicyText };
+  const {
+    announcementText,
+    instagramUrl,
+    tiktokUrl,
+    whatsappUrl,
+    returnPolicyText,
+    shippingFee,
+    depositPercent,
+  } = await req.json();
+  const data = {
+    announcementText,
+    instagramUrl,
+    tiktokUrl,
+    whatsappUrl,
+    returnPolicyText,
+    shippingFee,
+    depositPercent,
+  };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },
     update: data,

@@ -13,6 +13,8 @@ export default async function AdminSettingsPage() {
         initialTiktok={settings.tiktokUrl}
         initialWhatsapp={settings.whatsappUrl}
         initialReturnPolicy={settings.returnPolicyText}
+        initialShippingFee={String(settings.shippingFee)}
+        initialDepositPercent={settings.depositPercent}
       />
     </div>
   );

@@ -28,7 +28,12 @@ export default async function OrderDetailPage({
             Customer
           </h2>
           <p className="font-medium">{order.customer?.name}</p>
-          <p className="text-sm text-foreground/70">{order.customer?.phone}</p>
+          <p className="text-sm text-foreground/70">Phone: {order.customer?.phone}</p>
+          {order.customer?.whatsappNumber && (
+            <p className="text-sm text-foreground/70">
+              WhatsApp: {order.customer.whatsappNumber}
+            </p>
+          )}
           {order.customer?.email && (
             <p className="text-sm text-foreground/70">{order.customer.email}</p>
           )}
@@ -57,9 +62,23 @@ export default async function OrderDetailPage({
             ))}
           </tbody>
         </table>
-        <div className="flex justify-between pt-4 mt-2 border-t border-brand-light font-semibold">
-          <span>Total</span>
-          <span className="text-brand-dark">{formatEGP(Number(order.total))}</span>
+        <div className="pt-4 mt-2 border-t border-brand-light space-y-1.5 text-sm">
+          <div className="flex justify-between text-foreground/60">
+            <span>Subtotal</span>
+            <span>{formatEGP(Number(order.subtotal))}</span>
+          </div>
+          <div className="flex justify-between text-foreground/60">
+            <span>Shipping</span>
+            <span>{formatEGP(Number(order.shippingFee))}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-base pt-1.5 border-t border-brand-light/60">
+            <span>Total</span>
+            <span className="text-brand-dark">{formatEGP(Number(order.total))}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-brand-dark bg-brand-light/40 rounded-lg px-3 py-2 mt-2">
+            <span>Deposit Due</span>
+            <span>{formatEGP(Number(order.depositAmount))}</span>
+          </div>
         </div>
       </div>
     </div>

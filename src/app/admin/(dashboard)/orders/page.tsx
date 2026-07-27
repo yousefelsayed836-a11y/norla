@@ -28,6 +28,7 @@ export default async function AdminOrdersPage() {
               <th className="p-4 font-medium">Customer</th>
               <th className="p-4 font-medium">Items</th>
               <th className="p-4 font-medium">Total</th>
+              <th className="p-4 font-medium">Deposit</th>
               <th className="p-4 font-medium">Status</th>
               <th className="p-4 font-medium">Date</th>
             </tr>
@@ -46,6 +47,9 @@ export default async function AdminOrdersPage() {
                 </td>
                 <td className="p-4">{o.items.length}</td>
                 <td className="p-4">{formatEGP(Number(o.total))}</td>
+                <td className="p-4 text-brand-dark font-medium">
+                  {formatEGP(Number(o.depositAmount))}
+                </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded-full text-xs ${STATUS_STYLES[o.status]}`}>
                     {o.status}
@@ -58,7 +62,7 @@ export default async function AdminOrdersPage() {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-foreground/40">
+                <td colSpan={7} className="p-8 text-center text-foreground/40">
                   No orders yet.
                 </td>
               </tr>
