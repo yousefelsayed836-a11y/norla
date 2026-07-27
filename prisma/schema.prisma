@@ -163,6 +163,7 @@ model ProductVariant {
   price        Decimal?    @db.Decimal(10, 2)
   regularPrice Decimal?    @db.Decimal(10, 2)
   stockStatus  String      @default("instock")
+  stockQty     Int?
   orderItems   OrderItem[]
 }
 

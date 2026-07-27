@@ -19,6 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       price: body.price || null,
       regularPrice: body.regularPrice || null,
       stockStatus: body.stockStatus || "instock",
+      stockQty: body.stockQty ?? null,
     },
   });
   return NextResponse.json({ variant });

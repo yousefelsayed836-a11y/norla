@@ -17,9 +17,6 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
-  }
   if (file.size > MAX_SIZE) {
     return NextResponse.json({ error: "File too large (max 15MB)" }, { status: 400 });
   }

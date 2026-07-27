@@ -13,6 +13,7 @@ export type Variant = {
   imageUrl: string | null;
   price: string | null;
   stockStatus: string;
+  stockQty: number | null;
 };
 
 const emptyDraft = {
@@ -22,6 +23,7 @@ const emptyDraft = {
   imageUrl: "",
   price: "",
   stockStatus: "instock",
+  stockQty: "",
 };
 
 export default function VariantManager({
@@ -48,6 +50,7 @@ export default function VariantManager({
       imageUrl: v.imageUrl ?? "",
       price: v.price ?? "",
       stockStatus: v.stockStatus,
+      stockQty: v.stockQty != null ? String(v.stockQty) : "",
     });
   }
 
@@ -84,6 +87,7 @@ export default function VariantManager({
       imageUrl: draft.imageUrl || null,
       price: draft.price ? parseFloat(draft.price) : null,
       stockStatus: draft.stockStatus,
+      stockQty: draft.stockQty !== "" ? parseInt(draft.stockQty) : null,
     };
     if (editingId) {
       await fetch(`/api/variants/${editingId}`, {
@@ -112,10 +116,20 @@ export default function VariantManager({
   return (
     <div className="max-w-2xl bg-white rounded-2xl p-8 shadow-sm mt-6">
       <h2 className="font-display text-xl mb-1">Variants</h2>
-      <p className="text-xs text-foreground/50 mb-4">
+      <p className="text-xs text-foreground/50 mb-1">
         Add color and size options. Give a color its own photo so the gallery switches
         automatically when a customer picks it.
       </p>
+      {variants.length > 0 && (
+        <p className="text-xs text-foreground/50 mb-4">
+          Total stock across variants:{" "}
+          <span className="font-medium text-foreground">
+            {variants.some((v) => v.stockQty != null)
+              ? variants.reduce((sum, v) => sum + (v.stockQty ?? 0), 0)
+              : "—"}
+          </span>
+        </p>
+      )}
 
       <ul className="space-y-2 mb-5">
         {variants.map((v) => (
@@ -137,6 +151,9 @@ export default function VariantManager({
               )}
               <span>{v.label}</span>
               {v.price && <span className="text-foreground/40">— {v.price} EGP</span>}
+              {v.stockQty != null && (
+                <span className="text-foreground/40">— stock: {v.stockQty}</span>
+              )}
               {v.stockStatus !== "instock" && (
                 <span className="text-xs text-red-500">({v.stockStatus})</span>
               )}
@@ -180,22 +197,30 @@ export default function VariantManager({
             onChange={(e) => setDraft({ ...draft, size: e.target.value })}
           />
         </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            className="w-9 h-9 rounded border border-brand-light cursor-pointer"
+            value={draft.colorHex}
+            onChange={(e) => setDraft({ ...draft, colorHex: e.target.value })}
+          />
+          <span className="text-xs text-foreground/50">Swatch color</span>
+        </div>
         <div className="grid grid-cols-3 gap-3 items-center">
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              className="w-9 h-9 rounded border border-brand-light cursor-pointer"
-              value={draft.colorHex}
-              onChange={(e) => setDraft({ ...draft, colorHex: e.target.value })}
-            />
-            <span className="text-xs text-foreground/50">Swatch color</span>
-          </div>
           <input
             type="number"
             placeholder="Price override"
             className="border border-brand-light rounded-xl px-3 py-2 text-sm"
             value={draft.price}
             onChange={(e) => setDraft({ ...draft, price: e.target.value })}
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="Stock qty"
+            className="border border-brand-light rounded-xl px-3 py-2 text-sm"
+            value={draft.stockQty}
+            onChange={(e) => setDraft({ ...draft, stockQty: e.target.value })}
           />
           <select
             className="border border-brand-light rounded-xl px-3 py-2 text-sm"

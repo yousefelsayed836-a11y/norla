@@ -54,6 +54,7 @@ export default async function EditProductPage({
           imageUrl: v.imageUrl,
           price: v.price ? String(v.price) : null,
           stockStatus: v.stockStatus,
+          stockQty: v.stockQty,
         }))}
       />
     </div>

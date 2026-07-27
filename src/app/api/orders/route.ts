@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { adjustStock } from "@/lib/inventory";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -41,7 +42,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const resolvedItems = [];
+  const resolvedItems: {
+    productId: string;
+    variantId: string | undefined;
+    title: string;
+    price: number;
+    quantity: number;
+  }[] = [];
   for (const item of items) {
     const product = await prisma.product.findUnique({ where: { id: item.productId } });
     if (!product) continue;
@@ -82,26 +89,30 @@ export async function POST(req: NextRequest) {
   const total = subtotal + shippingFee;
   const depositAmount = (total * settings.depositPercent) / 100;
 
-  const order = await prisma.order.create({
-    data: {
-      subtotal,
-      shippingFee,
-      total,
-      depositAmount,
-      customer: {
-        create: {
-          name: customer.name,
-          phone: customer.phone,
-          whatsappNumber: customer.whatsappNumber || null,
-          email: customer.email || null,
-          address: customer.address,
-          governorate: customer.governorate,
-          city: customer.city,
+  const order = await prisma.$transaction(async (tx) => {
+    const created = await tx.order.create({
+      data: {
+        subtotal,
+        shippingFee,
+        total,
+        depositAmount,
+        customer: {
+          create: {
+            name: customer.name,
+            phone: customer.phone,
+            whatsappNumber: customer.whatsappNumber || null,
+            email: customer.email || null,
+            address: customer.address,
+            governorate: customer.governorate,
+            city: customer.city,
+          },
         },
+        items: { create: resolvedItems },
       },
-      items: { create: resolvedItems },
-    },
-    include: { items: true, customer: true },
+      include: { items: true, customer: true },
+    });
+    await adjustStock(tx, resolvedItems, -1);
+    return created;
   });
 
   return NextResponse.json({ order });

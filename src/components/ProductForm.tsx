@@ -185,6 +185,22 @@ export default function ProductForm({
         </div>
       </div>
 
+      <div>
+        <label className="text-sm font-medium block mb-1">Stock Quantity</label>
+        <input
+          type="number"
+          min={0}
+          placeholder="Leave blank if this product has variants"
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          value={values.stockQty}
+          onChange={(e) => set("stockQty", e.target.value)}
+        />
+        <p className="text-xs text-foreground/40 mt-1">
+          Only used when this product has no color/size variants below — with variants, stock is
+          tracked per variant and summed automatically.
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium block mb-1">Rating shown (1-5)</label>
