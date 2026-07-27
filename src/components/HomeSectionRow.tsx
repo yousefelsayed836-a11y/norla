@@ -13,11 +13,11 @@ export default function HomeSectionRow({
   if (products.length === 0) return null;
 
   return (
-    <section className="pt-16 text-center font-jost">
+    <section className="pt-6 text-center font-jost">
       <h2 className="text-[31px] font-medium text-black">{title}</h2>
       <Link
         href={`/collections/${slug}`}
-        className="inline-block mt-3 border border-[#e8e8e1] text-black text-xs uppercase tracking-[0.2em] px-3.5 py-2 rounded-full hover:bg-brand-light/50 transition-colors"
+        className="inline-block mt-3 border border-brand text-black text-xs uppercase tracking-[0.2em] px-3.5 py-2 rounded-full hover:bg-brand-light/50 transition-colors"
       >
         View all
       </Link>

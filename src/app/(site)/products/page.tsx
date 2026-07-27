@@ -15,13 +15,7 @@ export default async function ProductsPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-10">
-      <h1 className="font-display text-4xl mb-8">
-        {search
-          ? `Results for "${search}"`
-          : category
-            ? categories.find((c) => c.slug === category)?.name
-            : "All Products"}
-      </h1>
+      <h1 className="font-jost text-4xl mb-8 text-center">Products</h1>
 
       <div className="flex flex-wrap gap-2 mb-8">
         <Link

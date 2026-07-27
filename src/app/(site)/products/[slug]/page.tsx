@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
 import { getProductBySlug, getProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/settings";
-import ProductGallery from "@/components/ProductGallery";
-import AddToCartPanel from "@/components/AddToCartPanel";
-import StarRating from "@/components/StarRating";
-import Accordion from "@/components/Accordion";
+import ProductPurchase from "@/components/ProductPurchase";
 import ProductCard from "@/components/ProductCard";
 
 export default async function ProductDetailPage({
@@ -29,56 +26,28 @@ export default async function ProductDetailPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-16">
-      <div className="grid md:grid-cols-2 gap-6">
-        <ProductGallery images={product.images} title={product.title} />
-
-        <div>
-          {product.category && (
-            <p className="text-xs uppercase tracking-wide text-foreground/50 mb-2 text-center">
-              {product.category.name}
-            </p>
-          )}
-          <h1 className="font-jost text-3xl md:text-4xl mb-2 text-black text-center">
-            {product.title}
-          </h1>
-          <div className="mb-4">
-            <StarRating rating={product.rating} reviewCount={product.reviewCount} />
-          </div>
-
-          <AddToCartPanel
-            productId={product.id}
-            title={product.title}
-            basePrice={product.price}
-            image={product.images[0]?.url}
-            variants={product.variants.map((v) => ({
-              id: v.id,
-              label: v.label,
-              color: v.color,
-              colorHex: v.colorHex,
-              price: v.price,
-              stockStatus: v.stockStatus,
-            }))}
-          />
-
-          {(product.shortDescription || product.description) && (
-            <div className="mt-8 pt-8 border-t border-brand-light text-foreground/80 whitespace-pre-line text-sm">
-              {product.shortDescription}
-              {product.description && product.description !== product.shortDescription && (
-                <p className="mt-3">{product.description}</p>
-              )}
-            </div>
-          )}
-
-          <div className="mt-2">
-            {product.careInstructions && (
-              <Accordion title="Care Instructions">{product.careInstructions}</Accordion>
-            )}
-            {settings.returnPolicyText && (
-              <Accordion title="Returns & Exchange">{settings.returnPolicyText}</Accordion>
-            )}
-          </div>
-        </div>
-      </div>
+      <ProductPurchase
+        productId={product.id}
+        title={product.title}
+        categoryName={product.category?.name}
+        rating={product.rating}
+        reviewCount={product.reviewCount}
+        basePrice={product.price}
+        images={product.images}
+        variants={product.variants.map((v) => ({
+          id: v.id,
+          color: v.color,
+          colorHex: v.colorHex,
+          size: v.size,
+          imageUrl: v.imageUrl,
+          price: v.price,
+          stockStatus: v.stockStatus,
+        }))}
+        shortDescription={product.shortDescription}
+        description={product.description}
+        careInstructions={product.careInstructions}
+        returnPolicyText={settings.returnPolicyText}
+      />
 
       {fallbackRelated.length > 0 && (
         <section className="mt-20 pt-12 border-t border-brand-light text-center font-jost">

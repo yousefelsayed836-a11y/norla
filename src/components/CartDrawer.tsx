@@ -8,15 +8,26 @@ import { formatEGP } from "@/lib/format";
 export default function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { items, removeItem, updateQuantity, total } = useCart();
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[70] flex justify-end">
+    <div
+      className={`fixed inset-0 z-[70] flex justify-end transition-opacity duration-300 ${
+        open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+      aria-hidden={!open}
+    >
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <aside className="relative w-full max-w-sm bg-white h-full flex flex-col shadow-xl">
+      <aside
+        className={`relative w-full max-w-sm bg-white h-full flex flex-col shadow-xl transition-transform duration-300 ease-out ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-brand-light">
           <h2 className="font-display text-xl">Your Cart</h2>
-          <button onClick={onClose} aria-label="Close cart" className="text-2xl leading-none text-foreground/60">
+          <button
+            onClick={onClose}
+            aria-label="Close cart"
+            className="text-2xl leading-none text-foreground/60 transition-transform hover:rotate-90 duration-300"
+          >
             ✕
           </button>
         </div>
@@ -52,7 +63,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center border border-brand-light rounded-full">
                         <button
-                          className="w-6 h-6 text-xs"
+                          className="w-6 h-6 text-xs rounded-full transition-colors hover:bg-brand-light"
                           onClick={() =>
                             updateQuantity(
                               item.productId,
@@ -65,7 +76,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                         </button>
                         <span className="w-6 text-center text-xs">{item.quantity}</span>
                         <button
-                          className="w-6 h-6 text-xs"
+                          className="w-6 h-6 text-xs rounded-full transition-colors hover:bg-brand-light"
                           onClick={() =>
                             updateQuantity(item.productId, item.variantId, item.quantity + 1)
                           }

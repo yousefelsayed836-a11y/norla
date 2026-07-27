@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 
-type CategoryLink = { name: string; slug: string };
+type NavLinkItem = { label: string; href: string };
 
-export default function SiteHeader({ categories }: { categories: CategoryLink[] }) {
+export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
   const { count } = useCart();
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
@@ -50,7 +50,11 @@ export default function SiteHeader({ categories }: { categories: CategoryLink[] 
           }`}
         >
           <div className="flex items-center flex-1">
-            <button className="p-1" onClick={() => setNavOpen(true)} aria-label="Menu">
+            <button
+              className="p-1 transition-transform active:scale-90"
+              onClick={() => setNavOpen(true)}
+              aria-label="Menu"
+            >
               <svg
                 width="24"
                 height="24"
@@ -81,7 +85,7 @@ export default function SiteHeader({ categories }: { categories: CategoryLink[] 
           <div className="flex items-center justify-end flex-1">
             <button
               onClick={() => setCartOpen(true)}
-              className="relative p-1.5"
+              className="relative p-1.5 transition-transform active:scale-90"
               aria-label="Cart"
             >
               <svg
@@ -99,7 +103,7 @@ export default function SiteHeader({ categories }: { categories: CategoryLink[] 
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-brand-dark text-white text-[10px] rounded-full w-4.5 h-4.5 min-w-[18px] min-h-[18px] flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-brand-dark text-white text-[10px] rounded-full w-4.5 h-4.5 min-w-[18px] min-h-[18px] flex items-center justify-center transition-transform scale-100">
                   {count}
                 </span>
               )}
@@ -108,37 +112,41 @@ export default function SiteHeader({ categories }: { categories: CategoryLink[] 
         </div>
       </header>
 
-      {navOpen && (
-        <div className="fixed inset-0 z-[70] flex">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setNavOpen(false)} />
-          <aside className="relative w-full max-w-xs bg-white h-full flex flex-col shadow-xl">
-            <div className="flex items-center justify-between px-5 py-5 border-b border-brand-light">
-              <Image src="/brand/logo-dark.webp" alt="Norla Designs" width={110} height={19} />
-              <button
-                onClick={() => setNavOpen(false)}
-                aria-label="Close menu"
-                className="text-2xl leading-none text-foreground/60"
+      <div
+        className={`fixed inset-0 z-[70] flex transition-opacity duration-300 ${
+          navOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!navOpen}
+      >
+        <div className="absolute inset-0 bg-black/50" onClick={() => setNavOpen(false)} />
+        <aside
+          className={`relative w-full max-w-xs bg-white h-full flex flex-col shadow-xl transition-transform duration-300 ease-out ${
+            navOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between px-5 py-5 border-b border-brand-light">
+            <Image src="/brand/logo-dark.webp" alt="Norla Designs" width={110} height={19} />
+            <button
+              onClick={() => setNavOpen(false)}
+              aria-label="Close menu"
+              className="text-2xl leading-none text-foreground/60 transition-transform hover:rotate-90 duration-300"
+            >
+              ✕
+            </button>
+          </div>
+          <nav className="flex-1 flex flex-col px-5 py-4 font-medium text-sm overflow-y-auto uppercase tracking-wide">
+            {navLinks.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
               >
-                ✕
-              </button>
-            </div>
-            <nav className="flex-1 flex flex-col px-5 py-4 font-medium text-sm overflow-y-auto">
-              <Link href="/products" className="py-3 border-b border-brand-light/60">
-                All Products
+                {n.label}
               </Link>
-              {categories.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/products?category=${c.slug}`}
-                  className="py-3 border-b border-brand-light/60"
-                >
-                  {c.name}
-                </Link>
-              ))}
-            </nav>
-          </aside>
-        </div>
-      )}
+            ))}
+          </nav>
+        </aside>
+      </div>
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>

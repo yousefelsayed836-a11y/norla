@@ -14,6 +14,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       label: body.label,
       color: body.color || null,
       colorHex: body.colorHex || null,
+      size: body.size || null,
+      imageUrl: body.imageUrl || null,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
       stockStatus: body.stockStatus || "instock",

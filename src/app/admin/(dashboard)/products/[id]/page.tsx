@@ -50,6 +50,8 @@ export default async function EditProductPage({
           label: v.label,
           color: v.color,
           colorHex: v.colorHex,
+          size: v.size,
+          imageUrl: v.imageUrl,
           price: v.price ? String(v.price) : null,
           stockStatus: v.stockStatus,
         }))}

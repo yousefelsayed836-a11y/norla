@@ -143,6 +143,7 @@ async function main() {
           label: v.label,
           color: v.color,
           colorHex: v.color ? COLOR_HEX[v.color.toLowerCase()] : null,
+          size: v.size,
           price: v.price,
           regularPrice: v.regular_price,
           stockStatus: v.stock_status,
@@ -216,6 +217,22 @@ async function main() {
       });
     }
     console.log(`Seeded ${EGYPT_GOVERNORATES.length} shipping zones (Egypt governorates).`);
+  }
+
+  const heroCount = await prisma.heroImage.count();
+  if (heroCount === 0) {
+    await prisma.heroImage.create({ data: { url: "/brand/hero.webp", position: 0 } });
+  }
+
+  const navCount = await prisma.navLink.count();
+  if (navCount === 0) {
+    await prisma.navLink.create({ data: { label: "All Products", href: "/products", position: 0 } });
+    const cats = await prisma.category.findMany({ orderBy: { position: "asc" } });
+    for (let i = 0; i < cats.length; i++) {
+      await prisma.navLink.create({
+        data: { label: cats[i].name, href: `/products?category=${cats[i].slug}`, position: i + 1 },
+      });
+    }
   }
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@norla-designs.com";

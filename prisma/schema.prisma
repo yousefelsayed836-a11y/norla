@@ -27,6 +27,25 @@ model SiteSetting {
   freeShippingThreshold Decimal @default(0) @db.Decimal(10, 2)
 }
 
+model HeroImage {
+  id       String @id @default(cuid())
+  url      String
+  position Int    @default(0)
+}
+
+model GalleryImage {
+  id       String @id @default(cuid())
+  url      String
+  position Int    @default(0)
+}
+
+model NavLink {
+  id       String @id @default(cuid())
+  label    String
+  href     String
+  position Int    @default(0)
+}
+
 model ShippingZone {
   id           String         @id @default(cuid())
   governorate  String         @unique
@@ -139,6 +158,8 @@ model ProductVariant {
   label        String
   color        String?
   colorHex     String?
+  size         String?
+  imageUrl     String?
   price        Decimal?    @db.Decimal(10, 2)
   regularPrice Decimal?    @db.Decimal(10, 2)
   stockStatus  String      @default("instock")

@@ -1,0 +1,58 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export default function HeroSlider({ images }: { images: { id: string; url: string }[] }) {
+  const [active, setActive] = useState(0);
+  const list = images.length ? images : [{ id: "fallback", url: "/brand/hero.webp" }];
+
+  useEffect(() => {
+    if (list.length <= 1) return;
+    const timer = setInterval(() => {
+      setActive((i) => (i + 1) % list.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [list.length]);
+
+  return (
+    <section className="relative h-[80vh] md:h-screen w-full overflow-hidden">
+      {list.map((img, i) => (
+        <Image
+          key={img.id}
+          src={img.url}
+          alt="Norla Designs"
+          fill
+          priority={i === 0}
+          className={`object-cover object-top md:object-[center_28%] transition-opacity duration-1000 ${
+            i === active ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10" />
+      <div className="absolute inset-x-0 bottom-10 flex justify-center">
+        <Link
+          href="/products"
+          className="border border-white/80 text-white bg-white/10 backdrop-blur-sm px-10 py-3.5 rounded-full font-medium tracking-wide hover:bg-white/25 transition-all hover:scale-105 active:scale-95"
+        >
+          Shop Now
+        </Link>
+      </div>
+      {list.length > 1 && (
+        <div className="absolute bottom-4 inset-x-0 flex justify-center gap-1.5">
+          {list.map((img, i) => (
+            <button
+              key={img.id}
+              onClick={() => setActive(i)}
+              aria-label={`Show slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === active ? "w-6 bg-white" : "w-1.5 bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function ZoomIcon() {
   return (
@@ -15,15 +15,39 @@ function ZoomIcon() {
 export default function ProductGallery({
   images,
   title,
+  focusUrl,
 }: {
   images: { url: string }[];
   title: string;
+  focusUrl?: string | null;
 }) {
+  const baseList = images.length ? images : [{ url: "/brand/logo.webp" }];
+  const list =
+    focusUrl && !baseList.some((i) => i.url === focusUrl)
+      ? [{ url: focusUrl }, ...baseList]
+      : baseList;
+
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
-  const list = images.length ? images : [{ url: "/brand/logo.webp" }];
   const stripRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!focusUrl) return;
+    const idx = list.findIndex((i) => i.url === focusUrl);
+    if (idx === -1) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing gallery to an external color selection
+    setActive(idx);
+    const container = mobileRef.current;
+    const slide = container?.children[idx] as HTMLElement | undefined;
+    if (container && slide) {
+      container.scrollTo({
+        left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
+        behavior: "smooth",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- list is derived from focusUrl+images each render, only re-run when the focus target itself changes
+  }, [focusUrl]);
 
   function scrollStrip(dir: -1 | 1) {
     stripRef.current?.scrollBy({ top: dir * 100, left: dir * 100, behavior: "smooth" });
@@ -72,7 +96,7 @@ export default function ProductGallery({
             {list.map((img, i) => (
               <div
                 key={img.url + i}
-                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white"
+                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
                 <Image src={img.url} alt={title} fill className="object-cover" priority={i === 0} />
               </div>
@@ -81,7 +105,7 @@ export default function ProductGallery({
           <button
             onClick={() => setLightbox(true)}
             aria-label="Zoom image"
-            className="absolute bottom-4 right-[9%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70"
+            className="absolute bottom-4 right-[9%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
           >
             <ZoomIcon />
           </button>
@@ -94,7 +118,7 @@ export default function ProductGallery({
                 key={i}
                 onClick={() => goToMobileSlide(i)}
                 aria-label={`Go to image ${i + 1}`}
-                className={`rounded-full transition-all ${
+                className={`rounded-full transition-all duration-300 ${
                   i === active ? "w-2.5 h-2.5 bg-brand-dark" : "w-1.5 h-1.5 bg-brand-light"
                 }`}
               />
@@ -109,7 +133,7 @@ export default function ProductGallery({
           <div className="flex flex-col items-center gap-2 w-20 shrink-0">
             <button
               onClick={() => scrollStrip(-1)}
-              className="text-foreground/40 hover:text-brand-dark py-1"
+              className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
               aria-label="Scroll up"
             >
               ▲
@@ -122,7 +146,7 @@ export default function ProductGallery({
                 <button
                   key={img.url + i}
                   onClick={() => setActive(i)}
-                  className={`relative w-full shrink-0 overflow-hidden border-2 transition-all ${
+                  className={`relative w-full shrink-0 overflow-hidden border-2 transition-all duration-300 ${
                     i === active
                       ? "h-28 border-brand-dark"
                       : "h-24 border-transparent hover:border-brand-light"
@@ -134,7 +158,7 @@ export default function ProductGallery({
             </div>
             <button
               onClick={() => scrollStrip(1)}
-              className="text-foreground/40 hover:text-brand-dark py-1"
+              className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
               aria-label="Scroll down"
             >
               ▼
@@ -143,11 +167,18 @@ export default function ProductGallery({
         )}
 
         <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden">
-          <Image src={list[active].url} alt={title} fill className="object-cover" priority />
+          <Image
+            key={list[active].url}
+            src={list[active].url}
+            alt={title}
+            fill
+            className="object-cover animate-fade-in"
+            priority
+          />
           <button
             onClick={() => setLightbox(true)}
             aria-label="Zoom image"
-            className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 hover:text-brand-dark"
+            className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 hover:text-brand-dark transition-all hover:scale-105 active:scale-95"
           >
             <ZoomIcon />
           </button>
@@ -156,13 +187,13 @@ export default function ProductGallery({
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 animate-fade-in"
           onClick={() => setLightbox(false)}
         >
           <button
             onClick={() => setLightbox(false)}
             aria-label="Close"
-            className="absolute top-5 right-5 text-white text-3xl leading-none"
+            className="absolute top-5 right-5 text-white text-3xl leading-none transition-transform hover:rotate-90 duration-300"
           >
             ✕
           </button>

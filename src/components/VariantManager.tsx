@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export type Variant = {
   id: string;
   label: string;
   color: string | null;
   colorHex: string | null;
+  size: string | null;
+  imageUrl: string | null;
   price: string | null;
   stockStatus: string;
 };
 
-const emptyDraft = { label: "", color: "", colorHex: "#000000", price: "", stockStatus: "instock" };
+const emptyDraft = {
+  color: "",
+  colorHex: "#000000",
+  size: "",
+  imageUrl: "",
+  price: "",
+  stockStatus: "instock",
+};
 
 export default function VariantManager({
   productId,
@@ -25,13 +35,16 @@ export default function VariantManager({
   const [draft, setDraft] = useState(emptyDraft);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function startEdit(v: Variant) {
     setEditingId(v.id);
     setDraft({
-      label: v.label,
       color: v.color ?? "",
       colorHex: v.colorHex ?? "#000000",
+      size: v.size ?? "",
+      imageUrl: v.imageUrl ?? "",
       price: v.price ?? "",
       stockStatus: v.stockStatus,
     });
@@ -42,13 +55,28 @@ export default function VariantManager({
     setDraft(emptyDraft);
   }
 
+  async function handleUpload(file: File) {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (res.ok) {
+      const data = await res.json();
+      setDraft((d) => ({ ...d, imageUrl: data.url }));
+    }
+    setUploading(false);
+  }
+
   async function handleSave() {
-    if (!draft.label.trim()) return;
+    if (!draft.color.trim() && !draft.size.trim()) return;
     setSaving(true);
+    const label = [draft.color, draft.size].filter(Boolean).join(", ") || "Default";
     const payload = {
-      label: draft.label,
+      label,
       color: draft.color || null,
       colorHex: draft.colorHex || null,
+      size: draft.size || null,
+      imageUrl: draft.imageUrl || null,
       price: draft.price ? parseFloat(draft.price) : null,
       stockStatus: draft.stockStatus,
     };
@@ -80,7 +108,8 @@ export default function VariantManager({
     <div className="max-w-2xl bg-white rounded-2xl p-8 shadow-sm mt-6">
       <h2 className="font-display text-xl mb-1">Variants</h2>
       <p className="text-xs text-foreground/50 mb-4">
-        Add color/size options customers can pick on the product page.
+        Add color and size options. Give a color its own photo so the gallery switches
+        automatically when a customer picks it.
       </p>
 
       <ul className="space-y-2 mb-5">
@@ -90,6 +119,11 @@ export default function VariantManager({
             className="flex items-center justify-between border border-brand-light rounded-xl px-4 py-2 text-sm"
           >
             <div className="flex items-center gap-2">
+              {v.imageUrl && (
+                <div className="relative w-8 h-9 rounded overflow-hidden bg-brand-light shrink-0">
+                  <Image src={v.imageUrl} alt="" fill className="object-cover" />
+                </div>
+              )}
               {v.colorHex && (
                 <span
                   className="w-4 h-4 rounded-full border border-black/10 shrink-0"
@@ -129,16 +163,16 @@ export default function VariantManager({
         <p className="text-sm font-medium">{editingId ? "Edit variant" : "Add a variant"}</p>
         <div className="grid grid-cols-2 gap-3">
           <input
-            placeholder="Label (e.g. Beige, L)"
-            className="border border-brand-light rounded-xl px-3 py-2 text-sm"
-            value={draft.label}
-            onChange={(e) => setDraft({ ...draft, label: e.target.value })}
-          />
-          <input
-            placeholder="Color name (optional)"
+            placeholder="Color name (e.g. Beige)"
             className="border border-brand-light rounded-xl px-3 py-2 text-sm"
             value={draft.color}
             onChange={(e) => setDraft({ ...draft, color: e.target.value })}
+          />
+          <input
+            placeholder="Size (e.g. L, One size)"
+            className="border border-brand-light rounded-xl px-3 py-2 text-sm"
+            value={draft.size}
+            onChange={(e) => setDraft({ ...draft, size: e.target.value })}
           />
         </div>
         <div className="grid grid-cols-3 gap-3 items-center">
@@ -168,6 +202,30 @@ export default function VariantManager({
             <option value="onbackorder">On backorder</option>
           </select>
         </div>
+
+        <div className="flex items-center gap-3">
+          {draft.imageUrl && (
+            <div className="relative w-12 h-14 rounded-lg overflow-hidden bg-brand-light shrink-0">
+              <Image src={draft.imageUrl} alt="" fill className="object-cover" />
+            </div>
+          )}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="border border-brand-light rounded-xl px-3 py-2 text-xs font-medium hover:bg-brand-light/50 disabled:opacity-50"
+          >
+            {uploading ? "Uploading..." : draft.imageUrl ? "Change Photo" : "+ Add Photo for This Color"}
+          </button>
+        </div>
+
         <div className="flex gap-2">
           <button
             type="button"

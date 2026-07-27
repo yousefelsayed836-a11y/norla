@@ -7,21 +7,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const body = await req.json();
-  const variant = await prisma.productVariant.update({
-    where: { id },
-    data: {
-      label: body.label,
-      color: body.color || null,
-      colorHex: body.colorHex || null,
-      size: body.size || null,
-      imageUrl: body.imageUrl || null,
-      price: body.price || null,
-      regularPrice: body.regularPrice || null,
-      stockStatus: body.stockStatus,
-    },
-  });
-  return NextResponse.json({ variant });
+  const { label, href, position } = await req.json();
+  const link = await prisma.navLink.update({ where: { id }, data: { label, href, position } });
+  return NextResponse.json({ link });
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -29,6 +17,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  await prisma.productVariant.delete({ where: { id } });
+  await prisma.navLink.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

@@ -4,36 +4,26 @@ import { getCategories, getProducts } from "@/lib/products";
 import { getHomeSections } from "@/lib/home-sections";
 import HomeSectionRow from "@/components/HomeSectionRow";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import HeroSlider from "@/components/HeroSlider";
+import MadeByUsSection from "@/components/MadeByUsSection";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const [categories, products, sections, testimonials] = await Promise.all([
-    getCategories(),
-    getProducts(),
-    getHomeSections(),
-    prisma.testimonial.findMany({ orderBy: { position: "asc" } }),
-  ]);
+  const [categories, products, sections, testimonials, heroImages, galleryImages] =
+    await Promise.all([
+      getCategories(),
+      getProducts(),
+      getHomeSections(),
+      prisma.testimonial.findMany({ orderBy: { position: "asc" } }),
+      prisma.heroImage.findMany({ orderBy: { position: "asc" } }),
+      prisma.galleryImage.findMany({ orderBy: { position: "asc" } }),
+    ]);
 
   return (
     <div>
-      <section className="relative h-[80vh] md:h-screen w-full overflow-hidden">
-        <Image
-          src="/brand/hero.webp"
-          alt="Norla Designs"
-          fill
-          priority
-          className="object-cover object-top md:object-[center_28%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10" />
-        <div className="absolute inset-x-0 bottom-10 flex justify-center">
-          <Link
-            href="/products"
-            className="border border-white/80 text-white bg-white/10 backdrop-blur-sm px-10 py-3.5 rounded-full font-medium tracking-wide hover:bg-white/25 transition-colors"
-          >
-            Shop Now
-          </Link>
-        </div>
-      </section>
+      <HeroSlider images={heroImages} />
 
       <div className="mx-auto max-w-6xl px-4">
         {sections.map((s) => (
@@ -41,7 +31,7 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <section className="mx-auto max-w-6xl px-4 pt-16 pb-24 font-jost">
+      <section className="mx-auto max-w-6xl px-4 pt-16 pb-8 font-jost">
         <h2 className="text-[31px] font-medium text-black text-center mb-8">Shop by Category</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {categories.map((c) => {
@@ -71,6 +61,8 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      <MadeByUsSection images={galleryImages} />
 
       <TestimonialsCarousel testimonials={testimonials} />
     </div>
