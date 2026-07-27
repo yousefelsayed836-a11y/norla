@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         </span>
       </div>
       <div className="mt-3 text-center">
-        <h3 className="text-[16px] font-medium uppercase tracking-[0.2em] text-brand-dark">
+        <h3 className="text-[16px] font-medium uppercase tracking-[0.2em] text-black">
           {product.title}
         </h3>
         <div className="flex items-center justify-center gap-2 mt-1">

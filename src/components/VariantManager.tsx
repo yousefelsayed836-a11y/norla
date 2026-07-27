@@ -36,6 +36,7 @@ export default function VariantManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function startEdit(v: Variant) {
@@ -57,12 +58,16 @@ export default function VariantManager({
 
   async function handleUpload(file: File) {
     setUploading(true);
+    setUploadError(null);
     const formData = new FormData();
     formData.append("file", file);
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (res.ok) {
       const data = await res.json();
       setDraft((d) => ({ ...d, imageUrl: data.url }));
+    } else {
+      const data = await res.json().catch(() => null);
+      setUploadError(data?.error || "Failed to upload image.");
     }
     setUploading(false);
   }
@@ -225,6 +230,7 @@ export default function VariantManager({
             {uploading ? "Uploading..." : draft.imageUrl ? "Change Photo" : "+ Add Photo for This Color"}
           </button>
         </div>
+        {uploadError && <p className="text-red-600 text-xs">{uploadError}</p>}
 
         <div className="flex gap-2">
           <button

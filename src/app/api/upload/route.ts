@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import sharp from "sharp";
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const MAX_SIZE = 8 * 1024 * 1024;
+const MAX_SIZE = 15 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -17,20 +17,29 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
-  if (!ALLOWED_TYPES.has(file.type)) {
+  if (!file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
   }
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "File too large (max 8MB)" }, { status: 400 });
+    return NextResponse.json({ error: "File too large (max 15MB)" }, { status: 400 });
   }
 
-  const ext = path.extname(file.name) || `.${file.type.split("/")[1]}`;
-  const filename = `${crypto.randomUUID()}${ext}`;
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+
+  let outputBuffer: Buffer;
+  try {
+    outputBuffer = await sharp(inputBuffer).rotate().webp({ quality: 88 }).toBuffer();
+  } catch {
+    return NextResponse.json(
+      { error: "Couldn't read this image. Try a JPG, PNG, or WebP photo." },
+      { status: 400 }
+    );
+  }
+
+  const filename = `${crypto.randomUUID()}.webp`;
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   await fs.mkdir(uploadDir, { recursive: true });
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(uploadDir, filename), buffer);
+  await fs.writeFile(path.join(uploadDir, filename), outputBuffer);
 
   return NextResponse.json({ url: `/uploads/${filename}` });
 }

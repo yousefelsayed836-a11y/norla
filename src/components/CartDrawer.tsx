@@ -10,14 +10,19 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
 
   return (
     <div
-      className={`fixed inset-0 z-[70] flex justify-end transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[70] flex justify-end transition-opacity duration-500 ${
         open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
       aria-hidden={!open}
     >
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className={`absolute inset-0 bg-black/50 transition-[backdrop-filter] duration-500 ${
+          open ? "backdrop-blur-[2px]" : ""
+        }`}
+        onClick={onClose}
+      />
       <aside
-        className={`relative w-full max-w-sm bg-white h-full flex flex-col shadow-xl transition-transform duration-300 ease-out ${
+        className={`relative w-full max-w-sm bg-white h-full flex flex-col shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >

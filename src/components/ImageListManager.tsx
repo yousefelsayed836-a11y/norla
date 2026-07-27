@@ -16,17 +16,23 @@ export default function ImageListManager({
 }) {
   const [items, setItems] = useState(initialItems);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setUploading(true);
+    setError(null);
     const newItems = [...items];
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append("file", file);
       const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!uploadRes.ok) continue;
+      if (!uploadRes.ok) {
+        const data = await uploadRes.json().catch(() => null);
+        setError(data?.error || `Failed to upload ${file.name}.`);
+        continue;
+      }
       const { url } = await uploadRes.json();
       const createRes = await fetch(apiBase, {
         method: "POST",
@@ -62,6 +68,8 @@ export default function ImageListManager({
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm max-w-3xl">
+      {error && <p className="text-red-600 text-xs mb-3">{error}</p>}
+
       {items.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
           {items.map((item, i) => (

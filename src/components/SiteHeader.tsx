@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 
@@ -12,8 +12,12 @@ type NavLinkItem = { label: string; href: string };
 export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
   const { count } = useCart();
   const pathname = usePathname();
+  const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(!isHome);
@@ -32,10 +36,24 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- close the nav drawer whenever navigation happens
-  useEffect(() => setNavOpen(false), [pathname]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close the nav/search drawers whenever navigation happens
+    setNavOpen(false);
+    setSearchOpen(false);
+  }, [pathname]);
 
-  const solid = scrolled || navOpen;
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!query.trim()) return;
+    router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+    setSearchOpen(false);
+  }
+
+  const solid = scrolled || navOpen || searchOpen;
 
   return (
     <>
@@ -82,7 +100,26 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             />
           </Link>
 
-          <div className="flex items-center justify-end flex-1">
+          <div className="flex items-center justify-end flex-1 gap-1">
+            <button
+              onClick={() => setSearchOpen((v) => !v)}
+              className="p-1.5 transition-transform active:scale-90"
+              aria-label="Search"
+            >
+              <svg
+                width="21"
+                height="21"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-1.5 transition-transform active:scale-90"
@@ -110,17 +147,56 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             </button>
           </div>
         </div>
+
+        <div
+          className={`overflow-hidden transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            searchOpen ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <form
+            onSubmit={handleSearchSubmit}
+            className="mx-auto max-w-6xl px-5 pb-4 flex items-center gap-3 border-t border-black/10"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0 mt-4 text-foreground/50"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
+              className="flex-1 mt-4 bg-transparent outline-none text-sm py-1 border-b border-transparent focus:border-brand-dark transition-colors"
+            />
+          </form>
+        </div>
       </header>
 
       <div
-        className={`fixed inset-0 z-[70] flex transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[70] flex transition-opacity duration-500 ${
           navOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden={!navOpen}
       >
-        <div className="absolute inset-0 bg-black/50" onClick={() => setNavOpen(false)} />
+        <div
+          className={`absolute inset-0 bg-black/50 transition-[backdrop-filter] duration-500 ${
+            navOpen ? "backdrop-blur-[2px]" : ""
+          }`}
+          onClick={() => setNavOpen(false)}
+        />
         <aside
-          className={`relative w-full max-w-xs bg-white h-full flex flex-col shadow-xl transition-transform duration-300 ease-out ${
+          className={`relative w-full max-w-xs bg-white h-full flex flex-col shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             navOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >

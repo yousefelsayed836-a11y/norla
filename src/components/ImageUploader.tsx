@@ -24,7 +24,8 @@ export default function ImageUploader({
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) {
-        setError("One or more images failed to upload.");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "One or more images failed to upload.");
         continue;
       }
       const data = await res.json();
