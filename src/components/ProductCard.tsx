@@ -23,7 +23,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           src={primary}
           alt={product.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 md:group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
         />
         {secondary && (
@@ -31,7 +31,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             src={secondary}
             alt=""
             fill
-            className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100"
+            className="object-cover opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 group-active:opacity-100"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         )}
@@ -40,7 +40,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             Sale
           </span>
         )}
-        <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 group-hover:translate-y-0 group-active:translate-y-0">
+        <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 md:group-hover:translate-y-0 group-active:translate-y-0">
           Quick view
         </span>
       </div>

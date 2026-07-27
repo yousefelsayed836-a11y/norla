@@ -58,7 +58,7 @@ export default async function HomePage() {
                     src={image}
                     alt={c.name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                   />
                 )}
                 <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
