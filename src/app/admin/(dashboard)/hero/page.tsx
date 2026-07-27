@@ -14,7 +14,7 @@ export default async function AdminHeroPage() {
       <ImageListManager
         initialItems={images.map((i) => ({ id: i.id, url: i.url }))}
         apiBase="/api/hero-images"
-        aspect="aspect-[4/5]"
+        aspect="aspect-[2/3]"
       />
     </div>
   );
