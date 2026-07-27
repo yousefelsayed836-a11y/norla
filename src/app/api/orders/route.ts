@@ -10,7 +10,8 @@ const orderSchema = z.object({
     whatsappNumber: z.string().optional(),
     email: z.string().optional(),
     address: z.string().min(1),
-    city: z.string().optional(),
+    governorate: z.string().min(1),
+    city: z.string().min(1),
   }),
   items: z
     .array(
@@ -29,6 +30,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
   const { customer, items } = parsed.data;
+
+  const zone = await prisma.shippingZone.findUnique({
+    where: { governorate: customer.governorate },
+  });
+  if (!zone || !zone.active) {
+    return NextResponse.json(
+      { error: "We don't currently ship to this governorate" },
+      { status: 400 }
+    );
+  }
 
   const resolvedItems = [];
   for (const item of items) {
@@ -63,7 +74,11 @@ export async function POST(req: NextRequest) {
   });
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  const shippingFee = Number(settings.shippingFee);
+  const qualifiesFreeShipping =
+    settings.freeShippingEnabled &&
+    Number(settings.freeShippingThreshold) > 0 &&
+    subtotal >= Number(settings.freeShippingThreshold);
+  const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
   const total = subtotal + shippingFee;
   const depositAmount = (total * settings.depositPercent) / 100;
 
@@ -80,7 +95,8 @@ export async function POST(req: NextRequest) {
           whatsappNumber: customer.whatsappNumber || null,
           email: customer.email || null,
           address: customer.address,
-          city: customer.city || null,
+          governorate: customer.governorate,
+          city: customer.city,
         },
       },
       items: { create: resolvedItems },

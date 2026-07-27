@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 import fs from "node:fs";
 import path from "node:path";
+import { EGYPT_GOVERNORATES } from "./egypt-locations";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -198,6 +199,23 @@ async function main() {
         },
       },
     });
+  }
+
+  const zoneCount = await prisma.shippingZone.count();
+  if (zoneCount === 0) {
+    for (let i = 0; i < EGYPT_GOVERNORATES.length; i++) {
+      const g = EGYPT_GOVERNORATES[i];
+      await prisma.shippingZone.create({
+        data: {
+          governorate: g.name,
+          fee: 0,
+          active: true,
+          position: i,
+          cities: { create: g.cities.map((name) => ({ name })) },
+        },
+      });
+    }
+    console.log(`Seeded ${EGYPT_GOVERNORATES.length} shipping zones (Egypt governorates).`);
   }
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@norla-designs.com";

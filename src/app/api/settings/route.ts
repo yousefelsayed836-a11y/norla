@@ -23,6 +23,8 @@ export async function PUT(req: NextRequest) {
     returnPolicyText,
     shippingFee,
     depositPercent,
+    freeShippingEnabled,
+    freeShippingThreshold,
   } = await req.json();
   const data = {
     announcementText,
@@ -32,6 +34,8 @@ export async function PUT(req: NextRequest) {
     returnPolicyText,
     shippingFee,
     depositPercent,
+    freeShippingEnabled,
+    freeShippingThreshold,
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },

@@ -40,6 +40,7 @@ export default async function EditProductPage({
           images: product.images.sort((a, b) => a.position - b.position).map((i) => i.url),
           rating: String(product.rating),
           reviewCount: String(product.reviewCount),
+          visible: product.visible,
         }}
       />
       <VariantManager

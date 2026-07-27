@@ -15,6 +15,8 @@ export default async function AdminSettingsPage() {
         initialReturnPolicy={settings.returnPolicyText}
         initialShippingFee={String(settings.shippingFee)}
         initialDepositPercent={settings.depositPercent}
+        initialFreeShippingEnabled={settings.freeShippingEnabled}
+        initialFreeShippingThreshold={String(settings.freeShippingThreshold)}
       />
     </div>
   );

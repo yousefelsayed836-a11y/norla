@@ -23,6 +23,7 @@ export type ProductFormValues = {
   images: string[];
   rating: string;
   reviewCount: string;
+  visible: boolean;
 };
 
 export default function ProductForm({
@@ -50,6 +51,7 @@ export default function ProductForm({
       images: [],
       rating: "5",
       reviewCount: "0",
+      visible: true,
     }
   );
   const [loading, setLoading] = useState(false);
@@ -99,6 +101,18 @@ export default function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5 bg-white rounded-2xl p-8 shadow-sm">
       {error && <p className="text-red-600 text-sm">{error}</p>}
+
+      <label className="flex items-center gap-3 cursor-pointer bg-brand-light/30 rounded-xl px-4 py-3">
+        <input
+          type="checkbox"
+          checked={values.visible}
+          onChange={(e) => set("visible", e.target.checked)}
+          className="accent-brand-dark w-4 h-4"
+        />
+        <span className="text-sm font-medium">
+          {values.visible ? "Visible on the site" : "Hidden from the site"}
+        </span>
+      </label>
 
       <div>
         <label className="text-sm font-medium block mb-1">Title</label>

@@ -15,6 +15,7 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
   const products = await prisma.product.findMany({
     where: {
       status: { not: "trash" },
+      visible: true,
       ...(opts?.categorySlug ? { category: { slug: opts.categorySlug } } : {}),
       ...(opts?.search ? { title: { contains: opts.search, mode: "insensitive" } } : {}),
     },
@@ -29,7 +30,8 @@ export async function getProductBySlug(slug: string) {
     where: { slug },
     ...productWithRelations,
   });
-  return product ? serializeProduct(product) : null;
+  if (!product || !product.visible || product.status === "trash") return null;
+  return serializeProduct(product);
 }
 
 export function serializeProduct(p: ProductWithRelations) {

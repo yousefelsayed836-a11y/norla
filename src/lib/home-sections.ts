@@ -21,7 +21,9 @@ export async function getHomeSections() {
     id: s.id,
     title: s.title,
     slug: s.slug,
-    products: s.products.map((sp) => serializeProduct(sp.product)),
+    products: s.products
+      .filter((sp) => sp.product.visible && sp.product.status !== "trash")
+      .map((sp) => serializeProduct(sp.product)),
   }));
 }
 
@@ -35,6 +37,8 @@ export async function getHomeSectionBySlug(slug: string) {
     id: section.id,
     title: section.title,
     slug: section.slug,
-    products: section.products.map((sp) => serializeProduct(sp.product)),
+    products: section.products
+      .filter((sp) => sp.product.visible && sp.product.status !== "trash")
+      .map((sp) => serializeProduct(sp.product)),
   };
 }

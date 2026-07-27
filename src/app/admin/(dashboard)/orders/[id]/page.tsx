@@ -43,7 +43,10 @@ export default async function OrderDetailPage({
             Delivery Address
           </h2>
           <p className="text-sm text-foreground/70">{order.customer?.address}</p>
-          <p className="text-sm text-foreground/70">{order.customer?.city}</p>
+          <p className="text-sm text-foreground/70">
+            {order.customer?.city}
+            {order.customer?.governorate ? `, ${order.customer.governorate}` : ""}
+          </p>
         </div>
       </div>
 

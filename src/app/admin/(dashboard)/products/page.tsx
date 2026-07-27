@@ -29,7 +29,7 @@ export default async function AdminProductsPage() {
               <th className="p-4 font-medium">Category</th>
               <th className="p-4 font-medium">Price</th>
               <th className="p-4 font-medium">Stock</th>
-              <th className="p-4 font-medium">Status</th>
+              <th className="p-4 font-medium">Visibility</th>
               <th className="p-4"></th>
             </tr>
           </thead>
@@ -57,7 +57,15 @@ export default async function AdminProductsPage() {
                     {p.stockStatus}
                   </span>
                 </td>
-                <td className="p-4 capitalize">{p.status}</td>
+                <td className="p-4">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      p.visible ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {p.visible ? "Visible" : "Hidden"}
+                  </span>
+                </td>
                 <td className="p-4 text-right">
                   <Link href={`/admin/products/${p.id}`} className="text-brand-dark font-medium">
                     Edit

@@ -23,6 +23,24 @@ model SiteSetting {
   returnPolicyText  String  @default("")
   shippingFee       Decimal @default(0) @db.Decimal(10, 2)
   depositPercent    Int     @default(50)
+  freeShippingEnabled   Boolean @default(false)
+  freeShippingThreshold Decimal @default(0) @db.Decimal(10, 2)
+}
+
+model ShippingZone {
+  id           String         @id @default(cuid())
+  governorate  String         @unique
+  fee          Decimal        @default(0) @db.Decimal(10, 2)
+  active       Boolean        @default(true)
+  position     Int            @default(0)
+  cities       ShippingCity[]
+}
+
+model ShippingCity {
+  id     String       @id @default(cuid())
+  zoneId String
+  zone   ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  name   String
 }
 
 model Testimonial {
@@ -95,6 +113,7 @@ model Product {
   stockStatus     String           @default("instock")
   stockQty        Int?
   status          String           @default("publish")
+  visible         Boolean          @default(true)
   categoryId      String?
   category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   images          ProductImage[]
@@ -133,6 +152,7 @@ model Customer {
   phone           String?
   whatsappNumber  String?
   address         String?
+  governorate     String?
   city            String?
   orders          Order[]
   createdAt       DateTime @default(now())

@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
+
+type ShippingCity = { id: string; name: string };
+type ShippingZone = { id: string; governorate: string; fee: string; active: boolean; cities: ShippingCity[] };
 
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
@@ -14,9 +17,12 @@ export default function CheckoutPage() {
     whatsappNumber: "",
     email: "",
     address: "",
+    governorate: "",
     city: "",
   });
-  const [shippingFee, setShippingFee] = useState(0);
+  const [zones, setZones] = useState<ShippingZone[]>([]);
+  const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,20 +31,30 @@ export default function CheckoutPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => {
-        setShippingFee(Number(d.settings.shippingFee) || 0);
+        setFreeShippingEnabled(!!d.settings.freeShippingEnabled);
+        setFreeShippingThreshold(Number(d.settings.freeShippingThreshold) || 0);
         setDepositPercent(d.settings.depositPercent ?? 50);
       })
       .catch(() => {});
+    fetch("/api/shipping-zones")
+      .then((r) => r.json())
+      .then((d) => setZones((d.zones as ShippingZone[]).filter((z) => z.active)))
+      .catch(() => {});
   }, []);
 
+  const selectedZone = zones.find((z) => z.governorate === form.governorate);
+  const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
+  const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
   const grandTotal = total + shippingFee;
   const deposit = (grandTotal * depositPercent) / 100;
+
+  const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.name || !form.phone || !form.whatsappNumber || !form.address) {
-      setError("Please fill in your name, phone, WhatsApp number and address.");
+    if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate || !form.city) {
+      setError("Please fill in your name, phone, WhatsApp number, governorate, city and address.");
       return;
     }
     setLoading(true);
@@ -95,14 +111,35 @@ export default function CheckoutPage() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
-          <input
-            placeholder="City"
-            className="w-full border border-brand-light rounded-xl px-4 py-3"
-            value={form.city}
-            onChange={(e) => setForm({ ...form, city: e.target.value })}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white"
+              value={form.governorate}
+              onChange={(e) => setForm({ ...form, governorate: e.target.value, city: "" })}
+            >
+              <option value="">Governorate</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.governorate}>
+                  {z.governorate}
+                </option>
+              ))}
+            </select>
+            <select
+              className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
+              value={form.city}
+              disabled={!selectedZone}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+            >
+              <option value="">City</option>
+              {cities.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <textarea
-            placeholder="Delivery address"
+            placeholder="Delivery address (street, building, apartment)"
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             rows={3}
             value={form.address}
@@ -143,8 +180,14 @@ export default function CheckoutPage() {
             <span>{formatEGP(total)}</span>
           </div>
           <div className="flex justify-between text-foreground/70">
-            <span>Shipping</span>
-            <span>{shippingFee > 0 ? formatEGP(shippingFee) : "Free"}</span>
+            <span>Shipping{selectedZone ? ` (${selectedZone.governorate})` : ""}</span>
+            <span>
+              {!selectedZone
+                ? "Select governorate"
+                : shippingFee === 0
+                  ? "Free"
+                  : formatEGP(shippingFee)}
+            </span>
           </div>
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
             <span>Total</span>

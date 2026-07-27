@@ -33,6 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       careInstructions: body.careInstructions,
       rating: body.rating,
       reviewCount: body.reviewCount,
+      visible: body.visible,
       price: body.price,
       regularPrice: body.regularPrice || null,
       sku: body.sku || null,

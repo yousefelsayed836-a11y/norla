@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       careInstructions: body.careInstructions || "",
       rating: body.rating ?? 5,
       reviewCount: body.reviewCount ?? 0,
+      visible: body.visible ?? true,
       price: body.price,
       regularPrice: body.regularPrice || null,
       sku: body.sku || null,

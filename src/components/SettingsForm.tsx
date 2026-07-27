@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SettingsForm({
   initialText,
@@ -11,6 +12,8 @@ export default function SettingsForm({
   initialReturnPolicy,
   initialShippingFee,
   initialDepositPercent,
+  initialFreeShippingEnabled,
+  initialFreeShippingThreshold,
 }: {
   initialText: string;
   initialInstagram: string;
@@ -19,6 +22,8 @@ export default function SettingsForm({
   initialReturnPolicy: string;
   initialShippingFee: string;
   initialDepositPercent: number;
+  initialFreeShippingEnabled: boolean;
+  initialFreeShippingThreshold: string;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -26,8 +31,9 @@ export default function SettingsForm({
   const [tiktok, setTiktok] = useState(initialTiktok);
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
   const [returnPolicy, setReturnPolicy] = useState(initialReturnPolicy);
-  const [shippingFee, setShippingFee] = useState(initialShippingFee);
   const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
+  const [freeShippingEnabled, setFreeShippingEnabled] = useState(initialFreeShippingEnabled);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(initialFreeShippingThreshold);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -44,8 +50,10 @@ export default function SettingsForm({
         tiktokUrl: tiktok,
         whatsappUrl: whatsapp,
         returnPolicyText: returnPolicy,
-        shippingFee: parseFloat(shippingFee) || 0,
+        shippingFee: parseFloat(initialShippingFee) || 0,
         depositPercent: parseInt(depositPercent) || 0,
+        freeShippingEnabled,
+        freeShippingThreshold: parseFloat(freeShippingThreshold) || 0,
       }),
     });
     setSaving(false);
@@ -68,28 +76,51 @@ export default function SettingsForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium block mb-1">Shipping Fee (EGP)</label>
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">Free Shipping</p>
+        <label className="flex items-center gap-3 cursor-pointer">
           <input
-            type="number"
-            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-            value={shippingFee}
-            onChange={(e) => setShippingFee(e.target.value)}
+            type="checkbox"
+            checked={freeShippingEnabled}
+            onChange={(e) => setFreeShippingEnabled(e.target.checked)}
+            className="accent-brand-dark w-4 h-4"
           />
-        </div>
-        <div>
-          <label className="text-sm font-medium block mb-1">Deposit Required (%)</label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-            value={depositPercent}
-            onChange={(e) => setDepositPercent(e.target.value)}
-          />
-        </div>
+          <span className="text-sm">Enable free shipping above a certain order value</span>
+        </label>
+        {freeShippingEnabled && (
+          <div>
+            <label className="text-xs text-foreground/50 block mb-1">
+              Order value threshold (EGP)
+            </label>
+            <input
+              type="number"
+              className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+              value={freeShippingThreshold}
+              onChange={(e) => setFreeShippingThreshold(e.target.value)}
+            />
+          </div>
+        )}
       </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Deposit Required (%)</label>
+        <input
+          type="number"
+          min={0}
+          max={100}
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          value={depositPercent}
+          onChange={(e) => setDepositPercent(e.target.value)}
+        />
+      </div>
+
+      <p className="text-xs text-foreground/50 -mt-2">
+        Per-governorate shipping fees are managed on the{" "}
+        <Link href="/admin/shipping" className="text-brand-dark underline">
+          Shipping
+        </Link>{" "}
+        page.
+      </p>
 
       <div>
         <label className="text-sm font-medium block mb-1">Instagram URL</label>
