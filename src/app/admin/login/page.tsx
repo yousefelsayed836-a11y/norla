@@ -6,7 +6,6 @@ import Image from "next/image";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,11 +17,11 @@ export default function AdminLoginPage() {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ password }),
     });
     setLoading(false);
     if (!res.ok) {
-      setError("Invalid email or password.");
+      setError("Wrong password.");
       return;
     }
     router.push("/admin");
@@ -38,15 +37,9 @@ export default function AdminLoginPage() {
         <h1 className="font-display text-2xl text-center mb-6">Admin Login</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"
-            placeholder="Email"
-            className="w-full border border-brand-light rounded-xl px-4 py-3"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
             type="password"
             placeholder="Password"
+            autoFocus
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
