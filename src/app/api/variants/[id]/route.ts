@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
+
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const body = await req.json();
+  const variant = await prisma.productVariant.update({
+    where: { id },
+    data: {
+      label: body.label,
+      color: body.color || null,
+      colorHex: body.colorHex || null,
+      price: body.price || null,
+      regularPrice: body.regularPrice || null,
+      stockStatus: body.stockStatus,
+    },
+  });
+  return NextResponse.json({ variant });
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  await prisma.productVariant.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

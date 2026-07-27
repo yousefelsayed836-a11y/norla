@@ -1,0 +1,391 @@
+{
+  "categories": [
+    "Blouses",
+    "Dresses",
+    "Skirts"
+  ],
+  "products": [
+    {
+      "id": "120",
+      "title": "RIMA SKIRT",
+      "slug": "rima-skirt",
+      "description": "",
+      "short_description": "Fabric: Chiffon 2 layers\r\nLength: 107cm\r\nWaist size: 74-120\r\none size",
+      "price": "980",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Skirts",
+      "images": [
+        "/products/rima-skirt.webp"
+      ],
+      "variants": [
+        {
+          "label": "Beige",
+          "color": "Beige",
+          "size": null,
+          "price": "980",
+          "regular_price": "1100",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "Black",
+          "color": "Black",
+          "size": null,
+          "price": "980",
+          "regular_price": "1100",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "Brown",
+          "color": "Brown",
+          "size": null,
+          "price": "980",
+          "regular_price": "1100",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "Maroon",
+          "color": "Maroon",
+          "size": null,
+          "price": "980",
+          "regular_price": "1100",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "White",
+          "color": "White",
+          "size": null,
+          "price": "980",
+          "regular_price": "1100",
+          "stock_status": "instock",
+          "image": null
+        }
+      ]
+    },
+    {
+      "id": "752",
+      "title": "HOOOR",
+      "slug": "hooor",
+      "description": "GGGG",
+      "short_description": "",
+      "price": "1300",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Dresses",
+      "images": [
+        "/products/IMG_3969-scaled.webp",
+        "/products/IMG_E3972-scaled.webp"
+      ],
+      "variants": [
+        {
+          "label": "Brown, One size",
+          "color": "Brown",
+          "size": "One size",
+          "price": "1300",
+          "regular_price": "1300",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "Maroon, One size",
+          "color": "Maroon",
+          "size": "One size",
+          "price": "1300",
+          "regular_price": "1300",
+          "stock_status": "onbackorder",
+          "image": null
+        }
+      ]
+    },
+    {
+      "id": "779",
+      "title": "Rafif Dress(maroon)",
+      "slug": "rafif-dress",
+      "description": "Material : Turkish Crepe\r\n\r\nLength :150 cm",
+      "short_description": "",
+      "price": "1220",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Dresses",
+      "images": [
+        "/products/IMG_5318-scaled.webp",
+        "/products/IMG_5328-scaled.webp",
+        "/products/Black-and-Pink-Minimalist-Size-Chart-Instagram-Post-1.webp"
+      ],
+      "variants": [
+        {
+          "label": "Maroon, L",
+          "color": "Maroon",
+          "size": "L",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_5328-1-scaled.webp"
+        },
+        {
+          "label": "Maroon, XL",
+          "color": "Maroon",
+          "size": "XL",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_5328-1-scaled.webp"
+        }
+      ]
+    },
+    {
+      "id": "816",
+      "title": "Bahga Blouse(baby blue)",
+      "slug": "bahga-blouse",
+      "description": "",
+      "short_description": "",
+      "price": "860",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Blouses",
+      "images": [
+        "/products/IMG_2678-scaled.webp",
+        "/products/IMG_2805-scaled.webp",
+        "/products/IMG_3081-scaled.webp",
+        "/products/IMG_2807-1-scaled.webp",
+        "/products/IMG_2761-scaled.webp",
+        "/products/3.webp"
+      ],
+      "variants": [
+        {
+          "label": "baby blue, M/L",
+          "color": "baby blue",
+          "size": "M/L",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "instock",
+          "image": "/products/IMG_2761-1-scaled.webp"
+        },
+        {
+          "label": "baby blue, XL",
+          "color": "baby blue",
+          "size": "XL",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "instock",
+          "image": null
+        },
+        {
+          "label": "baby blue, XXL",
+          "color": "baby blue",
+          "size": "XXL",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "instock",
+          "image": null
+        }
+      ]
+    },
+    {
+      "id": "861",
+      "title": "Rafif Dress (beige)",
+      "slug": "rafif-dress-copy",
+      "description": "Material : Turkish Crepe\r\n\r\nLength :150 cm",
+      "short_description": "",
+      "price": "1220",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Dresses",
+      "images": [
+        "/products/IMG_4335-scaled.webp",
+        "/products/IMG_5359.webp",
+        "/products/Black-and-Pink-Minimalist-Size-Chart-Instagram-Post-1.webp"
+      ],
+      "variants": [
+        {
+          "label": "Beige, L",
+          "color": "Beige",
+          "size": "L",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_5359.webp"
+        },
+        {
+          "label": "Beige, XL",
+          "color": "Beige",
+          "size": "XL",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_5359.webp"
+        }
+      ]
+    },
+    {
+      "id": "870",
+      "title": "Rafif Dress (brown)",
+      "slug": "rafif-dress-copy-2",
+      "description": "Material : Turkish Crepe\r\n\r\nLength :150 cm",
+      "short_description": "",
+      "price": "1220",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Dresses",
+      "images": [
+        "/products/IMG_6770-scaled.webp",
+        "/products/IMG_6765-scaled.webp",
+        "/products/Black-and-Pink-Minimalist-Size-Chart-Instagram-Post-1.webp"
+      ],
+      "variants": [
+        {
+          "label": "Brown, L",
+          "color": "Brown",
+          "size": "L",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_6765-scaled.webp"
+        },
+        {
+          "label": "Brown, XL",
+          "color": "Brown",
+          "size": "XL",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_6770-scaled.webp"
+        }
+      ]
+    },
+    {
+      "id": "879",
+      "title": "Rafif Dress (navy blue)",
+      "slug": "rafif-dress-copy-copy",
+      "description": "Material : Turkish Crepe\r\n\r\nLength :150 cm",
+      "short_description": "",
+      "price": "1220",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Dresses",
+      "images": [
+        "/products/IMG_3609-scaled.webp",
+        "/products/quality_restoration_20260618231721214-scaled.webp",
+        "/products/Black-and-Pink-Minimalist-Size-Chart-Instagram-Post-1.webp"
+      ],
+      "variants": [
+        {
+          "label": "Navy Blue, L",
+          "color": "Navy Blue",
+          "size": "L",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/quality_restoration_20260618231721214-scaled.webp"
+        },
+        {
+          "label": "Navy Blue, XL",
+          "color": "Navy Blue",
+          "size": "XL",
+          "price": "1220",
+          "regular_price": "1220",
+          "stock_status": "instock",
+          "image": "/products/IMG_3609-scaled.webp"
+        }
+      ]
+    },
+    {
+      "id": "891",
+      "title": "BAHGA BLOUSE (OFF WHITE)",
+      "slug": "bahga-blousebaby-blue-copy",
+      "description": "",
+      "short_description": "",
+      "price": "860",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": null,
+      "category": "Blouses",
+      "images": [
+        "/products/IMG_3512-scaled.webp",
+        "/products/IMG_3247-scaled.webp",
+        "/products/IMG_3434-scaled.webp",
+        "/products/IMG_3514.webp",
+        "/products/3.webp"
+      ],
+      "variants": [
+        {
+          "label": "Off white, XL",
+          "color": "Off white",
+          "size": "XL",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "instock",
+          "image": "/products/IMG_3514.webp"
+        },
+        {
+          "label": "Off white, M/L",
+          "color": "Off white",
+          "size": "M/L",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "instock",
+          "image": "/products/IMG_3247-scaled.webp"
+        }
+      ]
+    },
+    {
+      "id": "900",
+      "title": "Bahga Blouse(olive)",
+      "slug": "bahga-blousebaby-blue-copy-2",
+      "description": "",
+      "short_description": "",
+      "price": "860",
+      "regular_price": null,
+      "sku": null,
+      "stock_status": "instock",
+      "stock_qty": "10",
+      "category": "Blouses",
+      "images": [
+        "/products/IMG_3483-scaled.webp",
+        "/products/IMG_3375-scaled.webp",
+        "/products/IMG_3334-2.webp",
+        "/products/IMG_3413-scaled.webp",
+        "/products/3.webp"
+      ],
+      "variants": [
+        {
+          "label": "olive, XL",
+          "color": "olive",
+          "size": "XL",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "outofstock",
+          "image": null
+        },
+        {
+          "label": "olive, M/L",
+          "color": "olive",
+          "size": "M/L",
+          "price": "860",
+          "regular_price": "860",
+          "stock_status": "outofstock",
+          "image": "/products/IMG_3375-scaled.webp"
+        }
+      ]
+    }
+  ]
+}
