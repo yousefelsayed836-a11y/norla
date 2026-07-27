@@ -18,9 +18,22 @@ export default function ProductGallery({
       ? [{ url: focusUrl }, ...baseList]
       : baseList;
 
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => (list.length > 1 ? 1 : 0));
   const stripRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focusUrl || list.length <= 1) return;
+    const container = mobileRef.current;
+    const slide = container?.children[1] as HTMLElement | undefined;
+    if (container && slide) {
+      container.scrollTo({
+        left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
+        behavior: "instant",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only position the peek carousel once on mount, no animation
+  }, []);
 
   useEffect(() => {
     if (!focusUrl) return;
@@ -88,7 +101,13 @@ export default function ProductGallery({
                 key={img.url + i}
                 className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
-                <Image src={img.url} alt={title} fill className="object-cover" priority={i === 0} />
+                <Image
+                  src={img.url}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  priority={i === 0 || i === 1}
+                />
               </div>
             ))}
           </div>
