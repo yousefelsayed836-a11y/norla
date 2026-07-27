@@ -14,11 +14,25 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const { name, slug, imageUrl, position } = await req.json();
+  const { name, slug, imageUrl, position, productIds } = await req.json();
   const category = await prisma.category.update({
     where: { id },
     data: { name, slug, imageUrl: imageUrl || null, position },
   });
+
+  if (Array.isArray(productIds)) {
+    await prisma.product.updateMany({
+      where: { categoryId: id, id: { notIn: productIds } },
+      data: { categoryId: null },
+    });
+    if (productIds.length > 0) {
+      await prisma.product.updateMany({
+        where: { id: { in: productIds } },
+        data: { categoryId: id },
+      });
+    }
+  }
+
   return NextResponse.json({ category });
 }
 

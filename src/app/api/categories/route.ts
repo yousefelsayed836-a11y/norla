@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, slug, imageUrl, position } = await req.json();
+  const { name, slug, imageUrl, position, productIds } = await req.json();
   const maxPos = await prisma.category.aggregate({ _max: { position: true } });
   const category = await prisma.category.create({
     data: {
@@ -21,5 +21,13 @@ export async function POST(req: NextRequest) {
       position: position ?? (maxPos._max.position ?? -1) + 1,
     },
   });
+
+  if (Array.isArray(productIds) && productIds.length > 0) {
+    await prisma.product.updateMany({
+      where: { id: { in: productIds } },
+      data: { categoryId: category.id },
+    });
+  }
+
   return NextResponse.json({ category });
 }
