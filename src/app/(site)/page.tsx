@@ -22,7 +22,7 @@ export default async function HomePage() {
           alt="Norla Designs"
           fill
           priority
-          className="object-cover object-top md:object-[center_15%]"
+          className="object-cover object-top md:object-[center_28%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10" />
         <div className="absolute inset-x-0 bottom-10 flex justify-center">

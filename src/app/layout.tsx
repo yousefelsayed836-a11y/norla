@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Poppins, Jost } from "next/font/google";
+import { Jost } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 
-const playfair = Playfair_Display({
+const jostDisplay = Jost({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
 });
 
-const poppins = Poppins({
+const jostSans = Jost({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${poppins.variable} ${jost.variable} h-full antialiased`}
+      className={`${jostDisplay.variable} ${jostSans.variable} ${jost.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <CartProvider>{children}</CartProvider>

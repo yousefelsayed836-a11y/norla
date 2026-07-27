@@ -25,18 +25,18 @@ body {
   font-family: var(--font-sans), "Segoe UI", Arial, sans-serif;
 }
 
-@keyframes marquee {
+@keyframes marquee-single {
   from {
-    transform: translateX(0);
+    transform: translateX(100vw);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
-.animate-marquee {
-  animation: marquee 22s linear infinite;
-  width: max-content;
+.animate-marquee-single {
+  display: inline-block;
+  animation: marquee-single 20s linear infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -46,4 +46,10 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.public-site h1,
+.public-site h2,
+.public-site h3 {
+  text-transform: uppercase;
 }

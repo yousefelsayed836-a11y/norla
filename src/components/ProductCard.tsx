@@ -49,7 +49,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           {product.title}
         </h3>
         <div className="flex items-center justify-center gap-2 mt-1">
-          <span className="text-[15px] font-medium text-black">
+          <span className="text-[15px] font-medium text-brand-dark">
             {formatEGP(product.price)}
           </span>
           {onSale && (

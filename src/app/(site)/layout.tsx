@@ -8,7 +8,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const [settings, categories] = await Promise.all([getSiteSettings(), getCategories()]);
 
   return (
-    <>
+    <div className="public-site flex flex-col flex-1">
       <AnnouncementBar text={settings.announcementText} />
       <SiteHeader categories={categories.map((c) => ({ name: c.name, slug: c.slug }))} />
       <main className="flex-1">{children}</main>
@@ -17,6 +17,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         tiktokUrl={settings.tiktokUrl}
         whatsappUrl={settings.whatsappUrl}
       />
-    </>
+    </div>
   );
 }

@@ -170,7 +170,9 @@ export default function CheckoutPage() {
               <span>
                 {item.title} {item.variantLabel ? `(${item.variantLabel})` : ""} × {item.quantity}
               </span>
-              <span>{formatEGP(item.price * item.quantity)}</span>
+              <span className="text-brand-dark font-medium">
+                {formatEGP(item.price * item.quantity)}
+              </span>
             </div>
           ))}
         </div>

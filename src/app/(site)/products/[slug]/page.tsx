@@ -29,16 +29,18 @@ export default async function ProductDetailPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-16">
-      <div className="grid md:grid-cols-2 gap-12">
+      <div className="grid md:grid-cols-2 gap-6">
         <ProductGallery images={product.images} title={product.title} />
 
         <div>
           {product.category && (
-            <p className="text-xs uppercase tracking-wide text-foreground/50 mb-2">
+            <p className="text-xs uppercase tracking-wide text-foreground/50 mb-2 text-center">
               {product.category.name}
             </p>
           )}
-          <h1 className="font-display text-3xl md:text-4xl mb-2 text-black">{product.title}</h1>
+          <h1 className="font-jost text-3xl md:text-4xl mb-2 text-black text-center">
+            {product.title}
+          </h1>
           <div className="mb-4">
             <StarRating rating={product.rating} reviewCount={product.reviewCount} />
           </div>
