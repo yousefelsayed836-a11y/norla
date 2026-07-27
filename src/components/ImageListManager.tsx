@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { maybeConvertHeic } from "@/lib/heic";
 
 type Item = { id: string; url: string };
 
@@ -25,8 +26,15 @@ export default function ImageListManager({
     setError(null);
     const newItems = [...items];
     for (const file of Array.from(files)) {
+      let toUpload = file;
+      try {
+        toUpload = await maybeConvertHeic(file);
+      } catch {
+        setError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        continue;
+      }
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", toUpload);
       const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
       if (!uploadRes.ok) {
         const data = await uploadRes.json().catch(() => null);

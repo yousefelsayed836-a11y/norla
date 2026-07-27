@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { maybeConvertHeic } from "@/lib/heic";
 
 export type Variant = {
   id: string;
@@ -62,8 +63,16 @@ export default function VariantManager({
   async function handleUpload(file: File) {
     setUploading(true);
     setUploadError(null);
+    let toUpload = file;
+    try {
+      toUpload = await maybeConvertHeic(file);
+    } catch {
+      setUploadError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+      setUploading(false);
+      return;
+    }
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", toUpload);
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (res.ok) {
       const data = await res.json();

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { maybeConvertHeic } from "@/lib/heic";
 
 export default function ImageUploader({
   images,
@@ -20,8 +21,15 @@ export default function ImageUploader({
     setError(null);
     const uploaded: string[] = [];
     for (const file of Array.from(files)) {
+      let toUpload = file;
+      try {
+        toUpload = await maybeConvertHeic(file);
+      } catch {
+        setError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        continue;
+      }
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", toUpload);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
