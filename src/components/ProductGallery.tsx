@@ -37,8 +37,11 @@ export default function ProductGallery({
 
   useEffect(() => {
     if (!focusUrl) return;
-    const idx = list.findIndex((i) => i.url === focusUrl);
+    let idx = list.findIndex((i) => i.url === focusUrl);
     if (idx === -1) return;
+    // a color's image matching the very first photo carries no real preference —
+    // keep the peek-both-sides default instead of snapping back to slide 0
+    if (idx === 0 && list.length > 1) idx = 1;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing gallery to an external color selection
     setActive(idx);
     const container = mobileRef.current;
@@ -99,7 +102,7 @@ export default function ProductGallery({
             {list.map((img, i) => (
               <div
                 key={img.url + i}
-                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
+                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden rounded-2xl bg-white transition-opacity duration-300"
               >
                 <Image
                   src={img.url}
@@ -143,13 +146,13 @@ export default function ProductGallery({
             </button>
             <div
               ref={stripRef}
-              className="flex flex-col justify-center items-center gap-2 overflow-y-auto no-scrollbar max-h-[520px] min-h-[300px]"
+              className="flex flex-col justify-center items-center gap-2 overflow-y-auto no-scrollbar max-h-[520px] min-h-[300px] w-full"
             >
               {list.map((img, i) => (
                 <button
                   key={img.url + i}
                   onClick={() => setActive(i)}
-                  className={`relative w-full shrink-0 overflow-hidden border-2 transition-all duration-300 ${
+                  className={`relative w-full shrink-0 overflow-hidden rounded-lg border-2 transition-all duration-300 ${
                     i === active
                       ? "h-28 border-brand-dark"
                       : "h-24 border-transparent hover:border-brand-light"
@@ -169,7 +172,7 @@ export default function ProductGallery({
           </div>
         )}
 
-        <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden">
+        <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden rounded-2xl">
           <Image
             key={list[active].url}
             src={list[active].url}

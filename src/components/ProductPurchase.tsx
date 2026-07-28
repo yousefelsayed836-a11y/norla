@@ -77,7 +77,9 @@ export default function ProductPurchase({
         )}
 
         <div className="mt-2">
-          {careInstructions && <Accordion title="Care Instructions">{careInstructions}</Accordion>}
+          {careInstructions && (
+            <Accordion title="Washing Instructions">{careInstructions}</Accordion>
+          )}
           {returnPolicyText && (
             <Accordion title="Returns & Exchange">{returnPolicyText}</Accordion>
           )}
