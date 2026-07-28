@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/lib/slugify";
 
 type ProductOption = { id: string; title: string };
 
@@ -29,6 +30,7 @@ export default function SectionForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isNew = !initial?.id;
   const productMap = new Map(allProducts.map((p) => [p.id, p.title]));
   const available = allProducts.filter((p) => !productIds.includes(p.id));
 
@@ -92,22 +94,33 @@ export default function SectionForm({
           required
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setTitle(value);
+            if (isNew) setSlug(slugify(value));
+          }}
         />
       </div>
 
-      <div>
-        <label className="text-sm font-medium block mb-1">Slug</label>
-        <p className="text-xs text-foreground/50 mb-2">
-          Used for the section&apos;s &quot;View all&quot; page URL: /collections/{slug || "..."}
+      {isNew ? (
+        <p className="text-xs text-foreground/40">
+          View all page: <span className="font-mono">/collections/{slug || "…"}</span> (generated
+          from the title automatically)
         </p>
-        <input
-          required
-          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-        />
-      </div>
+      ) : (
+        <div>
+          <label className="text-sm font-medium block mb-1">Slug</label>
+          <p className="text-xs text-foreground/50 mb-2">
+            Used for the section&apos;s &quot;View all&quot; page URL: /collections/{slug || "..."}
+          </p>
+          <input
+            required
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+          />
+        </div>
+      )}
 
       <div>
         <label className="text-sm font-medium block mb-1">Order on Homepage</label>

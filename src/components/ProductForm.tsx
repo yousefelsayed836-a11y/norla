@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/ImageUploader";
+import { slugify } from "@/lib/slugify";
 
 type Category = { id: string; name: string };
 
@@ -56,6 +57,7 @@ export default function ProductForm({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isNew = !initial;
 
   function set<K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -120,19 +122,30 @@ export default function ProductForm({
           required
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           value={values.title}
-          onChange={(e) => set("title", e.target.value)}
+          onChange={(e) => {
+            const title = e.target.value;
+            set("title", title);
+            if (isNew) set("slug", slugify(title));
+          }}
         />
       </div>
 
-      <div>
-        <label className="text-sm font-medium block mb-1">Slug</label>
-        <input
-          required
-          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-          value={values.slug}
-          onChange={(e) => set("slug", e.target.value)}
-        />
-      </div>
+      {isNew ? (
+        <p className="text-xs text-foreground/40">
+          URL slug: <span className="font-mono">{values.slug || "…"}</span> (generated from the
+          title automatically)
+        </p>
+      ) : (
+        <div>
+          <label className="text-sm font-medium block mb-1">Slug</label>
+          <input
+            required
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={values.slug}
+            onChange={(e) => set("slug", e.target.value)}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>
