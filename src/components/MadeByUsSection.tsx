@@ -60,21 +60,21 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
         </div>
       </div>
 
-      {/* Desktop: grid */}
-      <div className="hidden md:grid grid-cols-4 gap-3">
+      {/* Desktop: centered row */}
+      <div className="hidden md:flex flex-wrap justify-center gap-4">
         {images.map((img) => (
           <button
             key={img.id}
             onClick={() => setOpenUrl(img.url)}
             aria-label="View full image"
-            className="relative aspect-[2/3] overflow-hidden bg-brand-light transition-transform duration-300 hover:scale-[1.02]"
+            className="group relative w-64 shrink-0 aspect-[2/3] overflow-hidden bg-brand-light shadow-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.06] hover:shadow-2xl hover:-translate-y-1"
           >
             <Image
               src={img.url}
               alt=""
               fill
-              className="object-cover"
-              sizes="25vw"
+              className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+              sizes="256px"
             />
           </button>
         ))}

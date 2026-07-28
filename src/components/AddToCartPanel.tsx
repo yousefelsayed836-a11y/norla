@@ -161,9 +161,9 @@ export default function AddToCartPanel({
                   key={size}
                   onClick={() => setSelectedSize(size)}
                   disabled={sizeOutOfStock}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-center text-[11px] leading-tight px-1 break-words border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                  className={`min-w-12 h-12 px-3 rounded-lg flex items-center justify-center text-center text-sm break-words border transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
                     selectedSize === size
-                      ? "bg-brand-dark text-white border-brand-dark scale-110"
+                      ? "bg-brand-dark text-white border-brand-dark"
                       : "border-brand-light text-foreground hover:border-brand-dark"
                   }`}
                 >
