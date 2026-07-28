@@ -13,7 +13,6 @@ export type ProductFormValues = {
   slug: string;
   description: string;
   shortDescription: string;
-  careInstructions: string;
   price: string;
   regularPrice: string;
   sku: string;
@@ -41,7 +40,6 @@ export default function ProductForm({
       slug: "",
       description: "",
       shortDescription: "",
-      careInstructions: "",
       price: "",
       regularPrice: "",
       sku: "",
@@ -256,16 +254,6 @@ export default function ProductForm({
           rows={4}
           value={values.description}
           onChange={(e) => set("description", e.target.value)}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium block mb-1">Care Instructions</label>
-        <textarea
-          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-          rows={5}
-          value={values.careInstructions}
-          onChange={(e) => set("careInstructions", e.target.value)}
         />
       </div>
 

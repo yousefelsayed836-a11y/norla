@@ -29,7 +29,6 @@ export default async function EditProductPage({
           slug: product.slug,
           description: product.description,
           shortDescription: product.shortDescription,
-          careInstructions: product.careInstructions,
           price: String(product.price),
           regularPrice: product.regularPrice ? String(product.regularPrice) : "",
           sku: product.sku ?? "",

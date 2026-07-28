@@ -45,7 +45,7 @@ export default async function ProductDetailPage({
         }))}
         shortDescription={product.shortDescription}
         description={product.description}
-        careInstructions={product.careInstructions}
+        careInstructions={settings.careInstructionsText}
         returnPolicyText={settings.returnPolicyText}
       />
 

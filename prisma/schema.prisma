@@ -21,6 +21,7 @@ model SiteSetting {
   tiktokUrl         String  @default("")
   whatsappUrl       String  @default("")
   returnPolicyText  String  @default("")
+  careInstructionsText String @default("")
   shippingFee       Decimal @default(0) @db.Decimal(10, 2)
   depositPercent    Int     @default(50)
   freeShippingEnabled   Boolean @default(false)

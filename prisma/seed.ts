@@ -164,6 +164,7 @@ async function main() {
       id: "singleton",
       announcementText: "Enjoy FREE shipping on all orders",
       returnPolicyText: RETURN_POLICY,
+      careInstructionsText: CARE_INSTRUCTIONS,
     },
   });
 

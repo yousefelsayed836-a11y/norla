@@ -10,6 +10,7 @@ export default function SettingsForm({
   initialTiktok,
   initialWhatsapp,
   initialReturnPolicy,
+  initialCareInstructions,
   initialShippingFee,
   initialDepositPercent,
   initialFreeShippingEnabled,
@@ -20,6 +21,7 @@ export default function SettingsForm({
   initialTiktok: string;
   initialWhatsapp: string;
   initialReturnPolicy: string;
+  initialCareInstructions: string;
   initialShippingFee: string;
   initialDepositPercent: number;
   initialFreeShippingEnabled: boolean;
@@ -31,6 +33,7 @@ export default function SettingsForm({
   const [tiktok, setTiktok] = useState(initialTiktok);
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
   const [returnPolicy, setReturnPolicy] = useState(initialReturnPolicy);
+  const [careInstructions, setCareInstructions] = useState(initialCareInstructions);
   const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(initialFreeShippingEnabled);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(initialFreeShippingThreshold);
@@ -50,6 +53,7 @@ export default function SettingsForm({
         tiktokUrl: tiktok,
         whatsappUrl: whatsapp,
         returnPolicyText: returnPolicy,
+        careInstructionsText: careInstructions,
         shippingFee: parseFloat(initialShippingFee) || 0,
         depositPercent: parseInt(depositPercent) || 0,
         freeShippingEnabled,
@@ -153,15 +157,29 @@ export default function SettingsForm({
       </div>
 
       <div>
-        <label className="text-sm font-medium block mb-1">Returns &amp; Exchange Policy</label>
+        <label className="text-sm font-medium block mb-1">Exchange Policy</label>
         <p className="text-xs text-foreground/50 mb-2">
-          Shown as a &quot;Returns &amp; Exchange&quot; section on every product page.
+          Shown as an &quot;Exchange Policy&quot; section on every product page.
         </p>
         <textarea
           rows={6}
           className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
           value={returnPolicy}
           onChange={(e) => setReturnPolicy(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Washing Instructions</label>
+        <p className="text-xs text-foreground/50 mb-2">
+          Shown as a &quot;Washing Instructions&quot; section on every product page — the same
+          text everywhere, including new products.
+        </p>
+        <textarea
+          rows={6}
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+          value={careInstructions}
+          onChange={(e) => setCareInstructions(e.target.value)}
         />
       </div>
 

@@ -81,7 +81,7 @@ export default function ProductPurchase({
             <Accordion title="Washing Instructions">{careInstructions}</Accordion>
           )}
           {returnPolicyText && (
-            <Accordion title="Returns & Exchange">{returnPolicyText}</Accordion>
+            <Accordion title="Exchange Policy">{returnPolicyText}</Accordion>
           )}
         </div>
       </div>
