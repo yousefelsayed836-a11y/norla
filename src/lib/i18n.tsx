@@ -161,6 +161,7 @@ type LanguageContextValue = {
   lang: Lang;
   setLang: (lang: Lang) => void;
   t: (key: TranslationKey) => string;
+  pick: (en: string, ar?: string | null) => string;
 };
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -185,8 +186,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return translations[lang][key] ?? translations.en[key] ?? key;
   }
 
+  function pick(en: string, ar?: string | null) {
+    return lang === "ar" && ar ? ar : en;
+  }
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, pick }}>
       <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex flex-col flex-1">
         {children}
       </div>

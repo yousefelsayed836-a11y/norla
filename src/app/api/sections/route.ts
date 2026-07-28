@@ -16,13 +16,14 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { title, slug: rawSlug, productIds } = await req.json();
+  const { title, titleAr, slug: rawSlug, productIds } = await req.json();
   const slug = await uniqueSectionSlug(rawSlug);
   const maxPos = await prisma.homeSection.aggregate({ _max: { position: true } });
 
   const section = await prisma.homeSection.create({
     data: {
       title,
+      titleAr: titleAr || null,
       slug,
       position: (maxPos._max.position ?? -1) + 1,
       products: {

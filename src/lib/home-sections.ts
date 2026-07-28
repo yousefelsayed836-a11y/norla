@@ -20,6 +20,7 @@ export async function getHomeSections() {
   return sections.map((s) => ({
     id: s.id,
     title: s.title,
+    titleAr: s.titleAr,
     slug: s.slug,
     products: s.products
       .filter((sp) => sp.product.visible && sp.product.status !== "trash")
@@ -36,6 +37,7 @@ export async function getHomeSectionBySlug(slug: string) {
   return {
     id: section.id,
     title: section.title,
+    titleAr: section.titleAr,
     slug: section.slug,
     products: section.products
       .filter((sp) => sp.product.visible && sp.product.status !== "trash")

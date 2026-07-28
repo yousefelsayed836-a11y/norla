@@ -1,21 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import ProductCard, { type ProductCardData } from "@/components/ProductCard";
 import T from "@/components/T";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HomeSectionRow({
   title,
+  titleAr,
   slug,
   products,
 }: {
   title: string;
+  titleAr?: string | null;
   slug: string;
   products: ProductCardData[];
 }) {
+  const { pick } = useLanguage();
   if (products.length === 0) return null;
 
   return (
     <section className="pt-6 text-center font-jost">
-      <h2 className="text-[31px] font-medium text-black">{title}</h2>
+      <h2 className="text-[31px] font-medium text-black">{pick(title, titleAr)}</h2>
       <Link
         href={`/collections/${slug}`}
         className="inline-block mt-3 border border-brand text-black text-xs uppercase tracking-[0.2em] px-3.5 py-2 rounded-full hover:bg-brand-light/50 transition-colors"

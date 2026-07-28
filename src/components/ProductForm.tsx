@@ -10,6 +10,7 @@ type Category = { id: string; name: string };
 export type ProductFormValues = {
   id?: string;
   title: string;
+  titleAr: string;
   slug: string;
   description: string;
   shortDescription: string;
@@ -37,6 +38,7 @@ export default function ProductForm({
   const [values, setValues] = useState<ProductFormValues>(
     initial ?? {
       title: "",
+      titleAr: "",
       slug: "",
       description: "",
       shortDescription: "",
@@ -125,6 +127,17 @@ export default function ProductForm({
             set("title", title);
             if (isNew) set("slug", slugify(title));
           }}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Title (Arabic)</label>
+        <input
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          value={values.titleAr}
+          onChange={(e) => set("titleAr", e.target.value)}
         />
       </div>
 

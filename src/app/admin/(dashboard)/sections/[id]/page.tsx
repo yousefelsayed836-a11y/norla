@@ -25,6 +25,7 @@ export default async function EditSectionPage({
         initial={{
           id: section.id,
           title: section.title,
+          titleAr: section.titleAr ?? "",
           slug: section.slug,
           position: section.position,
           productIds: section.products.map((p) => p.productId),

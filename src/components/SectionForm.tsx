@@ -9,6 +9,7 @@ type ProductOption = { id: string; title: string };
 export type SectionFormValues = {
   id?: string;
   title: string;
+  titleAr?: string;
   slug: string;
   position: number;
   productIds: string[];
@@ -23,6 +24,7 @@ export default function SectionForm({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(initial?.title ?? "");
+  const [titleAr, setTitleAr] = useState(initial?.titleAr ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [position, setPosition] = useState(initial?.position ?? 0);
   const [productIds, setProductIds] = useState<string[]>(initial?.productIds ?? []);
@@ -61,7 +63,7 @@ export default function SectionForm({
     const res = await fetch(initial?.id ? `/api/sections/${initial.id}` : "/api/sections", {
       method: initial?.id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, position, productIds }),
+      body: JSON.stringify({ title, titleAr, slug, position, productIds }),
     });
 
     setLoading(false);
@@ -99,6 +101,17 @@ export default function SectionForm({
             setTitle(value);
             if (isNew) setSlug(slugify(value));
           }}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Section Title (Arabic)</label>
+        <input
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          value={titleAr}
+          onChange={(e) => setTitleAr(e.target.value)}
         />
       </div>
 

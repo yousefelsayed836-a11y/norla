@@ -8,6 +8,7 @@ import { useLanguage } from "@/lib/i18n";
 export type ProductCardData = {
   slug: string;
   title: string;
+  titleAr?: string | null;
   price: number;
   regularPrice?: number | null;
   images: { url: string }[];
@@ -17,7 +18,8 @@ export type ProductCardData = {
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
+  const displayTitle = pick(product.title, product.titleAr);
   const primary = product.images[0]?.url || "/brand/logo.webp";
   const secondary = product.images[1]?.url;
   const onSale = product.regularPrice && product.regularPrice > product.price;
@@ -30,7 +32,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       <div className="relative aspect-[2/3] overflow-hidden bg-brand-light">
         <Image
           src={primary}
-          alt={product.title}
+          alt={displayTitle}
           fill
           className="object-cover transition-transform duration-500 md:group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
@@ -60,7 +62,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       </div>
       <div className="mt-3 text-center">
         <h3 className="text-[16px] font-medium uppercase tracking-[0.2em] text-black">
-          {product.title}
+          {displayTitle}
         </h3>
         <div className="flex items-center justify-center gap-2 mt-1">
           <span className="text-[15px] font-medium text-brand-dark">

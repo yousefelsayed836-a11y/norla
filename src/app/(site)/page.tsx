@@ -26,7 +26,13 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-6xl px-4">
         {sections.map((s) => (
-          <HomeSectionRow key={s.id} title={s.title} slug={s.slug} products={s.products} />
+          <HomeSectionRow
+            key={s.id}
+            title={s.title}
+            titleAr={s.titleAr}
+            slug={s.slug}
+            products={s.products}
+          />
         ))}
       </div>
 

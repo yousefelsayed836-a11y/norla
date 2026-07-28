@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getHomeSectionBySlug } from "@/lib/home-sections";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
+import PickText from "@/components/PickText";
 
 export default async function CollectionPage({
   params,
@@ -14,7 +15,9 @@ export default async function CollectionPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-16">
-      <h1 className="font-display text-4xl mb-8 text-center">{section.title}</h1>
+      <h1 className="font-display text-4xl mb-8 text-center">
+        <PickText en={section.title} ar={section.titleAr} />
+      </h1>
 
       {section.products.length === 0 ? (
         <p className="text-foreground/60 text-center">

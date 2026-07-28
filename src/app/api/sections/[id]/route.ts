@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const { title, slug, productIds, position } = await req.json();
+  const { title, titleAr, slug, productIds, position } = await req.json();
 
   await prisma.homeSectionProduct.deleteMany({ where: { sectionId: id } });
 
@@ -28,6 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id },
     data: {
       title,
+      titleAr: titleAr || null,
       slug,
       ...(position !== undefined ? { position } : {}),
       products: {

@@ -101,6 +101,7 @@ model Category {
 model HomeSection {
   id        String              @id @default(cuid())
   title     String
+  titleAr   String?
   slug      String              @unique
   position  Int                 @default(0)
   products  HomeSectionProduct[]
@@ -121,6 +122,7 @@ model HomeSectionProduct {
 model Product {
   id              String           @id @default(cuid())
   title           String
+  titleAr         String?
   slug            String           @unique
   description     String           @default("")
   shortDescription String          @default("")

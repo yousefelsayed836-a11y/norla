@@ -28,6 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id },
     data: {
       title: body.title,
+      titleAr: body.titleAr || null,
       slug: body.slug,
       description: body.description,
       shortDescription: body.shortDescription,

@@ -20,6 +20,7 @@ type Variant = {
 export default function ProductPurchase({
   productId,
   title,
+  titleAr,
   categoryName,
   rating,
   reviewCount,
@@ -33,6 +34,7 @@ export default function ProductPurchase({
 }: {
   productId: string;
   title: string;
+  titleAr?: string | null;
   categoryName?: string | null;
   rating: number;
   reviewCount: number;
@@ -45,11 +47,12 @@ export default function ProductPurchase({
   returnPolicyText: string;
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
+  const displayTitle = pick(title, titleAr);
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <ProductGallery images={images} title={title} focusUrl={focusUrl} />
+      <ProductGallery images={images} title={displayTitle} focusUrl={focusUrl} />
 
       <div>
         {categoryName && (
@@ -57,14 +60,14 @@ export default function ProductPurchase({
             {categoryName}
           </p>
         )}
-        <h1 className="font-jost text-3xl md:text-4xl mb-2 text-black text-center">{title}</h1>
+        <h1 className="font-jost text-3xl md:text-4xl mb-2 text-black text-center">{displayTitle}</h1>
         <div className="mb-4 flex justify-center">
           <StarRating rating={rating} reviewCount={reviewCount} />
         </div>
 
         <AddToCartPanel
           productId={productId}
-          title={title}
+          title={displayTitle}
           basePrice={basePrice}
           image={images[0]?.url}
           variants={variants}

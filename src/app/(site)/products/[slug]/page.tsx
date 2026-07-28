@@ -30,6 +30,7 @@ export default async function ProductDetailPage({
       <ProductPurchase
         productId={product.id}
         title={product.title}
+        titleAr={product.titleAr}
         categoryName={product.category?.name}
         rating={product.rating}
         reviewCount={product.reviewCount}
