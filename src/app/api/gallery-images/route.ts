@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const images = await prisma.galleryImage.findMany({ orderBy: { position: "asc" } });
@@ -16,5 +17,6 @@ export async function POST(req: NextRequest) {
   const image = await prisma.galleryImage.create({
     data: { url, position: (maxPos._max.position ?? -1) + 1 },
   });
+  revalidateStorefront();
   return NextResponse.json({ image });
 }

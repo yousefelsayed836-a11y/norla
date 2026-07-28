@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { adjustStock } from "@/lib/inventory";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -38,5 +39,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return updated;
   });
 
+  revalidateStorefront();
   return NextResponse.json({ order });
 }

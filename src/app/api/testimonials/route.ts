@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const testimonials = await prisma.testimonial.findMany({ orderBy: { position: "asc" } });
@@ -21,5 +22,6 @@ export async function POST(req: NextRequest) {
       position: position ?? (maxPos._max.position ?? -1) + 1,
     },
   });
+  revalidateStorefront();
   return NextResponse.json({ testimonial });
 }

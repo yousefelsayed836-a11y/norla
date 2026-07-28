@@ -8,8 +8,6 @@ import HeroSlider from "@/components/HeroSlider";
 import MadeByUsSection from "@/components/MadeByUsSection";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 export default async function HomePage() {
   const [categories, products, sections, testimonials, heroImages, galleryImages] =
     await Promise.all([

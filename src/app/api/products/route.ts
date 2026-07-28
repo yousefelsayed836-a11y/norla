@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { uniqueProductSlug } from "@/lib/unique-slug";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const products = await prisma.product.findMany({
@@ -39,5 +40,6 @@ export async function POST(req: NextRequest) {
     },
     include: { images: true, category: true },
   });
+  revalidateStorefront();
   return NextResponse.json({ product });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -12,6 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id },
     data: { customerName, quote, rating, position },
   });
+  revalidateStorefront();
   return NextResponse.json({ testimonial });
 }
 
@@ -21,5 +23,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params;
   await prisma.testimonial.delete({ where: { id } });
+  revalidateStorefront();
   return NextResponse.json({ ok: true });
 }

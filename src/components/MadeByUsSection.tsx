@@ -10,7 +10,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
         {images.map((img) => (
           <div
             key={img.id}
-            className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-brand-light transition-transform duration-300 hover:scale-[1.02]"
+            className="relative aspect-[2/3] overflow-hidden bg-brand-light transition-transform duration-300 hover:scale-[1.02]"
           >
             <Image
               src={img.url}

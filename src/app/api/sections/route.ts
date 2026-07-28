@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { uniqueSectionSlug } from "@/lib/unique-slug";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const sections = await prisma.homeSection.findMany({
@@ -30,5 +31,6 @@ export async function POST(req: NextRequest) {
     },
     include: { products: true },
   });
+  revalidateStorefront();
   return NextResponse.json({ section });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const categories = await prisma.category.findMany({ orderBy: { position: "asc" } });
@@ -29,5 +30,6 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  revalidateStorefront();
   return NextResponse.json({ category });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { revalidateStorefront } from "@/lib/revalidate";
 
 export async function GET() {
   const settings = await prisma.siteSetting.upsert({
@@ -42,5 +43,6 @@ export async function PUT(req: NextRequest) {
     update: data,
     create: { id: "singleton", ...data },
   });
+  revalidateStorefront();
   return NextResponse.json({ settings });
 }

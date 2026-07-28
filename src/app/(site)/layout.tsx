@@ -4,11 +4,6 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import { getSiteSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 
-// The whole public site reads live data from the admin dashboard (products,
-// sections, categories, settings) — never let Next.js freeze it as a static
-// build-time snapshot, or admin edits won't show up until the next deploy.
-export const dynamic = "force-dynamic";
-
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [settings, navLinks] = await Promise.all([
     getSiteSettings(),
