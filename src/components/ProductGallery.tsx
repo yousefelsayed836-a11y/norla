@@ -3,6 +3,15 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+function ZoomIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+
 export default function ProductGallery({
   images,
   title,
@@ -19,6 +28,7 @@ export default function ProductGallery({
       : baseList;
 
   const [active, setActive] = useState(() => (list.length > 1 ? 1 : 0));
+  const [lightbox, setLightbox] = useState(false);
   const stripRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +125,13 @@ export default function ProductGallery({
               </div>
             ))}
           </div>
+          <button
+            onClick={() => setLightbox(true)}
+            aria-label="Zoom image"
+            className="absolute bottom-4 right-[9%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
+          >
+            <ZoomIcon />
+          </button>
         </div>
 
         {list.length > 1 && (
@@ -184,6 +201,24 @@ export default function ProductGallery({
           />
         </div>
       </div>
+
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 animate-fade-in"
+          onClick={() => setLightbox(false)}
+        >
+          <button
+            onClick={() => setLightbox(false)}
+            aria-label="Close"
+            className="absolute top-5 right-5 text-white text-3xl leading-none transition-transform hover:rotate-90 duration-300"
+          >
+            ✕
+          </button>
+          <div className="relative w-full max-w-2xl aspect-[3/4]">
+            <Image src={list[active].url} alt={title} fill className="object-contain" />
+          </div>
+        </div>
+      )}
     </>
   );
 }

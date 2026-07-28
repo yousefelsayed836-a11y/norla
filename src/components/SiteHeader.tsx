@@ -200,8 +200,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             navOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between px-5 py-5 border-b border-brand-light">
-            <Image src="/brand/logo-dark.webp" alt="Norla Designs" width={110} height={19} />
+          <div className="flex items-center justify-end px-5 py-5 border-b border-brand-light">
             <button
               onClick={() => setNavOpen(false)}
               aria-label="Close menu"

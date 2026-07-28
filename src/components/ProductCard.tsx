@@ -9,12 +9,17 @@ export type ProductCardData = {
   regularPrice?: number | null;
   images: { url: string }[];
   category?: { name: string } | null;
+  stockStatus?: string;
+  variants?: { stockStatus: string }[];
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
   const primary = product.images[0]?.url || "/brand/logo.webp";
   const secondary = product.images[1]?.url;
   const onSale = product.regularPrice && product.regularPrice > product.price;
+  const outOfStock = product.variants?.length
+    ? product.variants.every((v) => v.stockStatus === "outofstock")
+    : product.stockStatus === "outofstock";
 
   return (
     <Link href={`/products/${product.slug}`} className="group block font-jost">
@@ -35,10 +40,17 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         )}
-        {onSale && (
+        {onSale && !outOfStock && (
           <span className="absolute top-3 left-3 bg-brand-dark text-white text-xs px-2 py-1 rounded-full z-10">
             Sale
           </span>
+        )}
+        {outOfStock && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+            <span className="bg-black/80 text-white text-xs uppercase tracking-[0.15em] px-3 py-1.5">
+              Out of Stock
+            </span>
+          </div>
         )}
         <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 md:group-hover:translate-y-0 group-active:translate-y-0">
           Quick view
