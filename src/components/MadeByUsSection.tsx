@@ -13,7 +13,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
     if (images.length <= 1) return;
     const timer = setInterval(() => {
       setActive((i) => (i + 1) % images.length);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(timer);
   }, [images.length]);
 
@@ -33,7 +33,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-16 pb-8 text-center font-jost">
-      <h2 className="text-lg md:text-[31px] font-medium text-black mb-8">
+      <h2 className="text-2xl md:text-[31px] font-medium text-black mb-8">
         Made By Us, Styled By You
       </h2>
 
