@@ -148,7 +148,7 @@ export default function VariantManager({
           >
             <div className="flex items-center gap-2">
               {v.imageUrl && (
-                <div className="relative w-8 h-9 rounded overflow-hidden bg-brand-light shrink-0">
+                <div className="relative w-8 h-9 overflow-hidden bg-brand-light shrink-0">
                   <Image src={v.imageUrl} alt="" fill className="object-cover" />
                 </div>
               )}
@@ -244,7 +244,7 @@ export default function VariantManager({
 
         <div className="flex items-center gap-3">
           {draft.imageUrl && (
-            <div className="relative w-12 h-14 rounded-lg overflow-hidden bg-brand-light shrink-0">
+            <div className="relative w-12 h-14 overflow-hidden bg-brand-light shrink-0">
               <Image src={draft.imageUrl} alt="" fill className="object-cover" />
             </div>
           )}

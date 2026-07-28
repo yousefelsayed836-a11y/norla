@@ -102,7 +102,7 @@ export default function ProductGallery({
             {list.map((img, i) => (
               <div
                 key={img.url + i}
-                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden rounded-2xl bg-white transition-opacity duration-300"
+                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
                 <Image
                   src={img.url}
@@ -152,7 +152,7 @@ export default function ProductGallery({
                 <button
                   key={img.url + i}
                   onClick={() => setActive(i)}
-                  className={`relative w-full shrink-0 overflow-hidden rounded-lg border-2 transition-all duration-300 ${
+                  className={`relative w-full shrink-0 overflow-hidden border-2 transition-all duration-300 ${
                     i === active
                       ? "h-28 border-brand-dark"
                       : "h-24 border-transparent hover:border-brand-light"
@@ -172,7 +172,7 @@ export default function ProductGallery({
           </div>
         )}
 
-        <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden rounded-2xl">
+        <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden">
           <Image
             key={list[active].url}
             src={list[active].url}

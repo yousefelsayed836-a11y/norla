@@ -32,7 +32,7 @@ export default function CartPage() {
             key={`${item.productId}-${item.variantId}`}
             className="flex gap-4 items-center border-b border-brand-light pb-4"
           >
-            <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-brand-light shrink-0">
+            <div className="relative w-20 h-24 overflow-hidden bg-brand-light shrink-0">
               {item.image && (
                 <Image
                   src={item.image}

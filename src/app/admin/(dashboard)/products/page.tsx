@@ -37,7 +37,7 @@ export default async function AdminProductsPage() {
             {products.map((p) => (
               <tr key={p.id} className="border-b border-brand-light/40 last:border-0">
                 <td className="p-4 flex items-center gap-3">
-                  <div className="relative w-10 h-12 rounded-md overflow-hidden bg-brand-light shrink-0">
+                  <div className="relative w-10 h-12 overflow-hidden bg-brand-light shrink-0">
                     {p.images[0] && (
                       <Image src={p.images[0].url} alt="" fill className="object-cover" />
                     )}

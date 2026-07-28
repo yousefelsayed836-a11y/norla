@@ -52,7 +52,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               {items.map((item) => (
                 <div key={`${item.productId}-${item.variantId}`} className="flex gap-3 items-center">
-                  <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-brand-light shrink-0">
+                  <div className="relative w-16 h-20 overflow-hidden bg-brand-light shrink-0">
                     {item.image && (
                       <Image
                         src={item.image}

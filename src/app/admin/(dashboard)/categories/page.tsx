@@ -36,7 +36,7 @@ export default async function AdminCategoriesPage() {
               <tr key={c.id} className="border-b border-brand-light/40 last:border-0">
                 <td className="p-4">{c.position}</td>
                 <td className="p-4">
-                  <div className="relative w-12 h-14 rounded-md overflow-hidden bg-brand-light">
+                  <div className="relative w-12 h-14 overflow-hidden bg-brand-light">
                     {c.imageUrl && <Image src={c.imageUrl} alt="" fill className="object-cover" />}
                   </div>
                 </td>

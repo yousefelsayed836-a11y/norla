@@ -82,7 +82,7 @@ export default function ImageListManager({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
           {items.map((item, i) => (
             <div key={item.id} className="relative group">
-              <div className={`relative ${aspect} rounded-xl overflow-hidden bg-brand-light`}>
+              <div className={`relative ${aspect} overflow-hidden bg-brand-light`}>
                 <Image src={item.url} alt="" fill className="object-cover" />
               </div>
               <div className="absolute inset-x-0 bottom-0 flex justify-center gap-2 p-1.5 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl">
