@@ -11,7 +11,11 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
   useEffect(() => {
     if (list.length <= 1) return;
     const timer = setInterval(() => {
-      setActive((i) => (i + 1) % list.length);
+      setActive((i) => {
+        let next = Math.floor(Math.random() * list.length);
+        while (next === i) next = Math.floor(Math.random() * list.length);
+        return next;
+      });
     }, 5000);
     return () => clearInterval(timer);
   }, [list.length]);
@@ -24,7 +28,8 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
           src={img.url}
           alt="Norla Designs"
           fill
-          priority={i === 0}
+          priority
+          sizes="100vw"
           className={`object-cover object-top md:object-[center_28%] transition-opacity duration-1000 ${
             i === active ? "opacity-100" : "opacity-0"
           }`}

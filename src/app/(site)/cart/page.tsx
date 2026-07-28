@@ -34,7 +34,13 @@ export default function CartPage() {
           >
             <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-brand-light shrink-0">
               {item.image && (
-                <Image src={item.image} alt={item.title} fill className="object-cover" />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
               )}
             </div>
             <div className="flex-1">

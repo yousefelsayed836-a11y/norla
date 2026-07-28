@@ -107,6 +107,7 @@ export default function ProductGallery({
                   fill
                   className="object-cover"
                   priority={i === 0 || i === 1}
+                  sizes="86vw"
                 />
               </div>
             ))}
@@ -154,7 +155,7 @@ export default function ProductGallery({
                       : "h-24 border-transparent hover:border-brand-light"
                   }`}
                 >
-                  <Image src={img.url} alt="" fill className="object-cover" />
+                  <Image src={img.url} alt="" fill className="object-cover" sizes="80px" />
                 </button>
               ))}
             </div>
@@ -176,6 +177,7 @@ export default function ProductGallery({
             fill
             className="object-cover animate-fade-in"
             priority
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
       </div>

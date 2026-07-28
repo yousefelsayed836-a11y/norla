@@ -49,6 +49,7 @@ export default async function HomePage() {
                     alt={c.name}
                     fill
                     className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                    sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 )}
                 <div className="absolute inset-0 bg-black/35 flex items-center justify-center">

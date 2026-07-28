@@ -54,7 +54,13 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                 <div key={`${item.productId}-${item.variantId}`} className="flex gap-3 items-center">
                   <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-brand-light shrink-0">
                     {item.image && (
-                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
