@@ -114,7 +114,7 @@ export default function AddToCartPanel({
                     onClick={() => setSelectedColor(color)}
                     disabled={colorOutOfStock}
                     title={color}
-                    className={`w-14 h-14 rounded-full border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                    className={`w-12 h-12 rounded-full border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
                       selectedColor === color ? "border-brand-dark scale-110" : "border-transparent"
                     }`}
                   >
@@ -161,7 +161,7 @@ export default function AddToCartPanel({
                   key={size}
                   onClick={() => setSelectedSize(size)}
                   disabled={sizeOutOfStock}
-                  className={`w-14 h-14 rounded-full flex items-center justify-center text-center text-[11px] leading-tight px-1 break-words border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-center text-[11px] leading-tight px-1 break-words border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
                     selectedSize === size
                       ? "bg-brand-dark text-white border-brand-dark scale-110"
                       : "border-brand-light text-foreground hover:border-brand-dark"

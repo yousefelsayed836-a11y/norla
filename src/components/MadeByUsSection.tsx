@@ -32,8 +32,8 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
   if (images.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-16 pb-8 text-center font-jost">
-      <h2 className="text-[26px] tracking-tight md:text-[31px] md:tracking-normal font-medium text-black mb-8">
+    <section className="mx-auto max-w-6xl px-4 pt-6 pb-8 text-center font-jost">
+      <h2 className="-mx-4 text-[28px] tracking-tight md:mx-0 md:text-[31px] md:tracking-normal font-medium text-black mb-8">
         Made By Us, Styled By You
       </h2>
 
