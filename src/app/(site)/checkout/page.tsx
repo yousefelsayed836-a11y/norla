@@ -170,7 +170,7 @@ export default function CheckoutPage() {
               <span>
                 {item.title} {item.variantLabel ? `(${item.variantLabel})` : ""} × {item.quantity}
               </span>
-              <span className="text-brand-dark font-medium">
+              <span className="text-black font-medium">
                 {formatEGP(item.price * item.quantity)}
               </span>
             </div>
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
           </div>
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
             <span>Total</span>
-            <span className="text-brand-dark">{formatEGP(grandTotal)}</span>
+            <span className="text-black">{formatEGP(grandTotal)}</span>
           </div>
           <div className="flex justify-between font-semibold text-brand-dark bg-brand-light/40 rounded-lg px-3 py-2 mt-2">
             <span>Deposit due now ({depositPercent}%)</span>

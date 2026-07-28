@@ -46,11 +46,9 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </span>
         )}
         {outOfStock && (
-          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
-            <span className="bg-black/80 text-white text-xs uppercase tracking-[0.15em] px-3 py-1.5">
-              Out of Stock
-            </span>
-          </div>
+          <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-full z-10">
+            Out of Stock
+          </span>
         )}
         <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 md:group-hover:translate-y-0 group-active:translate-y-0">
           Quick view
