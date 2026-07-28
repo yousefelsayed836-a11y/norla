@@ -25,7 +25,11 @@ export async function POST(req: NextRequest) {
 
   let outputBuffer: Buffer;
   try {
-    outputBuffer = await sharp(inputBuffer).rotate().webp({ quality: 88 }).toBuffer();
+    outputBuffer = await sharp(inputBuffer)
+      .rotate()
+      .resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
   } catch {
     return NextResponse.json(
       { error: "Couldn't read this image. Try a JPG, PNG, or WebP photo." },

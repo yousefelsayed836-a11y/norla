@@ -16,7 +16,7 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
         while (next === i) next = Math.floor(Math.random() * list.length);
         return next;
       });
-    }, 5000);
+    }, 10000);
     return () => clearInterval(timer);
   }, [list.length]);
 

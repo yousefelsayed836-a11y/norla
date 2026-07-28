@@ -149,7 +149,7 @@ export default function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium block mb-1">Price (EGP)</label>
+          <label className="text-sm font-medium block mb-1">Price (LE)</label>
           <input
             required
             type="number"

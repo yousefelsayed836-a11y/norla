@@ -81,16 +81,16 @@ export default function ImageListManager({
       {items.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
           {items.map((item, i) => (
-            <div key={item.id} className="relative group">
+            <div key={item.id} className="relative">
               <div className={`relative ${aspect} overflow-hidden bg-brand-light`}>
                 <Image src={item.url} alt="" fill className="object-cover" />
               </div>
-              <div className="absolute inset-x-0 bottom-0 flex justify-center gap-2 p-1.5 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl">
+              <div className="flex justify-center gap-2 p-1.5 bg-brand-light/50 rounded-b-xl">
                 <button
                   type="button"
                   onClick={() => move(i, -1)}
                   disabled={i === 0}
-                  className="text-white text-xs px-1 disabled:opacity-30"
+                  className="text-foreground/70 text-xs px-2 py-1 disabled:opacity-30"
                 >
                   ↑
                 </button>
@@ -98,14 +98,14 @@ export default function ImageListManager({
                   type="button"
                   onClick={() => move(i, 1)}
                   disabled={i === items.length - 1}
-                  className="text-white text-xs px-1 disabled:opacity-30"
+                  className="text-foreground/70 text-xs px-2 py-1 disabled:opacity-30"
                 >
                   ↓
                 </button>
                 <button
                   type="button"
                   onClick={() => remove(item.id)}
-                  className="text-white text-xs px-1"
+                  className="text-red-500 text-xs px-2 py-1"
                 >
                   ✕
                 </button>

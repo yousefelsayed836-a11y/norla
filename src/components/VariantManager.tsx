@@ -159,7 +159,7 @@ export default function VariantManager({
                 />
               )}
               <span>{v.label}</span>
-              {v.price && <span className="text-foreground/40">— {v.price} EGP</span>}
+              {v.price && <span className="text-foreground/40">— {v.price} LE</span>}
               {v.stockQty != null && (
                 <span className="text-foreground/40">— stock: {v.stockQty}</span>
               )}

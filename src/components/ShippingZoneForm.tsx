@@ -54,7 +54,7 @@ export default function ShippingZoneForm({
       </div>
 
       <div>
-        <label className="text-sm font-medium block mb-1">Shipping Fee (EGP)</label>
+        <label className="text-sm font-medium block mb-1">Shipping Fee (LE)</label>
         <input
           type="number"
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"

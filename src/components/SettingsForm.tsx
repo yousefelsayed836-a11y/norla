@@ -90,7 +90,7 @@ export default function SettingsForm({
         {freeShippingEnabled && (
           <div>
             <label className="text-xs text-foreground/50 block mb-1">
-              Order value threshold (EGP)
+              Order value threshold (LE)
             </label>
             <input
               type="number"
