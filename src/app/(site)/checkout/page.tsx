@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n";
 
 type ShippingCity = { id: string; name: string };
 type ShippingZone = { id: string; governorate: string; fee: string; active: boolean; cities: ShippingCity[] };
@@ -11,6 +12,7 @@ type ShippingZone = { id: string; governorate: string; fee: string; active: bool
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const router = useRouter();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -54,7 +56,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     setError(null);
     if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate || !form.city) {
-      setError("Please fill in your name, phone, WhatsApp number, governorate, city and address.");
+      setError(t("checkout.fillRequired"));
       return;
     }
     setLoading(true);
@@ -68,7 +70,7 @@ export default function CheckoutPage() {
       clear();
       router.push("/order-confirmed");
     } catch {
-      setError("Something went wrong placing your order. Please try again.");
+      setError(t("checkout.orderError"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 pt-[9rem] pb-24 text-center">
-        <h1 className="font-display text-3xl">Your cart is empty</h1>
+        <h1 className="font-display text-3xl">{t("checkout.cartEmpty")}</h1>
       </div>
     );
   }
@@ -85,28 +87,28 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] pb-10 grid md:grid-cols-2 gap-12">
       <div>
-        <h1 className="font-display text-3xl mb-6">Checkout</h1>
+        <h1 className="font-display text-3xl mb-6">{t("checkout.title")}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            placeholder="Full name"
+            placeholder={t("checkout.fullName")}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
           <input
-            placeholder="Phone number"
+            placeholder={t("checkout.phone")}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
           <input
-            placeholder="WhatsApp number (to confirm your order)"
+            placeholder={t("checkout.whatsapp")}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.whatsappNumber}
             onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
           />
           <input
-            placeholder="Email (optional)"
+            placeholder={t("checkout.email")}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -117,7 +119,7 @@ export default function CheckoutPage() {
               value={form.governorate}
               onChange={(e) => setForm({ ...form, governorate: e.target.value, city: "" })}
             >
-              <option value="">Governorate</option>
+              <option value="">{t("checkout.governorate")}</option>
               {zones.map((z) => (
                 <option key={z.id} value={z.governorate}>
                   {z.governorate}
@@ -130,7 +132,7 @@ export default function CheckoutPage() {
               disabled={!selectedZone}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
             >
-              <option value="">City</option>
+              <option value="">{t("checkout.city")}</option>
               {cities.map((c) => (
                 <option key={c.id} value={c.name}>
                   {c.name}
@@ -139,7 +141,7 @@ export default function CheckoutPage() {
             </select>
           </div>
           <textarea
-            placeholder="Delivery address (street, building, apartment)"
+            placeholder={t("checkout.address")}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             rows={3}
             value={form.address}
@@ -150,17 +152,14 @@ export default function CheckoutPage() {
             disabled={loading}
             className="w-full bg-brand-dark text-white py-4 rounded-full font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? "Placing order..." : `Place Order — ${formatEGP(grandTotal)}`}
+            {loading ? t("checkout.placingOrder") : `${t("checkout.placeOrder")} — ${formatEGP(grandTotal)}`}
           </button>
-          <p className="text-xs text-foreground/50 text-center">
-            We&apos;ll contact you on WhatsApp so you can send the {depositPercent}% deposit via
-            Instagram payment or cash. The rest is paid on delivery.
-          </p>
+          <p className="text-xs text-foreground/50 text-center">{t("checkout.depositNote")}</p>
         </form>
       </div>
 
       <div>
-        <h2 className="font-display text-2xl mb-4">Order Summary</h2>
+        <h2 className="font-display text-2xl mb-4">{t("checkout.orderSummary")}</h2>
         <div className="space-y-3">
           {items.map((item) => (
             <div
@@ -178,31 +177,33 @@ export default function CheckoutPage() {
         </div>
         <div className="mt-4 pt-4 border-t border-brand-light space-y-2 text-sm">
           <div className="flex justify-between text-foreground/70">
-            <span>Subtotal</span>
+            <span>{t("checkout.subtotal")}</span>
             <span>{formatEGP(total)}</span>
           </div>
           <div className="flex justify-between text-foreground/70">
-            <span>Shipping{selectedZone ? ` (${selectedZone.governorate})` : ""}</span>
+            <span>
+              {t("checkout.shipping")}
+              {selectedZone ? ` (${selectedZone.governorate})` : ""}
+            </span>
             <span>
               {!selectedZone
-                ? "Select governorate"
+                ? t("checkout.selectGovernorate")
                 : shippingFee === 0
-                  ? "Free"
+                  ? t("checkout.free")
                   : formatEGP(shippingFee)}
             </span>
           </div>
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
-            <span>Total</span>
+            <span>{t("checkout.total")}</span>
             <span className="text-brand-dark">{formatEGP(grandTotal)}</span>
           </div>
           <div className="flex justify-between font-semibold text-brand-dark bg-brand-light/40 rounded-lg px-3 py-2 mt-2">
-            <span>Deposit due now ({depositPercent}%)</span>
+            <span>
+              {t("checkout.depositDueNow")} ({depositPercent}%)
+            </span>
             <span>{formatEGP(deposit)}</span>
           </div>
-          <p className="text-xs text-foreground/50">
-            We&apos;ll message you on WhatsApp to arrange the deposit payment via Instagram or
-            cash. The remaining balance is paid on delivery.
-          </p>
+          <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
         </div>
       </div>
     </div>

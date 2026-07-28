@@ -3,6 +3,7 @@ import { getProductBySlug, getProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/settings";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductCard from "@/components/ProductCard";
+import T from "@/components/T";
 
 export default async function ProductDetailPage({
   params,
@@ -51,7 +52,9 @@ export default async function ProductDetailPage({
 
       {fallbackRelated.length > 0 && (
         <section className="mt-20 pt-12 border-t border-brand-light text-center font-jost">
-          <h2 className="text-[31px] font-medium text-black mb-8">You May Also Like</h2>
+          <h2 className="text-[31px] font-medium text-black mb-8">
+            <T k="home.youMayAlsoLike" />
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-8 text-left">
             {fallbackRelated.map((p) => (
               <ProductCard key={p.id} product={p} />

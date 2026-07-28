@@ -5,6 +5,7 @@ import ProductGallery from "@/components/ProductGallery";
 import AddToCartPanel from "@/components/AddToCartPanel";
 import StarRating from "@/components/StarRating";
 import Accordion from "@/components/Accordion";
+import { useLanguage } from "@/lib/i18n";
 
 type Variant = {
   id: string;
@@ -44,6 +45,7 @@ export default function ProductPurchase({
   returnPolicyText: string;
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
@@ -78,10 +80,10 @@ export default function ProductPurchase({
 
         <div className="mt-2">
           {careInstructions && (
-            <Accordion title="Washing Instructions">{careInstructions}</Accordion>
+            <Accordion title={t("product.washingInstructions")}>{careInstructions}</Accordion>
           )}
           {returnPolicyText && (
-            <Accordion title="Exchange Policy">{returnPolicyText}</Accordion>
+            <Accordion title={t("product.exchangePolicy")}>{returnPolicyText}</Accordion>
           )}
         </div>
       </div>

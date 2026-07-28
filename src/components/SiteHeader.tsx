@@ -6,11 +6,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
+import { useLanguage } from "@/lib/i18n";
 
 type NavLinkItem = { label: string; href: string };
 
 export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
   const { count } = useCart();
+  const { lang, setLang, t } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
@@ -71,7 +73,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             <button
               className="p-1 transition-transform active:scale-90"
               onClick={() => setNavOpen(true)}
-              aria-label="Menu"
+              aria-label={t("nav.menu")}
             >
               <svg
                 width="24"
@@ -104,7 +106,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             <button
               onClick={() => setSearchOpen((v) => !v)}
               className="p-1.5 transition-transform active:scale-90"
-              aria-label="Search"
+              aria-label={t("nav.search")}
             >
               <svg
                 width="21"
@@ -123,7 +125,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-1.5 transition-transform active:scale-90"
-              aria-label="Cart"
+              aria-label={t("nav.cart")}
             >
               <svg
                 width="23"
@@ -176,7 +178,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products..."
+              placeholder={t("nav.searchPlaceholder")}
               className="flex-1 mt-4 bg-transparent outline-none text-sm py-1 border-b border-transparent focus:border-brand-dark transition-colors"
             />
           </form>
@@ -203,7 +205,7 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
           <div className="flex items-center justify-end px-5 py-5 border-b border-brand-light">
             <button
               onClick={() => setNavOpen(false)}
-              aria-label="Close menu"
+              aria-label={t("nav.closeMenu")}
               className="text-2xl leading-none text-foreground/60 transition-transform hover:rotate-90 duration-300"
             >
               ✕
@@ -220,6 +222,33 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
               </Link>
             ))}
           </nav>
+          <div className="px-5 py-4 border-t border-brand-light">
+            <p className="text-xs font-medium uppercase tracking-[0.15em] text-foreground/50 mb-2">
+              {t("nav.language")}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setLang("en")}
+                className={`flex-1 py-2 rounded-full text-sm font-medium border transition-colors duration-200 ${
+                  lang === "en"
+                    ? "bg-brand-dark text-white border-brand-dark"
+                    : "border-brand-light hover:border-brand-dark"
+                }`}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setLang("ar")}
+                className={`flex-1 py-2 rounded-full text-sm font-medium border transition-colors duration-200 ${
+                  lang === "ar"
+                    ? "bg-brand-dark text-white border-brand-dark"
+                    : "border-brand-light hover:border-brand-dark"
+                }`}
+              >
+                العربية
+              </button>
+            </div>
+          </div>
         </aside>
       </div>
 

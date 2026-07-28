@@ -4,19 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
+  const { t } = useLanguage();
 
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 pt-[9rem] pb-24 text-center">
-        <h1 className="font-display text-3xl mb-4">Your cart is empty</h1>
+        <h1 className="font-display text-3xl mb-4">{t("cart.empty")}</h1>
         <Link
           href="/products"
           className="inline-block bg-brand-dark text-white px-8 py-3 rounded-full font-medium"
         >
-          Start Shopping
+          {t("cart.startShopping")}
         </Link>
       </div>
     );
@@ -24,7 +26,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] pb-10">
-      <h1 className="font-display text-4xl mb-8">Your Cart</h1>
+      <h1 className="font-display text-4xl mb-8">{t("cart.title")}</h1>
 
       <div className="space-y-4">
         {items.map((item) => (
@@ -71,14 +73,14 @@ export default function CartPage() {
               onClick={() => removeItem(item.productId, item.variantId)}
               className="text-sm text-foreground/50 hover:text-brand-dark"
             >
-              Remove
+              {t("cart.remove")}
             </button>
           </div>
         ))}
       </div>
 
       <div className="mt-8 flex items-center justify-between">
-        <span className="font-display text-2xl">Total</span>
+        <span className="font-display text-2xl">{t("cart.total")}</span>
         <span className="font-display text-2xl text-brand-dark">{formatEGP(total)}</span>
       </div>
 
@@ -86,7 +88,7 @@ export default function CartPage() {
         href="/checkout"
         className="mt-6 block text-center bg-brand-dark text-white py-4 rounded-full font-medium hover:opacity-90 transition-opacity"
       >
-        Proceed to Checkout
+        {t("cart.proceedToCheckout")}
       </Link>
     </div>
   );

@@ -6,6 +6,7 @@ import HomeSectionRow from "@/components/HomeSectionRow";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import HeroSlider from "@/components/HeroSlider";
 import MadeByUsSection from "@/components/MadeByUsSection";
+import T from "@/components/T";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
@@ -30,7 +31,9 @@ export default async function HomePage() {
       </div>
 
       <section className="mx-auto max-w-6xl px-4 pt-16 pb-8 font-jost">
-        <h2 className="text-[31px] font-medium text-black text-center mb-8">Shop by Category</h2>
+        <h2 className="text-[31px] font-medium text-black text-center mb-8">
+          <T k="home.shopByCategory" />
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {categories.map((c) => {
             const rep = products.find((p) => p.category?.name === c.name);

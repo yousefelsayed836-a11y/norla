@@ -1,5 +1,6 @@
 import { getCategories, getProducts } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
+import T from "@/components/T";
 
 export default async function ProductsPage({
   searchParams,
@@ -11,14 +12,18 @@ export default async function ProductsPage({
     getProducts({ categorySlug: category, search }),
     category ? getCategories() : Promise.resolve([]),
   ]);
-  const heading = categories.find((c) => c.slug === category)?.name ?? "Products";
+  const heading = categories.find((c) => c.slug === category)?.name;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-10">
-      <h1 className="font-jost text-4xl mb-8 text-center">{heading}</h1>
+      <h1 className="font-jost text-4xl mb-8 text-center">
+        {heading || <T k="products.title" />}
+      </h1>
 
       {products.length === 0 ? (
-        <p className="text-foreground/60">No products found in this category yet.</p>
+        <p className="text-foreground/60">
+          <T k="products.none" />
+        </p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {products.map((p) => (

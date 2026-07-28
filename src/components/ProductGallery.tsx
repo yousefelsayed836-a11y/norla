@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 function ZoomIcon() {
   return (
@@ -21,6 +22,7 @@ export default function ProductGallery({
   title: string;
   focusUrl?: string | null;
 }) {
+  const { t } = useLanguage();
   const baseList = images.length ? images : [{ url: "/brand/logo.webp" }];
   const list =
     focusUrl && !baseList.some((i) => i.url === focusUrl)
@@ -127,7 +129,7 @@ export default function ProductGallery({
           </div>
           <button
             onClick={() => setLightbox(true)}
-            aria-label="Zoom image"
+            aria-label={t("gallery.zoomImage")}
             className="absolute bottom-4 right-[9%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
           >
             <ZoomIcon />
@@ -140,7 +142,7 @@ export default function ProductGallery({
               <button
                 key={i}
                 onClick={() => goToMobileSlide(i)}
-                aria-label={`Go to image ${i + 1}`}
+                aria-label={`${t("gallery.goToImage")} ${i + 1}`}
                 className={`rounded-full transition-all duration-300 ${
                   i === active ? "w-2.5 h-2.5 bg-brand-dark" : "w-1.5 h-1.5 bg-brand-light"
                 }`}
@@ -157,7 +159,7 @@ export default function ProductGallery({
             <button
               onClick={() => scrollStrip(-1)}
               className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
-              aria-label="Scroll up"
+              aria-label={t("gallery.scrollUp")}
             >
               ▲
             </button>
@@ -182,7 +184,7 @@ export default function ProductGallery({
             <button
               onClick={() => scrollStrip(1)}
               className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
-              aria-label="Scroll down"
+              aria-label={t("gallery.scrollDown")}
             >
               ▼
             </button>
@@ -209,7 +211,7 @@ export default function ProductGallery({
         >
           <button
             onClick={() => setLightbox(false)}
-            aria-label="Close"
+            aria-label={t("gallery.close")}
             className="absolute top-5 right-5 text-white text-3xl leading-none transition-transform hover:rotate-90 duration-300"
           >
             ✕

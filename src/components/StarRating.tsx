@@ -1,3 +1,7 @@
+"use client";
+
+import { useLanguage } from "@/lib/i18n";
+
 export default function StarRating({
   rating,
   reviewCount,
@@ -5,6 +9,7 @@ export default function StarRating({
   rating: number;
   reviewCount: number;
 }) {
+  const { t } = useLanguage();
   if (reviewCount <= 0) return null;
   const full = Math.round(rating);
 
@@ -15,7 +20,7 @@ export default function StarRating({
         <span className="text-brand-light">{"★".repeat(5 - full)}</span>
       </span>
       <span className="text-sm text-foreground/50">
-        {reviewCount} review{reviewCount === 1 ? "" : "s"}
+        {reviewCount} {t("product.reviews")}
       </span>
     </div>
   );

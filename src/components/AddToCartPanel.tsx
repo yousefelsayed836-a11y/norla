@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n";
 
 type Variant = {
   id: string;
@@ -32,6 +33,7 @@ export default function AddToCartPanel({
 }) {
   const { addItem } = useCart();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[];
   const [selectedColor, setSelectedColor] = useState<string | undefined>(colors[0]);
@@ -99,7 +101,7 @@ export default function AddToCartPanel({
       {colors.length > 0 && (
         <div className="mb-6">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-foreground/50 mb-2">
-            Color — {selectedColor}
+            {t("product.color")} — {selectedColor}
           </p>
           {hasSwatches ? (
             <div className="flex flex-wrap justify-center gap-2">
@@ -149,7 +151,7 @@ export default function AddToCartPanel({
       {sizesForColor.length > 0 && (
         <div className="mb-6">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-foreground/50 mb-2">
-            Size — {selectedSize}
+            {t("product.size")} — {selectedSize}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {sizesForColor.map((size) => {
@@ -177,7 +179,7 @@ export default function AddToCartPanel({
 
       <div className="flex items-center justify-center gap-2 mb-6 text-sm">
         <span className={`w-2 h-2 rounded-full ${outOfStock ? "bg-red-500" : "bg-green-500"}`} />
-        {outOfStock ? "Out of stock" : "In stock, ready to ship"}
+        {outOfStock ? t("product.outOfStockLabel") : t("product.inStockReady")}
       </div>
 
       <div className="flex items-center justify-center gap-4 mb-6">
@@ -204,7 +206,7 @@ export default function AddToCartPanel({
           disabled={outOfStock}
           className="border border-brand-dark text-brand-dark py-3.5 rounded-full font-medium uppercase tracking-[0.1em] text-sm hover:bg-brand-light disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
         >
-          {outOfStock ? "Out of stock" : added ? "Added ✓" : "Add to Cart"}
+          {outOfStock ? t("product.outOfStockLabel") : added ? `${t("product.added")} ✓` : t("product.addToCart")}
         </button>
         <button
           onClick={() => {
@@ -214,7 +216,7 @@ export default function AddToCartPanel({
           disabled={outOfStock}
           className="bg-brand-dark text-white py-3.5 rounded-full font-medium uppercase tracking-[0.1em] text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
         >
-          Buy It Now
+          {t("product.buyItNow")}
         </button>
       </div>
     </div>

@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { formatEGP } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n";
 
 export type ProductCardData = {
   slug: string;
@@ -14,6 +17,7 @@ export type ProductCardData = {
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
+  const { t } = useLanguage();
   const primary = product.images[0]?.url || "/brand/logo.webp";
   const secondary = product.images[1]?.url;
   const onSale = product.regularPrice && product.regularPrice > product.price;
@@ -42,16 +46,16 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         )}
         {onSale && !outOfStock && (
           <span className="absolute top-3 left-3 bg-brand-dark text-white text-xs px-2 py-1 rounded-full z-10">
-            Sale
+            {t("product.sale")}
           </span>
         )}
         {outOfStock && (
           <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-full z-10">
-            Out of Stock
+            {t("product.outOfStock")}
           </span>
         )}
         <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 md:group-hover:translate-y-0 group-active:translate-y-0">
-          Quick view
+          {t("product.quickView")}
         </span>
       </div>
       <div className="mt-3 text-center">

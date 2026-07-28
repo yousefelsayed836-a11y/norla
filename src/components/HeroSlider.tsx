@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HeroSlider({ images }: { images: { id: string; url: string }[] }) {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
   const list = images.length ? images : [{ id: "fallback", url: "/brand/hero.webp" }];
 
@@ -41,7 +43,7 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
           href="/products"
           className="border border-white/80 text-white bg-white/10 backdrop-blur-sm px-10 py-3.5 rounded-full font-medium tracking-wide hover:bg-white/25 transition-all hover:scale-105 active:scale-95"
         >
-          Shop Now
+          {t("hero.shopNow")}
         </Link>
       </div>
       {list.length > 1 && (
@@ -50,7 +52,7 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
             <button
               key={img.id}
               onClick={() => setActive(i)}
-              aria-label={`Show slide ${i + 1}`}
+              aria-label={`${t("gallery.goToImage")} ${i + 1}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === active ? "w-6 bg-white" : "w-1.5 bg-white/50"
               }`}

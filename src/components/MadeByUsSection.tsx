@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MadeByUsSection({ images }: { images: { id: string; url: string }[] }) {
+  const { t } = useLanguage();
   const [openUrl, setOpenUrl] = useState<string | null>(null);
   const [active, setActive] = useState(() => (images.length > 1 ? 1 : 0));
   const mobileRef = useRef<HTMLDivElement>(null);
@@ -34,7 +36,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
   return (
     <section className="mx-auto max-w-6xl px-4 pt-6 pb-8 text-center font-jost">
       <h2 className="-mx-4 text-[28px] tracking-tight md:mx-0 md:text-[31px] md:tracking-normal font-medium text-black mb-8">
-        Made By Us, Styled By You
+        {t("home.madeByUs")}
       </h2>
 
       {/* Mobile: peek carousel */}
@@ -49,7 +51,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
             <button
               key={img.id}
               onClick={() => setOpenUrl(img.url)}
-              aria-label="View full image"
+              aria-label={t("gallery.viewFullImage")}
               className={`relative shrink-0 aspect-[2/3] snap-center overflow-hidden bg-brand-light ${
                 images.length > 1 ? "w-[86%]" : "w-full"
               }`}
@@ -66,7 +68,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
           <button
             key={img.id}
             onClick={() => setOpenUrl(img.url)}
-            aria-label="View full image"
+            aria-label={t("gallery.viewFullImage")}
             className="group relative w-64 shrink-0 aspect-[2/3] overflow-hidden bg-brand-light shadow-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.06] hover:shadow-2xl hover:-translate-y-1"
           >
             <Image
@@ -87,7 +89,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
         >
           <button
             onClick={() => setOpenUrl(null)}
-            aria-label="Close"
+            aria-label={t("gallery.close")}
             className="absolute top-5 right-5 text-white text-3xl leading-none transition-transform hover:rotate-90 duration-300"
           >
             ✕
