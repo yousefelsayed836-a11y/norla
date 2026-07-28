@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductCard, { type ProductCardData } from "@/components/ProductCard";
+import T from "@/components/T";
 
 export default function HomeSectionRow({
   title,
@@ -19,7 +20,7 @@ export default function HomeSectionRow({
         href={`/collections/${slug}`}
         className="inline-block mt-3 border border-brand text-black text-xs uppercase tracking-[0.2em] px-3.5 py-2 rounded-full hover:bg-brand-light/50 transition-colors"
       >
-        View all
+        <T k="home.viewAll" />
       </Link>
 
       <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory mt-10 -mx-4 px-4 text-left">

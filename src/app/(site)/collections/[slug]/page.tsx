@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getHomeSectionBySlug } from "@/lib/home-sections";
 import ProductCard from "@/components/ProductCard";
+import T from "@/components/T";
 
 export default async function CollectionPage({
   params,
@@ -16,7 +17,9 @@ export default async function CollectionPage({
       <h1 className="font-display text-4xl mb-8 text-center">{section.title}</h1>
 
       {section.products.length === 0 ? (
-        <p className="text-foreground/60 text-center">No products in this section yet.</p>
+        <p className="text-foreground/60 text-center">
+          <T k="collections.none" />
+        </p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-8">
           {section.products.map((p) => (

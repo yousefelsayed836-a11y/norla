@@ -69,6 +69,15 @@ const translations = {
       "Please fill in your name, phone, WhatsApp number, governorate, city and address.",
     "checkout.orderError": "Something went wrong placing your order. Please try again.",
     "checkout.cartEmpty": "Your cart is empty",
+    "testimonials.heading": "What Our Customers Are Saying",
+    "testimonials.previous": "Previous",
+    "testimonials.next": "Next",
+    "testimonials.goTo": "Go to testimonial",
+    "home.viewAll": "View all",
+    "collections.none": "No products in this section yet.",
+    "order.thankYou": "Thank you! 🎉",
+    "order.confirmedMessage":
+      "Your order has been placed successfully. Our team will contact you shortly to confirm delivery details.",
   },
   ar: {
     "nav.menu": "القائمة",
@@ -134,6 +143,15 @@ const translations = {
       "من فضلك أدخلي الاسم، رقم الهاتف، رقم الواتساب، المحافظة، المدينة والعنوان.",
     "checkout.orderError": "حدث خطأ أثناء تنفيذ الطلب. حاولي مرة أخرى.",
     "checkout.cartEmpty": "سلتك فارغة",
+    "testimonials.heading": "آراء عملائنا",
+    "testimonials.previous": "السابق",
+    "testimonials.next": "التالي",
+    "testimonials.goTo": "الانتقال إلى تقييم",
+    "home.viewAll": "عرض الكل",
+    "collections.none": "لا توجد منتجات في هذا القسم حتى الآن.",
+    "order.thankYou": "شكرًا لكِ! 🎉",
+    "order.confirmedMessage":
+      "تم تأكيد طلبك بنجاح. هيتواصل معاكِ فريقنا قريبًا لتأكيد تفاصيل التوصيل.",
   },
 } satisfies Record<Lang, Record<string, string>>;
 
