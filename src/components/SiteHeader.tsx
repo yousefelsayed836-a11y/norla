@@ -104,26 +104,6 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
 
           <div className="flex items-center justify-end flex-1 gap-1">
             <button
-              onClick={() => setLang(lang === "en" ? "ar" : "en")}
-              className="p-1.5 transition-transform active:scale-90"
-              aria-label={t("nav.language")}
-            >
-              <svg
-                width="21"
-                height="21"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z" />
-              </svg>
-            </button>
-            <button
               onClick={() => setSearchOpen((v) => !v)}
               className="p-1.5 transition-transform active:scale-90"
               aria-label={t("nav.search")}
@@ -260,6 +240,29 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
               {t("nav.contactUs")}
             </Link>
           </nav>
+          <div className="px-5 py-4 border-t border-brand-light">
+            <button
+              onClick={() => setLang(lang === "en" ? "ar" : "en")}
+              className="flex items-center gap-2.5 text-sm font-medium uppercase tracking-wide text-foreground/70 hover:text-brand-dark transition-colors"
+            >
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="shrink-0"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z" />
+              </svg>
+              {t("nav.language")}
+            </button>
+          </div>
         </aside>
       </div>
 

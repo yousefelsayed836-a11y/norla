@@ -5,6 +5,12 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 export const FROM = "Norla Designs <orders@norla-designs.com>";
 const OWNER_EMAIL = "me.nouryossry00@gmail.com";
 
+function paymentMethodLabel(method?: string | null) {
+  if (method === "instapay") return "InstaPay";
+  if (method === "vodafone_cash") return "Vodafone Cash";
+  return null;
+}
+
 export async function sendAdminOrderNotification(params: {
   to: string;
   orderNo: number;
@@ -13,8 +19,10 @@ export async function sendAdminOrderNotification(params: {
   whatsappNumber?: string | null;
   total: number;
   depositAmount: number;
+  paymentMethod?: string | null;
 }) {
   if (!resend || !params.to) return;
+  const methodLabel = paymentMethodLabel(params.paymentMethod);
   try {
     await resend.emails.send({
       from: FROM,
@@ -28,6 +36,7 @@ export async function sendAdminOrderNotification(params: {
           ${params.whatsappNumber ? `<p><strong>WhatsApp:</strong> ${params.whatsappNumber}</p>` : ""}
           <p><strong>Total:</strong> ${formatEGP(params.total)}</p>
           <p><strong>Deposit due:</strong> ${formatEGP(params.depositAmount)}</p>
+          ${methodLabel ? `<p><strong>Deposit payment method:</strong> ${methodLabel}</p>` : ""}
           <p style="color:#888;font-size:13px;margin-top:20px">Open the admin dashboard to view full order details.</p>
         </div>
       `,
@@ -47,11 +56,13 @@ export async function sendCustomerOrderConfirmation(params: {
   total: number;
   depositPercent: number;
   depositAmount: number;
+  paymentMethod?: string | null;
   address: string;
   city: string;
   governorate: string;
 }) {
   if (!resend || !params.to) return;
+  const methodLabel = paymentMethodLabel(params.paymentMethod);
 
   const itemsRows = params.items
     .map(
@@ -115,6 +126,7 @@ export async function sendCustomerOrderConfirmation(params: {
             <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226">
               ${formatEGP(params.depositAmount)}
             </p>
+            ${methodLabel ? `<p style="margin:6px 0 0;font-size:13px;color:#2b2226">via ${methodLabel}</p>` : ""}
           </div>
 
           <div style="margin-bottom:24px">

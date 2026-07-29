@@ -25,6 +25,7 @@ const orderSchema = z.object({
       })
     )
     .min(1),
+  paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
-  const { customer, items } = parsed.data;
+  const { customer, items, paymentMethod } = parsed.data;
 
   const zone = await prisma.shippingZone.findUnique({
     where: { governorate: customer.governorate },
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
         shippingFee,
         total,
         depositAmount,
+        paymentMethod: paymentMethod || null,
         customer: {
           create: {
             name: customer.name,
@@ -127,6 +129,7 @@ export async function POST(req: NextRequest) {
     whatsappNumber: order.customer!.whatsappNumber,
     total,
     depositAmount,
+    paymentMethod: order.paymentMethod,
   });
   if (order.customer?.email) {
     sendCustomerOrderConfirmation({
@@ -139,6 +142,7 @@ export async function POST(req: NextRequest) {
       total,
       depositPercent: settings.depositPercent,
       depositAmount,
+      paymentMethod: order.paymentMethod,
       address: order.customer.address ?? "",
       city: order.customer.city ?? "",
       governorate: order.customer.governorate ?? "",

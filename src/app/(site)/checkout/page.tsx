@@ -22,6 +22,7 @@ export default function CheckoutPage() {
     governorate: "",
     city: "",
   });
+  const [paymentMethod, setPaymentMethod] = useState<"instapay" | "vodafone_cash" | "">("");
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
@@ -59,12 +60,16 @@ export default function CheckoutPage() {
       setError(t("checkout.fillRequired"));
       return;
     }
+    if (!paymentMethod) {
+      setError(t("checkout.selectPaymentMethod"));
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, items }),
+        body: JSON.stringify({ customer: form, items, paymentMethod }),
       });
       if (!res.ok) throw new Error("Failed to place order");
       clear();
@@ -147,6 +152,61 @@ export default function CheckoutPage() {
             value={form.address}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
           />
+
+          <div>
+            <label className="text-sm font-medium block mb-2">{t("checkout.paymentMethod")}</label>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("instapay")}
+                className={`w-full flex items-center gap-3 border rounded-xl px-4 py-3 text-left transition-colors ${
+                  paymentMethod === "instapay"
+                    ? "border-brand-dark bg-brand-light/40"
+                    : "border-brand-light hover:border-brand"
+                }`}
+              >
+                <span className="w-9 h-9 rounded-full bg-[#6C2EB9] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                  IP
+                </span>
+                <span className="font-medium text-sm">{t("checkout.instapay")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("vodafone_cash")}
+                className={`w-full flex items-center gap-3 border rounded-xl px-4 py-3 text-left transition-colors ${
+                  paymentMethod === "vodafone_cash"
+                    ? "border-brand-dark bg-brand-light/40"
+                    : "border-brand-light hover:border-brand"
+                }`}
+              >
+                <span className="w-9 h-9 rounded-full bg-[#E60000] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                  VF
+                </span>
+                <span className="font-medium text-sm">{t("checkout.vodafoneCash")}</span>
+              </button>
+            </div>
+
+            {paymentMethod && (
+              <div className="mt-3 bg-brand-light/40 rounded-xl px-4 py-3">
+                <div className="flex justify-between text-sm font-semibold text-brand-dark mb-1.5">
+                  <span>{t("checkout.depositAmountLabel")}</span>
+                  <span>{formatEGP(deposit)}</span>
+                </div>
+                <p className="text-xs text-foreground/60 leading-relaxed">
+                  {t("checkout.sendScreenshotNote")}{" "}
+                  <a
+                    href="https://wa.me/201027096110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-dark underline hover:no-underline"
+                  >
+                    01027096110
+                  </a>
+                </p>
+              </div>
+            )}
+          </div>
+
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             disabled={loading}

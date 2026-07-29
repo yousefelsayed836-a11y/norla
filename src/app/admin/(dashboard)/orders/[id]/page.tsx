@@ -94,7 +94,15 @@ export default async function OrderDetailPage({
             <span className="text-brand-dark">{formatEGP(Number(order.total))}</span>
           </div>
           <div className="flex justify-between font-semibold text-brand-dark bg-brand-light/40 rounded-lg px-3 py-2 mt-2">
-            <span>Deposit Due</span>
+            <span>
+              Deposit Due
+              {order.paymentMethod && (
+                <span className="font-normal text-xs">
+                  {" "}
+                  (via {order.paymentMethod === "instapay" ? "InstaPay" : "Vodafone Cash"})
+                </span>
+              )}
+            </span>
             <span>{formatEGP(Number(order.depositAmount))}</span>
           </div>
         </div>
