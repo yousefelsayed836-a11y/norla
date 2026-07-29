@@ -13,6 +13,7 @@ const NAV = [
   { label: "Gallery", href: "/admin/gallery", icon: "🖇" },
   { label: "Menu", href: "/admin/navigation", icon: "☰" },
   { label: "Testimonials", href: "/admin/testimonials", icon: "★" },
+  { label: "Reviews", href: "/admin/reviews", icon: "💬" },
   { label: "Shipping", href: "/admin/shipping", icon: "🚚" },
   { label: "Orders", href: "/admin/orders", icon: "📦" },
   { label: "Settings", href: "/admin/settings", icon: "⚙" },

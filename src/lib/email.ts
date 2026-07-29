@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { formatEGP } from "@/lib/format";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-const FROM = "Norla Designs <onboarding@resend.dev>";
+export const FROM = "Norla Designs <orders@norla-designs.com>";
 
 export async function sendAdminOrderNotification(params: {
   to: string;

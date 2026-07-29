@@ -6,7 +6,12 @@ const include = {
     orderBy: { position: "asc" as const },
     include: {
       product: {
-        include: { images: { orderBy: { position: "asc" as const } }, category: true, variants: true },
+        include: {
+          images: { orderBy: { position: "asc" as const } },
+          category: true,
+          variants: true,
+          reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
+        },
       },
     },
   },

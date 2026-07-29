@@ -5,7 +5,16 @@ import ProductGallery from "@/components/ProductGallery";
 import AddToCartPanel from "@/components/AddToCartPanel";
 import StarRating from "@/components/StarRating";
 import Accordion from "@/components/Accordion";
+import ReviewsSection from "@/components/ReviewsSection";
 import { useLanguage } from "@/lib/i18n";
+
+type Review = {
+  id: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
 
 type Variant = {
   id: string;
@@ -31,6 +40,7 @@ export default function ProductPurchase({
   description,
   careInstructions,
   returnPolicyText,
+  reviews,
 }: {
   productId: string;
   title: string;
@@ -45,6 +55,7 @@ export default function ProductPurchase({
   description: string;
   careInstructions: string;
   returnPolicyText: string;
+  reviews: Review[];
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
   const { t, pick } = useLanguage();
@@ -89,6 +100,8 @@ export default function ProductPurchase({
             <Accordion title={t("product.exchangePolicy")}>{returnPolicyText}</Accordion>
           )}
         </div>
+
+        <ReviewsSection productId={productId} reviews={reviews} />
       </div>
     </div>
   );

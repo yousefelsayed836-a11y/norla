@@ -2,7 +2,12 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
 const productWithRelations = {
-  include: { images: { orderBy: { position: "asc" as const } }, category: true, variants: true },
+  include: {
+    images: { orderBy: { position: "asc" as const } },
+    category: true,
+    variants: true,
+    reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
+  },
 } satisfies Prisma.ProductDefaultArgs;
 
 type ProductWithRelations = Prisma.ProductGetPayload<typeof productWithRelations>;
@@ -35,10 +40,19 @@ export async function getProductBySlug(slug: string) {
 }
 
 export function serializeProduct(p: ProductWithRelations) {
+  const approvedReviews = p.reviews ?? [];
+  const rating =
+    approvedReviews.length > 0
+      ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / approvedReviews.length
+      : p.rating;
+  const reviewCount = approvedReviews.length > 0 ? approvedReviews.length : p.reviewCount;
+
   return {
     ...p,
     price: Number(p.price),
     regularPrice: p.regularPrice ? Number(p.regularPrice) : null,
+    rating,
+    reviewCount,
     variants: p.variants.map((v) => ({
       ...v,
       price: v.price ? Number(v.price) : null,

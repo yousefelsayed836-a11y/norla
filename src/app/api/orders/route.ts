@@ -119,9 +119,8 @@ export async function POST(req: NextRequest) {
 
   revalidateStorefront();
 
-  const adminEmail = settings.contactEmail || process.env.SEED_ADMIN_EMAIL || "";
   sendAdminOrderNotification({
-    to: adminEmail,
+    to: "orders@norla-designs.com",
     orderNo: order.orderNo,
     customerName: order.customer!.name,
     phone: order.customer!.phone,
