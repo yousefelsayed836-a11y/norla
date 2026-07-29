@@ -6,7 +6,7 @@ import HomeSectionRow from "@/components/HomeSectionRow";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import HeroSlider from "@/components/HeroSlider";
 import MadeByUsSection from "@/components/MadeByUsSection";
-import HomeReviewsSection from "@/components/HomeReviewsSection";
+import WriteReviewForm from "@/components/WriteReviewForm";
 import T from "@/components/T";
 import { prisma } from "@/lib/prisma";
 
@@ -79,18 +79,24 @@ export default async function HomePage() {
 
       <MadeByUsSection images={galleryImages} />
 
-      <TestimonialsCarousel testimonials={testimonials} />
-
-      <HomeReviewsSection
-        reviews={reviews.map((r) => ({
-          id: r.id,
-          authorName: r.authorName,
-          rating: r.rating,
-          comment: r.comment,
-          productTitle: r.product.title,
-        }))}
-        products={products.map((p) => ({ id: p.id, title: p.title }))}
+      <TestimonialsCarousel
+        testimonials={[
+          ...testimonials.map((t) => ({
+            id: t.id,
+            customerName: t.customerName,
+            quote: t.quote,
+            rating: t.rating,
+          })),
+          ...reviews.map((r) => ({
+            id: r.id,
+            customerName: r.authorName,
+            quote: r.comment,
+            rating: r.rating,
+          })),
+        ]}
       />
+
+      <WriteReviewForm products={products.map((p) => ({ id: p.id, title: p.title }))} />
     </div>
   );
 }
