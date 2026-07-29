@@ -56,9 +56,6 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             {t("product.outOfStock")}
           </span>
         )}
-        <span className="absolute inset-x-0 bottom-0 bg-brand text-white text-xs uppercase tracking-[0.15em] text-center py-3 translate-y-full transition-transform duration-300 md:group-hover:translate-y-0 group-active:translate-y-0">
-          {t("product.quickView")}
-        </span>
       </div>
       <div className="mt-3 text-center">
         <h3 className="text-[16px] font-medium uppercase tracking-[0.2em] text-black">
