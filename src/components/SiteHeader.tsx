@@ -8,9 +8,9 @@ import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 import { useLanguage } from "@/lib/i18n";
 
-type NavLinkItem = { label: string; href: string };
+type CategoryItem = { name: string; slug: string };
 
-export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
+export default function SiteHeader({ categories }: { categories: CategoryItem[] }) {
   const { count } = useCart();
   const { lang, setLang, t } = useLanguage();
   const pathname = usePathname();
@@ -212,13 +212,25 @@ export default function SiteHeader({ navLinks }: { navLinks: NavLinkItem[] }) {
             </button>
           </div>
           <nav className="flex-1 flex flex-col px-5 py-4 font-medium text-sm overflow-y-auto uppercase tracking-wide">
-            {navLinks.map((n) => (
+            <Link
+              href="/"
+              className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
+            >
+              {t("nav.home")}
+            </Link>
+            <Link
+              href="/products"
+              className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
+            >
+              {t("nav.store")}
+            </Link>
+            {categories.map((c) => (
               <Link
-                key={n.href}
-                href={n.href}
+                key={c.slug}
+                href={`/products?category=${c.slug}`}
                 className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
               >
-                {n.label}
+                {c.name}
               </Link>
             ))}
           </nav>

@@ -115,26 +115,6 @@ export default function SectionForm({
         />
       </div>
 
-      {isNew ? (
-        <p className="text-xs text-foreground/40">
-          View all page: <span className="font-mono">/collections/{slug || "…"}</span> (generated
-          from the title automatically)
-        </p>
-      ) : (
-        <div>
-          <label className="text-sm font-medium block mb-1">Slug</label>
-          <p className="text-xs text-foreground/50 mb-2">
-            Used for the section&apos;s &quot;View all&quot; page URL: /collections/{slug || "..."}
-          </p>
-          <input
-            required
-            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-          />
-        </div>
-      )}
-
       <div>
         <label className="text-sm font-medium block mb-1">Order on Homepage</label>
         <input

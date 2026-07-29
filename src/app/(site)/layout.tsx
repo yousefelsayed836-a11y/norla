@@ -6,16 +6,16 @@ import { prisma } from "@/lib/prisma";
 import { LanguageProvider } from "@/lib/i18n";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [settings, navLinks] = await Promise.all([
+  const [settings, categories] = await Promise.all([
     getSiteSettings(),
-    prisma.navLink.findMany({ orderBy: { position: "asc" } }),
+    prisma.category.findMany({ orderBy: { position: "asc" } }),
   ]);
 
   return (
     <LanguageProvider>
       <div className="public-site flex flex-col flex-1">
         <AnnouncementBar text={settings.announcementText} />
-        <SiteHeader navLinks={navLinks.map((n) => ({ label: n.label, href: n.href }))} />
+        <SiteHeader categories={categories.map((c) => ({ name: c.name, slug: c.slug }))} />
         <main className="flex-1">{children}</main>
         <SiteFooter
           instagramUrl={settings.instagramUrl}
