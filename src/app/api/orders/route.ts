@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { adjustStock } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
+import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib/email";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -117,6 +118,27 @@ export async function POST(req: NextRequest) {
   });
 
   revalidateStorefront();
+
+  const adminEmail = settings.contactEmail || process.env.SEED_ADMIN_EMAIL || "";
+  sendAdminOrderNotification({
+    to: adminEmail,
+    orderNo: order.orderNo,
+    customerName: order.customer!.name,
+    phone: order.customer!.phone,
+    whatsappNumber: order.customer!.whatsappNumber,
+    total,
+    depositAmount,
+  });
+  if (order.customer?.email) {
+    sendCustomerOrderConfirmation({
+      to: order.customer.email,
+      orderNo: order.orderNo,
+      customerName: order.customer.name,
+      depositPercent: settings.depositPercent,
+      depositAmount,
+    });
+  }
+
   return NextResponse.json({ order });
 }
 

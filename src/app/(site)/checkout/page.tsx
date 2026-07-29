@@ -204,6 +204,14 @@ export default function CheckoutPage() {
             <span>{formatEGP(deposit)}</span>
           </div>
           <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="inline-flex items-center h-5 px-2 rounded bg-[#6C2EB9] text-white text-[9px] font-semibold tracking-wide">
+              InstaPay
+            </span>
+            <span className="inline-flex items-center h-5 px-2 rounded bg-[#E60000] text-white text-[9px] font-semibold tracking-wide">
+              Vodafone Cash
+            </span>
+          </div>
         </div>
       </div>
     </div>

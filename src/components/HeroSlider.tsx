@@ -24,19 +24,15 @@ export default function HeroSlider({ images }: { images: { id: string; url: stri
 
   return (
     <section className="relative h-[80vh] md:h-screen w-full overflow-hidden">
-      {list.map((img, i) => (
-        <Image
-          key={img.id}
-          src={img.url}
-          alt="Norla Designs"
-          fill
-          priority
-          sizes="100vw"
-          className={`object-cover object-top md:object-[center_28%] transition-opacity duration-1000 ${
-            i === active ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
+      <Image
+        key={list[active].id}
+        src={list[active].url}
+        alt="Norla Designs"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-top md:object-[center_28%] animate-fade-in"
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10" />
       <div className="absolute inset-x-0 bottom-10 flex justify-center">
         <Link

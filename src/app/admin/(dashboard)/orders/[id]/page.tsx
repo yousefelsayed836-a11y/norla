@@ -31,7 +31,15 @@ export default async function OrderDetailPage({
           <p className="text-sm text-foreground/70">Phone: {order.customer?.phone}</p>
           {order.customer?.whatsappNumber && (
             <p className="text-sm text-foreground/70">
-              WhatsApp: {order.customer.whatsappNumber}
+              WhatsApp:{" "}
+              <a
+                href={`https://wa.me/${order.customer.whatsappNumber.replace(/\D/g, "").replace(/^0/, "20")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-dark underline hover:no-underline"
+              >
+                {order.customer.whatsappNumber}
+              </a>
             </p>
           )}
           {order.customer?.email && (

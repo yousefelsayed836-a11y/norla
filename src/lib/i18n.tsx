@@ -75,7 +75,7 @@ const translations = {
     "checkout.selectGovernorate": "Select governorate",
     "checkout.free": "Free",
     "checkout.depositNote":
-      "We'll message you on WhatsApp to arrange the deposit payment via Instagram or cash. The remaining balance is paid on delivery.",
+      "We'll message you on WhatsApp to arrange the deposit payment via InstaPay, Vodafone Cash, or cash. The remaining balance is paid on delivery.",
     "checkout.fillRequired":
       "Please fill in your name, phone, WhatsApp number, governorate, city and address.",
     "checkout.orderError": "Something went wrong placing your order. Please try again.",
@@ -160,7 +160,7 @@ const translations = {
     "checkout.selectGovernorate": "اختر المحافظة",
     "checkout.free": "مجاني",
     "checkout.depositNote":
-      "هنراسلك على الواتساب لترتيب دفع العربون عن طريق إنستجرام أو كاش. الباقي يتم دفعه عند الاستلام.",
+      "هنراسلك على الواتساب لترتيب دفع العربون عن طريق إنستا باي أو فودافون كاش أو كاش. الباقي يتم دفعه عند الاستلام.",
     "checkout.fillRequired":
       "من فضلك أدخلي الاسم، رقم الهاتف، رقم الواتساب، المحافظة، المدينة والعنوان.",
     "checkout.orderError": "حدث خطأ أثناء تنفيذ الطلب. حاولي مرة أخرى.",
