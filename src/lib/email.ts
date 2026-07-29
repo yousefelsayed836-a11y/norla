@@ -4,6 +4,13 @@ import { formatEGP } from "@/lib/format";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 export const FROM = "Norla Designs <orders@norla-designs.com>";
 const OWNER_EMAIL = "me.nouryossry00@gmail.com";
+const SITE_URL = "https://norla-designs.com";
+const EMAIL_FONT = "Georgia, 'Times New Roman', serif";
+
+function absoluteImageUrl(url?: string) {
+  if (!url) return null;
+  return url.startsWith("http") ? url : `${SITE_URL}${url}`;
+}
 
 function paymentMethodLabel(method?: string | null) {
   if (method === "instapay") return "InstaPay";
@@ -50,7 +57,7 @@ export async function sendCustomerOrderConfirmation(params: {
   to: string;
   orderNo: number;
   customerName: string;
-  items: { title: string; price: number; quantity: number }[];
+  items: { title: string; price: number; quantity: number; imageUrl?: string }[];
   subtotal: number;
   shippingFee: number;
   total: number;
@@ -65,18 +72,26 @@ export async function sendCustomerOrderConfirmation(params: {
   const methodLabel = paymentMethodLabel(params.paymentMethod);
 
   const itemsRows = params.items
-    .map(
-      (item) => `
+    .map((item) => {
+      const img = absoluteImageUrl(item.imageUrl);
+      return `
         <tr>
-          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px">
-            ${item.title}<br/>
-            <span style="color:#999;font-size:12px">Qty: ${item.quantity}</span>
+          <td style="padding:12px 0;border-bottom:1px solid #eee;width:60px">
+            ${
+              img
+                ? `<img src="${img}" width="52" height="52" alt="" style="display:block;width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid #eee" />`
+                : `<div style="width:52px;height:52px;border-radius:6px;background:#fbe4ee"></div>`
+            }
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;text-align:right">
+          <td style="padding:12px 0 12px 12px;border-bottom:1px solid #eee;color:#333;font-size:14px;font-family:${EMAIL_FONT}">
+            ${item.title}<br/>
+            <span style="color:#999;font-size:12px;font-family:${EMAIL_FONT}">Qty: ${item.quantity}</span>
+          </td>
+          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;text-align:right;font-family:${EMAIL_FONT}">
             ${formatEGP(item.price * item.quantity)}
           </td>
-        </tr>`
-    )
+        </tr>`;
+    })
     .join("");
 
   try {
@@ -93,47 +108,47 @@ export async function sendCustomerOrderConfirmation(params: {
           </div>
 
           <div style="padding:32px 0 8px">
-            <p style="font-size:16px;margin:0 0 4px">Dear ${params.customerName},</p>
-            <p style="font-size:14px;line-height:1.6;color:#555;margin:0 0 24px">
+            <p style="font-size:16px;margin:0 0 4px;font-family:${EMAIL_FONT}">Dear ${params.customerName},</p>
+            <p style="font-size:14px;line-height:1.6;color:#555;margin:0 0 24px;font-family:${EMAIL_FONT}">
               Thank you for your order. We are pleased to confirm that order
               <strong>#${params.orderNo}</strong> has been received and is being prepared.
             </p>
           </div>
 
-          <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+          <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-family:${EMAIL_FONT}">
             ${itemsRows}
           </table>
 
-          <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;font-family:${EMAIL_FONT}">
             <tr>
-              <td style="padding:4px 0;color:#777">Subtotal</td>
-              <td style="padding:4px 0;text-align:right;color:#333">${formatEGP(params.subtotal)}</td>
+              <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Subtotal</td>
+              <td style="padding:4px 0;text-align:right;color:#333;font-family:${EMAIL_FONT}">${formatEGP(params.subtotal)}</td>
             </tr>
             <tr>
-              <td style="padding:4px 0;color:#777">Shipping</td>
-              <td style="padding:4px 0;text-align:right;color:#333">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
+              <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Shipping</td>
+              <td style="padding:4px 0;text-align:right;color:#333;font-family:${EMAIL_FONT}">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
             </tr>
             <tr>
-              <td style="padding:10px 0 4px;border-top:1px solid #eee;font-weight:bold;color:#2b2226">Total</td>
-              <td style="padding:10px 0 4px;border-top:1px solid #eee;text-align:right;font-weight:bold;color:#d14f83">${formatEGP(params.total)}</td>
+              <td style="padding:10px 0 4px;border-top:1px solid #eee;font-weight:bold;color:#2b2226;font-family:${EMAIL_FONT}">Total</td>
+              <td style="padding:10px 0 4px;border-top:1px solid #eee;text-align:right;font-weight:bold;color:#d14f83;font-family:${EMAIL_FONT}">${formatEGP(params.total)}</td>
             </tr>
           </table>
 
           <div style="background:#fbe4ee;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-            <p style="margin:0;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#d14f83;font-weight:bold">
+            <p style="margin:0;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#d14f83;font-weight:bold;font-family:${EMAIL_FONT}">
               Deposit Due Now (${params.depositPercent}%)
             </p>
-            <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226">
+            <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226;font-family:${EMAIL_FONT}">
               ${formatEGP(params.depositAmount)}
             </p>
-            ${methodLabel ? `<p style="margin:6px 0 0;font-size:13px;color:#2b2226">via ${methodLabel}</p>` : ""}
+            ${methodLabel ? `<p style="margin:6px 0 0;font-size:13px;color:#2b2226;font-family:${EMAIL_FONT}">via ${methodLabel}</p>` : ""}
           </div>
 
           <div style="margin-bottom:24px">
-            <p style="margin:0 0 4px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#999">
+            <p style="margin:0 0 4px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#999;font-family:${EMAIL_FONT}">
               Delivery Address
             </p>
-            <p style="margin:0;font-size:14px;color:#333;line-height:1.5">
+            <p style="margin:0;font-size:14px;color:#333;line-height:1.5;font-family:${EMAIL_FONT}">
               ${params.address}<br/>
               ${params.city}, ${params.governorate}
             </p>

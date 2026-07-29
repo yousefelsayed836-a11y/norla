@@ -51,17 +51,23 @@ export async function POST(req: NextRequest) {
     title: string;
     price: number;
     quantity: number;
+    imageUrl?: string;
   }[] = [];
   for (const item of items) {
-    const product = await prisma.product.findUnique({ where: { id: item.productId } });
+    const product = await prisma.product.findUnique({
+      where: { id: item.productId },
+      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    });
     if (!product) continue;
     let price = Number(product.price);
     let title = product.title;
+    let imageUrl = product.images[0]?.url;
     if (item.variantId) {
       const variant = await prisma.productVariant.findUnique({ where: { id: item.variantId } });
       if (variant) {
         if (variant.price) price = Number(variant.price);
         title = `${product.title} (${variant.label})`;
+        if (variant.imageUrl) imageUrl = variant.imageUrl;
       }
     }
     resolvedItems.push({
@@ -70,6 +76,7 @@ export async function POST(req: NextRequest) {
       title,
       price,
       quantity: item.quantity,
+      imageUrl,
     });
   }
 
@@ -111,7 +118,15 @@ export async function POST(req: NextRequest) {
             city: customer.city,
           },
         },
-        items: { create: resolvedItems },
+        items: {
+          create: resolvedItems.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId,
+            title: i.title,
+            price: i.price,
+            quantity: i.quantity,
+          })),
+        },
       },
       include: { items: true, customer: true },
     });
@@ -136,7 +151,12 @@ export async function POST(req: NextRequest) {
       to: order.customer.email,
       orderNo: order.orderNo,
       customerName: order.customer.name,
-      items: order.items.map((i) => ({ title: i.title, price: Number(i.price), quantity: i.quantity })),
+      items: resolvedItems.map((i) => ({
+        title: i.title,
+        price: i.price,
+        quantity: i.quantity,
+        imageUrl: i.imageUrl,
+      })),
       subtotal,
       shippingFee,
       total,
