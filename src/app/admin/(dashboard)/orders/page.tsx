@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
-
-const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-700",
-  PROCESSING: "bg-blue-100 text-blue-700",
-  SHIPPED: "bg-purple-100 text-purple-700",
-  DELIVERED: "bg-green-100 text-green-700",
-  CANCELLED: "bg-red-100 text-red-700",
-};
+import OrderStatusSelect from "@/components/OrderStatusSelect";
 
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
@@ -51,9 +44,7 @@ export default async function AdminOrdersPage() {
                   {formatEGP(Number(o.depositAmount))}
                 </td>
                 <td className="p-4">
-                  <span className={`px-2 py-1 rounded-full text-xs ${STATUS_STYLES[o.status]}`}>
-                    {o.status}
-                  </span>
+                  <OrderStatusSelect orderId={o.id} status={o.status} />
                 </td>
                 <td className="p-4 text-foreground/50">
                   {new Date(o.createdAt).toLocaleDateString()}

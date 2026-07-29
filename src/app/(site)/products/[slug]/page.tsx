@@ -32,8 +32,6 @@ export default async function ProductDetailPage({
         title={product.title}
         titleAr={product.titleAr}
         categoryName={product.category?.name}
-        rating={product.rating}
-        reviewCount={product.reviewCount}
         basePrice={product.price}
         images={product.images}
         variants={product.variants.map((v) => ({
@@ -49,13 +47,6 @@ export default async function ProductDetailPage({
         description={product.description}
         careInstructions={settings.careInstructionsText}
         returnPolicyText={settings.returnPolicyText}
-        reviews={product.reviews.map((r) => ({
-          id: r.id,
-          authorName: r.authorName,
-          rating: r.rating,
-          comment: r.comment,
-          createdAt: r.createdAt.toISOString(),
-        }))}
       />
 
       {fallbackRelated.length > 0 && (

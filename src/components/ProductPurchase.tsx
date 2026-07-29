@@ -3,18 +3,8 @@
 import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartPanel from "@/components/AddToCartPanel";
-import StarRating from "@/components/StarRating";
 import Accordion from "@/components/Accordion";
-import ReviewsSection from "@/components/ReviewsSection";
 import { useLanguage } from "@/lib/i18n";
-
-type Review = {
-  id: string;
-  authorName: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-};
 
 type Variant = {
   id: string;
@@ -31,8 +21,6 @@ export default function ProductPurchase({
   title,
   titleAr,
   categoryName,
-  rating,
-  reviewCount,
   basePrice,
   images,
   variants,
@@ -40,14 +28,11 @@ export default function ProductPurchase({
   description,
   careInstructions,
   returnPolicyText,
-  reviews,
 }: {
   productId: string;
   title: string;
   titleAr?: string | null;
   categoryName?: string | null;
-  rating: number;
-  reviewCount: number;
   basePrice: number;
   images: { url: string }[];
   variants: Variant[];
@@ -55,7 +40,6 @@ export default function ProductPurchase({
   description: string;
   careInstructions: string;
   returnPolicyText: string;
-  reviews: Review[];
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
   const { t, pick } = useLanguage();
@@ -71,10 +55,7 @@ export default function ProductPurchase({
             {categoryName}
           </p>
         )}
-        <h1 className="font-jost text-3xl md:text-4xl mb-2 text-black text-center">{displayTitle}</h1>
-        <div className="mb-4 flex justify-center">
-          <StarRating rating={rating} reviewCount={reviewCount} />
-        </div>
+        <h1 className="font-jost text-3xl md:text-4xl mb-4 text-black text-center">{displayTitle}</h1>
 
         <AddToCartPanel
           productId={productId}
@@ -100,8 +81,6 @@ export default function ProductPurchase({
             <Accordion title={t("product.exchangePolicy")}>{returnPolicyText}</Accordion>
           )}
         </div>
-
-        <ReviewsSection productId={productId} reviews={reviews} />
       </div>
     </div>
   );

@@ -41,25 +41,102 @@ export async function sendCustomerOrderConfirmation(params: {
   to: string;
   orderNo: number;
   customerName: string;
+  items: { title: string; price: number; quantity: number }[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
   depositPercent: number;
   depositAmount: number;
+  address: string;
+  city: string;
+  governorate: string;
 }) {
   if (!resend || !params.to) return;
+
+  const itemsRows = params.items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px">
+            ${item.title}<br/>
+            <span style="color:#999;font-size:12px">Qty: ${item.quantity}</span>
+          </td>
+          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;text-align:right">
+            ${formatEGP(item.price * item.quantity)}
+          </td>
+        </tr>`
+    )
+    .join("");
+
   try {
     await resend.emails.send({
       from: FROM,
       to: params.to,
-      subject: `تم استلام طلبك #${params.orderNo} — Norla Designs`,
+      subject: `Order Confirmation #${params.orderNo} — Norla Designs`,
       html: `
-        <div dir="rtl" style="font-family:sans-serif;max-width:480px;margin:0 auto;text-align:right">
-          <h2 style="color:#d14f83">شكرًا لكِ، ${params.customerName}! 🎉</h2>
-          <p>تم استلام طلبك رقم <strong>#${params.orderNo}</strong> بنجاح.</p>
-          <p>هنتواصل معاكِ قريبًا على الواتساب لترتيب دفع العربون
-            (${formatEGP(params.depositAmount)} — ${params.depositPercent}% من قيمة الطلب)
-            عن طريق إنستا باي أو فودافون كاش أو كاش عند الاستلام.</p>
-          <p style="color:#888;font-size:13px;margin-top:20px">
-            We've received your order and will contact you on WhatsApp shortly to arrange the deposit payment.
+        <div style="font-family:Georgia,'Times New Roman',serif;max-width:520px;margin:0 auto;color:#2b2226">
+          <div style="text-align:center;padding:32px 0 24px;border-bottom:2px solid #d14f83">
+            <h1 style="margin:0;font-size:22px;letter-spacing:2px;text-transform:uppercase;color:#2b2226">
+              Norla Designs
+            </h1>
+          </div>
+
+          <div style="padding:32px 0 8px">
+            <p style="font-size:16px;margin:0 0 4px">Dear ${params.customerName},</p>
+            <p style="font-size:14px;line-height:1.6;color:#555;margin:0 0 24px">
+              Thank you for your order. We are pleased to confirm that order
+              <strong>#${params.orderNo}</strong> has been received and is being prepared.
+            </p>
+          </div>
+
+          <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+            ${itemsRows}
+          </table>
+
+          <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+            <tr>
+              <td style="padding:4px 0;color:#777">Subtotal</td>
+              <td style="padding:4px 0;text-align:right;color:#333">${formatEGP(params.subtotal)}</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 0;color:#777">Shipping</td>
+              <td style="padding:4px 0;text-align:right;color:#333">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 0 4px;border-top:1px solid #eee;font-weight:bold;color:#2b2226">Total</td>
+              <td style="padding:10px 0 4px;border-top:1px solid #eee;text-align:right;font-weight:bold;color:#d14f83">${formatEGP(params.total)}</td>
+            </tr>
+          </table>
+
+          <div style="background:#fbe4ee;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+            <p style="margin:0;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#d14f83;font-weight:bold">
+              Deposit Due Now (${params.depositPercent}%)
+            </p>
+            <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226">
+              ${formatEGP(params.depositAmount)}
+            </p>
+          </div>
+
+          <div style="margin-bottom:24px">
+            <p style="margin:0 0 4px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#999">
+              Delivery Address
+            </p>
+            <p style="margin:0;font-size:14px;color:#333;line-height:1.5">
+              ${params.address}<br/>
+              ${params.city}, ${params.governorate}
+            </p>
+          </div>
+
+          <p style="font-size:14px;line-height:1.6;color:#555;border-top:1px solid #eee;padding-top:20px">
+            Our team will contact you on WhatsApp shortly to arrange payment of the deposit via
+            InstaPay, Vodafone Cash, or cash. The remaining balance is due on delivery.
           </p>
+
+          <div style="text-align:center;padding-top:24px;margin-top:8px;border-top:1px solid #eee">
+            <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin:0">
+              Norla Designs
+            </p>
+          </div>
         </div>
       `,
     });

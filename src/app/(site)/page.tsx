@@ -6,11 +6,12 @@ import HomeSectionRow from "@/components/HomeSectionRow";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import HeroSlider from "@/components/HeroSlider";
 import MadeByUsSection from "@/components/MadeByUsSection";
+import HomeReviewsSection from "@/components/HomeReviewsSection";
 import T from "@/components/T";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
-  const [categories, products, sections, testimonials, heroImages, galleryImages] =
+  const [categories, products, sections, testimonials, heroImages, galleryImages, reviews] =
     await Promise.all([
       getCategories(),
       getProducts(),
@@ -18,6 +19,12 @@ export default async function HomePage() {
       prisma.testimonial.findMany({ orderBy: { position: "asc" } }),
       prisma.heroImage.findMany({ orderBy: { position: "asc" } }),
       prisma.galleryImage.findMany({ orderBy: { position: "asc" } }),
+      prisma.review.findMany({
+        where: { approved: true },
+        include: { product: { select: { title: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 12,
+      }),
     ]);
 
   return (
@@ -73,6 +80,17 @@ export default async function HomePage() {
       <MadeByUsSection images={galleryImages} />
 
       <TestimonialsCarousel testimonials={testimonials} />
+
+      <HomeReviewsSection
+        reviews={reviews.map((r) => ({
+          id: r.id,
+          authorName: r.authorName,
+          rating: r.rating,
+          comment: r.comment,
+          productTitle: r.product.title,
+        }))}
+        products={products.map((p) => ({ id: p.id, title: p.title }))}
+      />
     </div>
   );
 }

@@ -133,8 +133,15 @@ export async function POST(req: NextRequest) {
       to: order.customer.email,
       orderNo: order.orderNo,
       customerName: order.customer.name,
+      items: order.items.map((i) => ({ title: i.title, price: Number(i.price), quantity: i.quantity })),
+      subtotal,
+      shippingFee,
+      total,
       depositPercent: settings.depositPercent,
       depositAmount,
+      address: order.customer.address ?? "",
+      city: order.customer.city ?? "",
+      governorate: order.customer.governorate ?? "",
     });
   }
 

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
@@ -17,6 +18,12 @@ export default async function OrderDetailPage({
 
   return (
     <div className="max-w-3xl">
+      <Link
+        href="/admin/orders"
+        className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-brand-dark mb-4 transition-colors"
+      >
+        ← Back to Orders
+      </Link>
       <div className="flex items-center justify-between mb-8">
         <h1 className="font-display text-3xl">Order #{order.orderNo}</h1>
         <OrderStatusSelect orderId={order.id} status={order.status} />
