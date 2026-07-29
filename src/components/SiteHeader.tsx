@@ -253,6 +253,12 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
                 {c.name}
               </Link>
             ))}
+            <Link
+              href="/contact-us"
+              className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
+            >
+              {t("nav.contactUs")}
+            </Link>
           </nav>
         </aside>
       </div>

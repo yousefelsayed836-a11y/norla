@@ -9,6 +9,11 @@ export default function SettingsForm({
   initialInstagram,
   initialTiktok,
   initialWhatsapp,
+  initialFacebook,
+  initialContactPhone,
+  initialContactEmail,
+  initialContactAddress,
+  initialContactHours,
   initialReturnPolicy,
   initialCareInstructions,
   initialShippingFee,
@@ -20,6 +25,11 @@ export default function SettingsForm({
   initialInstagram: string;
   initialTiktok: string;
   initialWhatsapp: string;
+  initialFacebook: string;
+  initialContactPhone: string;
+  initialContactEmail: string;
+  initialContactAddress: string;
+  initialContactHours: string;
   initialReturnPolicy: string;
   initialCareInstructions: string;
   initialShippingFee: string;
@@ -32,6 +42,11 @@ export default function SettingsForm({
   const [instagram, setInstagram] = useState(initialInstagram);
   const [tiktok, setTiktok] = useState(initialTiktok);
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
+  const [facebook, setFacebook] = useState(initialFacebook);
+  const [contactPhone, setContactPhone] = useState(initialContactPhone);
+  const [contactEmail, setContactEmail] = useState(initialContactEmail);
+  const [contactAddress, setContactAddress] = useState(initialContactAddress);
+  const [contactHours, setContactHours] = useState(initialContactHours);
   const [returnPolicy, setReturnPolicy] = useState(initialReturnPolicy);
   const [careInstructions, setCareInstructions] = useState(initialCareInstructions);
   const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
@@ -52,6 +67,11 @@ export default function SettingsForm({
         instagramUrl: instagram,
         tiktokUrl: tiktok,
         whatsappUrl: whatsapp,
+        facebookUrl: facebook,
+        contactPhone,
+        contactEmail,
+        contactAddress,
+        contactHours,
         returnPolicyText: returnPolicy,
         careInstructionsText: careInstructions,
         shippingFee: parseFloat(initialShippingFee) || 0,
@@ -154,6 +174,58 @@ export default function SettingsForm({
           value={whatsapp}
           onChange={(e) => setWhatsapp(e.target.value)}
         />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Facebook URL</label>
+        <input
+          placeholder="https://facebook.com/norladesigns"
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          value={facebook}
+          onChange={(e) => setFacebook(e.target.value)}
+        />
+      </div>
+
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">Contact Us Page</p>
+        <p className="text-xs text-foreground/50 -mt-2">
+          Shown on the public &quot;Contact Us&quot; page.
+        </p>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Phone Number</label>
+          <input
+            placeholder="01023881876"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Email</label>
+          <input
+            placeholder="hello@norla-designs.com"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Address</label>
+          <input
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={contactAddress}
+            onChange={(e) => setContactAddress(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Working Hours</label>
+          <input
+            placeholder="Saturday - Thursday, 10am - 10pm"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={contactHours}
+            onChange={(e) => setContactHours(e.target.value)}
+          />
+        </div>
       </div>
 
       <div>

@@ -12,6 +12,11 @@ export default async function AdminSettingsPage() {
         initialInstagram={settings.instagramUrl}
         initialTiktok={settings.tiktokUrl}
         initialWhatsapp={settings.whatsappUrl}
+        initialFacebook={settings.facebookUrl}
+        initialContactPhone={settings.contactPhone}
+        initialContactEmail={settings.contactEmail}
+        initialContactAddress={settings.contactAddress}
+        initialContactHours={settings.contactHours}
         initialReturnPolicy={settings.returnPolicyText}
         initialCareInstructions={settings.careInstructionsText}
         initialShippingFee={String(settings.shippingFee)}

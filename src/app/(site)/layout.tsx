@@ -21,6 +21,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           instagramUrl={settings.instagramUrl}
           tiktokUrl={settings.tiktokUrl}
           whatsappUrl={settings.whatsappUrl}
+          facebookUrl={settings.facebookUrl}
+          contactPhone={settings.contactPhone}
         />
       </div>
     </LanguageProvider>
