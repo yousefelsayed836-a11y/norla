@@ -3,6 +3,7 @@ import { formatEGP } from "@/lib/format";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 export const FROM = "Norla Designs <orders@norla-designs.com>";
+const OWNER_EMAIL = "me.nouryossry00@gmail.com";
 
 export async function sendAdminOrderNotification(params: {
   to: string;
@@ -64,5 +65,26 @@ export async function sendCustomerOrderConfirmation(params: {
     });
   } catch (err) {
     console.error("Failed to send customer order confirmation", err);
+  }
+}
+
+export async function sendContactMessage(params: { name: string; email: string; message: string }) {
+  if (!resend) return;
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      replyTo: params.email,
+      subject: `New message from ${params.name} — Contact Us`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#d14f83">New Contact Form Message</h2>
+          <p><strong>From:</strong> ${params.name} (${params.email})</p>
+          <p style="white-space:pre-line">${params.message}</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error("Failed to send contact message", err);
   }
 }

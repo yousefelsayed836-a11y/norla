@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 
 function PhoneIcon() {
@@ -91,6 +92,35 @@ export default function ContactUsContent({
   whatsappUrl: string;
 }) {
   const { t } = useLanguage();
+  const [name, setName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !senderEmail.trim() || !message.trim()) return;
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email: senderEmail, message }),
+      });
+      if (!res.ok) throw new Error("failed");
+      setSent(true);
+      setName("");
+      setSenderEmail("");
+      setMessage("");
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const cards = [
     phone && { icon: <PhoneIcon />, label: t("contact.phone"), value: phone, href: `tel:${phone}` },
@@ -180,13 +210,58 @@ export default function ContactUsContent({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="animate-rise-in animate-pulse-glow inline-flex items-center gap-2 bg-brand-dark text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-opacity"
+            className="animate-rise-in animate-pulse-glow inline-flex items-center gap-2 bg-brand-dark text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-opacity mb-14"
             style={{ animationDelay: `${0.3 + cards.length * 0.1}s` }}
           >
             <WhatsappIcon />
             {t("contact.chatWhatsapp")}
           </a>
         )}
+
+        <div
+          className="animate-rise-in max-w-md mx-auto"
+          style={{ animationDelay: `${0.4 + cards.length * 0.1}s` }}
+        >
+          <h2 className="text-xl font-medium text-black mb-5">{t("contact.sendMessage")}</h2>
+          {sent ? (
+            <p className="text-sm text-brand-dark text-center bg-brand-light/40 rounded-xl py-4 px-4">
+              {t("contact.sent")}
+            </p>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3 text-left">
+              <input
+                required
+                placeholder={t("contact.yourName")}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+              />
+              <input
+                required
+                type="email"
+                placeholder={t("contact.yourEmail")}
+                value={senderEmail}
+                onChange={(e) => setSenderEmail(e.target.value)}
+                className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+              />
+              <textarea
+                required
+                rows={4}
+                placeholder={t("contact.yourMessage")}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+              />
+              {error && <p className="text-red-600 text-xs text-center">{t("contact.formError")}</p>}
+              <button
+                disabled={loading}
+                className="w-full bg-brand-dark text-white py-3 rounded-full font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+              >
+                {loading ? t("contact.sending") : t("contact.send")}
+              </button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

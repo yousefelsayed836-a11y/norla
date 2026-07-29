@@ -34,26 +34,16 @@ function FacebookIcon() {
   );
 }
 
-function CallIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.9.6 2.7a2 2 0 0 1-.4 2.1L8.1 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.9 2.2Z" />
-    </svg>
-  );
-}
-
 export default function SiteFooter({
   instagramUrl,
   tiktokUrl,
   whatsappUrl,
   facebookUrl,
-  contactPhone,
 }: {
   instagramUrl: string;
   tiktokUrl: string;
   whatsappUrl: string;
   facebookUrl: string;
-  contactPhone: string;
 }) {
   return (
     <footer className="mt-16 border-t border-brand-light bg-white">
@@ -97,15 +87,6 @@ export default function SiteFooter({
           >
             <WhatsappIcon />
           </a>
-          {contactPhone && (
-            <a
-              href={`tel:${contactPhone}`}
-              aria-label="Call"
-              className="hover:text-brand-dark transition-colors"
-            >
-              <CallIcon />
-            </a>
-          )}
         </div>
 
         <p className="text-xs text-foreground/50">© {new Date().getFullYear()} Norla Designs</p>
