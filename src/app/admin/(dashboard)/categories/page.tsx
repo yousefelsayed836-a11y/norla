@@ -37,7 +37,9 @@ export default async function AdminCategoriesPage() {
                 <td className="p-4">{c.position}</td>
                 <td className="p-4">
                   <div className="relative w-12 h-14 overflow-hidden bg-brand-light">
-                    {c.imageUrl && <Image src={c.imageUrl} alt="" fill className="object-cover" />}
+                    {c.imageUrl && (
+                      <Image src={c.imageUrl} alt="" fill className="object-cover" sizes="48px" />
+                    )}
                   </div>
                 </td>
                 <td className="p-4">{c.name}</td>

@@ -65,7 +65,13 @@ export default function ImageUploader({
           {images.map((url, i) => (
             <div key={url + i} className="relative group">
               <div className="relative aspect-square overflow-hidden bg-brand-light border border-brand-light">
-                <Image src={url} alt="" fill className="object-cover" />
+                <Image
+                  src={url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 25vw, 150px"
+                />
               </div>
               <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1 p-1 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button

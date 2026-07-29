@@ -274,7 +274,7 @@ export default function VariantManager({
               />
               {c.imageUrl && (
                 <div className="relative w-8 h-9 overflow-hidden bg-brand-light shrink-0">
-                  <Image src={c.imageUrl} alt="" fill className="object-cover" />
+                  <Image src={c.imageUrl} alt="" fill className="object-cover" sizes="32px" />
                 </div>
               )}
               <span className="flex-1 text-sm">{c.name}</span>

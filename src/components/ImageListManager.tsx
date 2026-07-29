@@ -83,7 +83,13 @@ export default function ImageListManager({
           {items.map((item, i) => (
             <div key={item.id} className="relative">
               <div className={`relative ${aspect} overflow-hidden bg-brand-light`}>
-                <Image src={item.url} alt="" fill className="object-cover" />
+                <Image
+                  src={item.url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 250px"
+                />
               </div>
               <div className="flex justify-center gap-2 p-1.5 bg-brand-light/50 rounded-b-xl">
                 <button
