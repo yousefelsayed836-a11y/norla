@@ -239,6 +239,12 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
             >
               {t("nav.contactUs")}
             </Link>
+            <Link
+              href="/exchange-policy"
+              className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
+            >
+              {t("nav.exchangePolicy")}
+            </Link>
           </nav>
           <div className="px-5 py-4 border-t border-brand-light">
             <button

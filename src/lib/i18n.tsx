@@ -93,7 +93,7 @@ const translations = {
     "checkout.selectGovernorate": "Select governorate",
     "checkout.free": "Free",
     "checkout.depositNote":
-      "We'll message you on WhatsApp to arrange the deposit payment via InstaPay, Vodafone Cash, or cash. The remaining balance is paid on delivery.",
+      "We'll message you on WhatsApp to arrange the deposit payment via InstaPay or Vodafone Cash. The remaining balance is paid on delivery.",
     "checkout.fillRequired":
       "Please fill in your name, phone, WhatsApp number, governorate, city and address.",
     "checkout.orderError": "Something went wrong placing your order. Please try again.",
@@ -102,8 +102,12 @@ const translations = {
     "checkout.instapay": "InstaPay",
     "checkout.vodafoneCash": "Vodafone Cash",
     "checkout.depositAmountLabel": "Deposit amount to send",
+    "checkout.transferTo": "Transfer to",
+    "checkout.accountNameNote": "Account name: Nourhan",
     "checkout.sendScreenshotNote": "After transferring, please send a screenshot of the receipt on WhatsApp to",
     "checkout.selectPaymentMethod": "Please select a payment method for the deposit.",
+    "nav.exchangePolicy": "Exchange & Return Policy",
+    "policy.exchangeTitle": "Exchange & Return Policy",
     "testimonials.heading": "What Our Customers Are Saying",
     "testimonials.previous": "Previous",
     "testimonials.next": "Next",
@@ -202,7 +206,7 @@ const translations = {
     "checkout.selectGovernorate": "اختر المحافظة",
     "checkout.free": "مجاني",
     "checkout.depositNote":
-      "هنراسلك على الواتساب لترتيب دفع العربون عن طريق إنستا باي أو فودافون كاش أو كاش. الباقي يتم دفعه عند الاستلام.",
+      "هنراسلك على الواتساب لترتيب دفع العربون عن طريق إنستا باي أو فودافون كاش. الباقي يتم دفعه عند الاستلام.",
     "checkout.fillRequired":
       "من فضلك أدخلي الاسم، رقم الهاتف، رقم الواتساب، المحافظة، المدينة والعنوان.",
     "checkout.orderError": "حدث خطأ أثناء تنفيذ الطلب. حاولي مرة أخرى.",
@@ -211,8 +215,12 @@ const translations = {
     "checkout.instapay": "إنستا باي",
     "checkout.vodafoneCash": "فودافون كاش",
     "checkout.depositAmountLabel": "مبلغ العربون المطلوب تحويله",
+    "checkout.transferTo": "حولي المبلغ على رقم",
+    "checkout.accountNameNote": "الحساب باسم نورهان",
     "checkout.sendScreenshotNote": "بعد التحويل، من فضلك ابعتي صورة إيصال التحويل على الواتساب رقم",
     "checkout.selectPaymentMethod": "من فضلك اختاري طريقة دفع العربون.",
+    "nav.exchangePolicy": "سياسة الاستبدال والاسترجاع",
+    "policy.exchangeTitle": "سياسة الاستبدال والاسترجاع",
     "testimonials.heading": "آراء عملائنا",
     "testimonials.previous": "السابق",
     "testimonials.next": "التالي",

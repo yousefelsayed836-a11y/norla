@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
 
 type ShippingCity = { id: string; name: string };
 type ShippingZone = { id: string; governorate: string; fee: string; active: boolean; cities: ShippingCity[] };
@@ -165,9 +166,7 @@ export default function CheckoutPage() {
                     : "border-brand-light hover:border-brand"
                 }`}
               >
-                <span className="w-9 h-9 rounded-full bg-[#6C2EB9] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                  IP
-                </span>
+                <InstaPayLogo className="w-9 h-9 rounded-full shrink-0" />
                 <span className="font-medium text-sm">{t("checkout.instapay")}</span>
               </button>
               <button
@@ -179,20 +178,30 @@ export default function CheckoutPage() {
                     : "border-brand-light hover:border-brand"
                 }`}
               >
-                <span className="w-9 h-9 rounded-full bg-[#E60000] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                  VF
-                </span>
+                <VodafoneCashLogo className="w-9 h-9 rounded-full shrink-0" />
                 <span className="font-medium text-sm">{t("checkout.vodafoneCash")}</span>
               </button>
             </div>
 
             {paymentMethod && (
-              <div className="mt-3 bg-brand-light/40 rounded-xl px-4 py-3">
-                <div className="flex justify-between text-sm font-semibold text-brand-dark mb-1.5">
+              <div className="mt-3 bg-brand-light/40 rounded-xl px-4 py-3 space-y-2">
+                <div className="flex justify-between text-sm font-semibold text-brand-dark">
                   <span>{t("checkout.depositAmountLabel")}</span>
                   <span>{formatEGP(deposit)}</span>
                 </div>
-                <p className="text-xs text-foreground/60 leading-relaxed">
+                <div className="flex justify-between text-sm">
+                  <span className="text-foreground/70">{t("checkout.transferTo")}</span>
+                  <a
+                    href="https://wa.me/201027096110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-black underline hover:no-underline"
+                  >
+                    01027096110
+                  </a>
+                </div>
+                <p className="text-xs text-foreground/50">{t("checkout.accountNameNote")}</p>
+                <p className="text-xs text-foreground/60 leading-relaxed pt-1.5 border-t border-brand-dark/10">
                   {t("checkout.sendScreenshotNote")}{" "}
                   <a
                     href="https://wa.me/201027096110"
@@ -264,14 +273,6 @@ export default function CheckoutPage() {
             <span>{formatEGP(deposit)}</span>
           </div>
           <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
-          <div className="flex items-center gap-1.5 mt-2">
-            <span className="inline-flex items-center h-5 px-2 rounded bg-[#6C2EB9] text-white text-[9px] font-semibold tracking-wide">
-              InstaPay
-            </span>
-            <span className="inline-flex items-center h-5 px-2 rounded bg-[#E60000] text-white text-[9px] font-semibold tracking-wide">
-              Vodafone Cash
-            </span>
-          </div>
         </div>
       </div>
     </div>
