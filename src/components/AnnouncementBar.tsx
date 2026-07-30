@@ -8,9 +8,11 @@ export default function AnnouncementBar({ text, textAr }: { text: string; textAr
   if (!displayText) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-white overflow-hidden flex items-center border-b border-black/5">
-      <div className="whitespace-nowrap animate-marquee-single">
-        <span className="text-black text-sm font-medium tracking-wide">{displayText}</span>
+    <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-white flex items-center justify-center px-3">
+      <div className="w-full h-full border border-brand-light rounded-md flex items-center justify-center overflow-hidden">
+        <span className="text-black text-sm font-medium tracking-wide px-3 truncate">
+          {displayText}
+        </span>
       </div>
     </div>
   );
