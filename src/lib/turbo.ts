@@ -69,6 +69,7 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
   const body = {
     authentication_key: API_KEY,
     main_client_code: Number(CLIENT_CODE),
+    sender_name: "Norla Designs",
     government: params.government,
     area: params.area,
     api_followup_phone: params.apiFollowupPhone,
@@ -77,7 +78,6 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
     order_summary: params.orderSummary,
     weight: params.weight,
     notes: params.notes || "",
-    delivery_type: 2,
     remote_order_id: params.remoteOrderId,
     receiver: params.receiver,
     phone1: params.phone1,
