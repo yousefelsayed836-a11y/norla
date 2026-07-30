@@ -85,6 +85,7 @@ export default async function HomePage() {
             id: t.id,
             customerName: t.customerName,
             quote: t.quote,
+            quoteAr: t.quoteAr,
             rating: t.rating,
           })),
           ...reviews.map((r) => ({

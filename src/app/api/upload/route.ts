@@ -27,8 +27,8 @@ export async function POST(req: NextRequest) {
   try {
     outputBuffer = await sharp(inputBuffer)
       .rotate()
-      .resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 82 })
+      .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 75 })
       .toBuffer();
   } catch {
     return NextResponse.json(

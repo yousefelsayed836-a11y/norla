@@ -249,7 +249,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
           <div className="px-5 py-4 border-t border-brand-light">
             <button
               onClick={() => setLang(lang === "en" ? "ar" : "en")}
-              className="flex items-center gap-2.5 text-sm font-medium uppercase tracking-wide text-foreground/70 hover:text-brand-dark transition-colors"
+              className="flex items-center gap-2.5 text-sm font-medium uppercase tracking-wide text-brand-dark"
             >
               <svg
                 width="19"

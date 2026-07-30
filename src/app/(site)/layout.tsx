@@ -14,7 +14,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <LanguageProvider>
       <div className="public-site flex flex-col flex-1">
-        <AnnouncementBar text={settings.announcementText} />
+        <AnnouncementBar text={settings.announcementText} textAr={settings.announcementTextAr} />
         <SiteHeader categories={categories.map((c) => ({ name: c.name, slug: c.slug }))} />
         <main className="flex-1">{children}</main>
         <SiteFooter

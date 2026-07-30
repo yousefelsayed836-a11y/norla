@@ -6,6 +6,7 @@ import Link from "next/link";
 
 export default function SettingsForm({
   initialText,
+  initialTextAr,
   initialInstagram,
   initialTiktok,
   initialWhatsapp,
@@ -13,15 +14,18 @@ export default function SettingsForm({
   initialContactPhone,
   initialContactEmail,
   initialContactAddress,
+  initialContactAddressAr,
   initialContactHours,
-  initialReturnPolicy,
+  initialContactHoursAr,
   initialCareInstructions,
+  initialCareInstructionsAr,
   initialShippingFee,
   initialDepositPercent,
   initialFreeShippingEnabled,
   initialFreeShippingThreshold,
 }: {
   initialText: string;
+  initialTextAr: string;
   initialInstagram: string;
   initialTiktok: string;
   initialWhatsapp: string;
@@ -29,9 +33,11 @@ export default function SettingsForm({
   initialContactPhone: string;
   initialContactEmail: string;
   initialContactAddress: string;
+  initialContactAddressAr: string;
   initialContactHours: string;
-  initialReturnPolicy: string;
+  initialContactHoursAr: string;
   initialCareInstructions: string;
+  initialCareInstructionsAr: string;
   initialShippingFee: string;
   initialDepositPercent: number;
   initialFreeShippingEnabled: boolean;
@@ -39,6 +45,7 @@ export default function SettingsForm({
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
+  const [textAr, setTextAr] = useState(initialTextAr);
   const [instagram, setInstagram] = useState(initialInstagram);
   const [tiktok, setTiktok] = useState(initialTiktok);
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
@@ -46,9 +53,11 @@ export default function SettingsForm({
   const [contactPhone, setContactPhone] = useState(initialContactPhone);
   const [contactEmail, setContactEmail] = useState(initialContactEmail);
   const [contactAddress, setContactAddress] = useState(initialContactAddress);
+  const [contactAddressAr, setContactAddressAr] = useState(initialContactAddressAr);
   const [contactHours, setContactHours] = useState(initialContactHours);
-  const [returnPolicy, setReturnPolicy] = useState(initialReturnPolicy);
+  const [contactHoursAr, setContactHoursAr] = useState(initialContactHoursAr);
   const [careInstructions, setCareInstructions] = useState(initialCareInstructions);
+  const [careInstructionsAr, setCareInstructionsAr] = useState(initialCareInstructionsAr);
   const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(initialFreeShippingEnabled);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(initialFreeShippingThreshold);
@@ -64,6 +73,7 @@ export default function SettingsForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         announcementText: text,
+        announcementTextAr: textAr,
         instagramUrl: instagram,
         tiktokUrl: tiktok,
         whatsappUrl: whatsapp,
@@ -71,9 +81,11 @@ export default function SettingsForm({
         contactPhone,
         contactEmail,
         contactAddress,
+        contactAddressAr,
         contactHours,
-        returnPolicyText: returnPolicy,
+        contactHoursAr,
         careInstructionsText: careInstructions,
+        careInstructionsTextAr: careInstructionsAr,
         shippingFee: parseFloat(initialShippingFee) || 0,
         depositPercent: parseInt(depositPercent) || 0,
         freeShippingEnabled,
@@ -97,6 +109,17 @@ export default function SettingsForm({
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           value={text}
           onChange={(e) => setText(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Announcement Bar Text (Arabic)</label>
+        <input
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          value={textAr}
+          onChange={(e) => setTextAr(e.target.value)}
         />
       </div>
 
@@ -218,6 +241,16 @@ export default function SettingsForm({
           />
         </div>
         <div>
+          <label className="text-xs text-foreground/50 block mb-1">Address (Arabic)</label>
+          <input
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            dir="rtl"
+            placeholder="اختياري"
+            value={contactAddressAr}
+            onChange={(e) => setContactAddressAr(e.target.value)}
+          />
+        </div>
+        <div>
           <label className="text-xs text-foreground/50 block mb-1">Working Hours</label>
           <input
             placeholder="Saturday - Thursday, 10am - 10pm"
@@ -226,19 +259,16 @@ export default function SettingsForm({
             onChange={(e) => setContactHours(e.target.value)}
           />
         </div>
-      </div>
-
-      <div>
-        <label className="text-sm font-medium block mb-1">Exchange Policy</label>
-        <p className="text-xs text-foreground/50 mb-2">
-          Shown as an &quot;Exchange Policy&quot; section on every product page.
-        </p>
-        <textarea
-          rows={6}
-          className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
-          value={returnPolicy}
-          onChange={(e) => setReturnPolicy(e.target.value)}
-        />
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Working Hours (Arabic)</label>
+          <input
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            dir="rtl"
+            placeholder="اختياري"
+            value={contactHoursAr}
+            onChange={(e) => setContactHoursAr(e.target.value)}
+          />
+        </div>
       </div>
 
       <div>
@@ -252,6 +282,18 @@ export default function SettingsForm({
           className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
           value={careInstructions}
           onChange={(e) => setCareInstructions(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Washing Instructions (Arabic)</label>
+        <textarea
+          rows={6}
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+          value={careInstructionsAr}
+          onChange={(e) => setCareInstructionsAr(e.target.value)}
         />
       </div>
 

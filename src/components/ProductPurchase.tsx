@@ -4,6 +4,7 @@ import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartPanel from "@/components/AddToCartPanel";
 import Accordion from "@/components/Accordion";
+import ExchangePolicyContent from "@/components/ExchangePolicyContent";
 import { useLanguage } from "@/lib/i18n";
 
 type Variant = {
@@ -25,9 +26,11 @@ export default function ProductPurchase({
   images,
   variants,
   shortDescription,
+  shortDescriptionAr,
   description,
+  descriptionAr,
   careInstructions,
-  returnPolicyText,
+  careInstructionsAr,
 }: {
   productId: string;
   title: string;
@@ -37,13 +40,18 @@ export default function ProductPurchase({
   images: { url: string }[];
   variants: Variant[];
   shortDescription: string;
+  shortDescriptionAr?: string | null;
   description: string;
+  descriptionAr?: string | null;
   careInstructions: string;
-  returnPolicyText: string;
+  careInstructionsAr?: string | null;
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
   const { t, pick } = useLanguage();
   const displayTitle = pick(title, titleAr);
+  const displayShortDescription = pick(shortDescription, shortDescriptionAr);
+  const displayDescription = pick(description, descriptionAr);
+  const displayCareInstructions = pick(careInstructions, careInstructionsAr);
 
   return (
     <div className="grid md:grid-cols-2 gap-6 animate-rise-in">
@@ -66,20 +74,22 @@ export default function ProductPurchase({
           onColorImage={setFocusUrl}
         />
 
-        {(shortDescription || description) && (
+        {(displayShortDescription || displayDescription) && (
           <div className="mt-8 pt-8 border-t border-brand-light text-foreground/80 whitespace-pre-line text-sm">
-            {shortDescription}
-            {description && description !== shortDescription && <p className="mt-3">{description}</p>}
+            {displayShortDescription}
+            {displayDescription && displayDescription !== displayShortDescription && (
+              <p className="mt-3">{displayDescription}</p>
+            )}
           </div>
         )}
 
         <div className="mt-2">
-          {careInstructions && (
-            <Accordion title={t("product.washingInstructions")}>{careInstructions}</Accordion>
+          {displayCareInstructions && (
+            <Accordion title={t("product.washingInstructions")}>{displayCareInstructions}</Accordion>
           )}
-          {returnPolicyText && (
-            <Accordion title={t("product.exchangePolicy")}>{returnPolicyText}</Accordion>
-          )}
+          <Accordion title={t("product.exchangePolicy")}>
+            <ExchangePolicyContent />
+          </Accordion>
         </div>
       </div>
     </div>

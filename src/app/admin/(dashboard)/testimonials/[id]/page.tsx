@@ -14,7 +14,7 @@ export default async function EditTestimonialPage({
   return (
     <div>
       <h1 className="font-display text-3xl mb-8">Edit Testimonial</h1>
-      <TestimonialForm initial={testimonial} />
+      <TestimonialForm initial={{ ...testimonial, quoteAr: testimonial.quoteAr ?? "" }} />
     </div>
   );
 }

@@ -9,7 +9,9 @@ export default async function ContactUsPage() {
       phone={settings.contactPhone}
       email={settings.contactEmail}
       address={settings.contactAddress}
+      addressAr={settings.contactAddressAr}
       hours={settings.contactHours}
+      hoursAr={settings.contactHoursAr}
       instagramUrl={settings.instagramUrl}
       tiktokUrl={settings.tiktokUrl}
       facebookUrl={settings.facebookUrl}

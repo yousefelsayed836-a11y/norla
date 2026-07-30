@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             src={secondary}
             alt=""
             fill
-            className="object-cover opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 group-active:opacity-100"
+            className="object-cover opacity-0 transition-opacity duration-300 md:group-hover:opacity-100"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         )}

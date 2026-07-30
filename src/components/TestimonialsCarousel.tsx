@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 
-type Testimonial = { id: string; customerName: string; quote: string; rating: number };
+type Testimonial = {
+  id: string;
+  customerName: string;
+  quote: string;
+  quoteAr?: string | null;
+  rating: number;
+};
 
 export default function TestimonialsCarousel({ testimonials }: { testimonials: Testimonial[] }) {
   const [index, setIndex] = useState(0);
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
 
   if (testimonials.length === 0) return null;
 
@@ -22,7 +28,9 @@ export default function TestimonialsCarousel({ testimonials }: { testimonials: T
       <h2 className="text-[31px] font-medium text-black mb-6">{t("testimonials.heading")}</h2>
 
       <div className="bg-[#f2f2f2] max-w-[480px] mx-auto rounded-xl px-7 py-6">
-        <p className="text-[17px] text-[#333] leading-relaxed mb-4">&quot;{current.quote}&quot;</p>
+        <p className="text-[17px] text-[#333] leading-relaxed mb-4">
+          &quot;{pick(current.quote, current.quoteAr)}&quot;
+        </p>
         <div className="text-sm text-[#777] font-semibold mb-2.5">— {current.customerName}</div>
         <div className="text-brand text-xl">{"★".repeat(current.rating)}</div>
       </div>

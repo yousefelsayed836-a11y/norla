@@ -13,7 +13,9 @@ export type ProductFormValues = {
   titleAr: string;
   slug: string;
   description: string;
+  descriptionAr: string;
   shortDescription: string;
+  shortDescriptionAr: string;
   price: string;
   regularPrice: string;
   sku: string;
@@ -41,7 +43,9 @@ export default function ProductForm({
       titleAr: "",
       slug: "",
       description: "",
+      descriptionAr: "",
       shortDescription: "",
+      shortDescriptionAr: "",
       price: "",
       regularPrice: "",
       sku: "",
@@ -261,12 +265,36 @@ export default function ProductForm({
       </div>
 
       <div>
+        <label className="text-sm font-medium block mb-1">Short Description (Arabic)</label>
+        <textarea
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          rows={2}
+          value={values.shortDescriptionAr}
+          onChange={(e) => set("shortDescriptionAr", e.target.value)}
+        />
+      </div>
+
+      <div>
         <label className="text-sm font-medium block mb-1">Description</label>
         <textarea
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           rows={4}
           value={values.description}
           onChange={(e) => set("description", e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Description (Arabic)</label>
+        <textarea
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          rows={4}
+          value={values.descriptionAr}
+          onChange={(e) => set("descriptionAr", e.target.value)}
         />
       </div>
 

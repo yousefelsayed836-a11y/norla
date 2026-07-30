@@ -12,12 +12,13 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { customerName, quote, rating, position } = await req.json();
+  const { customerName, quote, quoteAr, rating, position } = await req.json();
   const maxPos = await prisma.testimonial.aggregate({ _max: { position: true } });
   const testimonial = await prisma.testimonial.create({
     data: {
       customerName,
       quote,
+      quoteAr: quoteAr || null,
       rating: rating ?? 5,
       position: position ?? (maxPos._max.position ?? -1) + 1,
     },

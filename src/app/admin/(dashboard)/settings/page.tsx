@@ -9,6 +9,7 @@ export default async function AdminSettingsPage() {
       <h1 className="font-display text-3xl mb-8">Settings</h1>
       <SettingsForm
         initialText={settings.announcementText}
+        initialTextAr={settings.announcementTextAr ?? ""}
         initialInstagram={settings.instagramUrl}
         initialTiktok={settings.tiktokUrl}
         initialWhatsapp={settings.whatsappUrl}
@@ -16,9 +17,11 @@ export default async function AdminSettingsPage() {
         initialContactPhone={settings.contactPhone}
         initialContactEmail={settings.contactEmail}
         initialContactAddress={settings.contactAddress}
+        initialContactAddressAr={settings.contactAddressAr ?? ""}
         initialContactHours={settings.contactHours}
-        initialReturnPolicy={settings.returnPolicyText}
+        initialContactHoursAr={settings.contactHoursAr ?? ""}
         initialCareInstructions={settings.careInstructionsText}
+        initialCareInstructionsAr={settings.careInstructionsTextAr ?? ""}
         initialShippingFee={String(settings.shippingFee)}
         initialDepositPercent={settings.depositPercent}
         initialFreeShippingEnabled={settings.freeShippingEnabled}

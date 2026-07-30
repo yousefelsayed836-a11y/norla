@@ -17,6 +17,7 @@ enum Role {
 model SiteSetting {
   id                String  @id @default("singleton")
   announcementText  String  @default("Enjoy FREE shipping on all orders")
+  announcementTextAr String?
   instagramUrl      String  @default("")
   tiktokUrl         String  @default("")
   whatsappUrl       String  @default("")
@@ -24,9 +25,12 @@ model SiteSetting {
   contactPhone      String  @default("")
   contactEmail      String  @default("")
   contactAddress    String  @default("")
+  contactAddressAr  String?
   contactHours      String  @default("")
+  contactHoursAr    String?
   returnPolicyText  String  @default("")
   careInstructionsText String @default("")
+  careInstructionsTextAr String?
   shippingFee       Decimal @default(0) @db.Decimal(10, 2)
   depositPercent    Int     @default(50)
   freeShippingEnabled   Boolean @default(false)
@@ -72,6 +76,7 @@ model Testimonial {
   id           String   @id @default(cuid())
   customerName String
   quote        String
+  quoteAr      String?
   rating       Int      @default(5)
   position     Int      @default(0)
   createdAt    DateTime @default(now())
@@ -130,7 +135,9 @@ model Product {
   titleAr         String?
   slug            String           @unique
   description     String           @default("")
+  descriptionAr   String?
   shortDescription String          @default("")
+  shortDescriptionAr String?
   careInstructions String          @default("")
   rating          Float            @default(5)
   reviewCount     Int              @default(0)

@@ -18,6 +18,7 @@ export async function PUT(req: NextRequest) {
 
   const {
     announcementText,
+    announcementTextAr,
     instagramUrl,
     tiktokUrl,
     whatsappUrl,
@@ -25,9 +26,12 @@ export async function PUT(req: NextRequest) {
     contactPhone,
     contactEmail,
     contactAddress,
+    contactAddressAr,
     contactHours,
+    contactHoursAr,
     returnPolicyText,
     careInstructionsText,
+    careInstructionsTextAr,
     shippingFee,
     depositPercent,
     freeShippingEnabled,
@@ -35,6 +39,7 @@ export async function PUT(req: NextRequest) {
   } = await req.json();
   const data = {
     announcementText,
+    announcementTextAr: announcementTextAr || null,
     instagramUrl,
     tiktokUrl,
     whatsappUrl,
@@ -42,9 +47,12 @@ export async function PUT(req: NextRequest) {
     contactPhone,
     contactEmail,
     contactAddress,
+    contactAddressAr: contactAddressAr || null,
     contactHours,
+    contactHoursAr: contactHoursAr || null,
     returnPolicyText,
     careInstructionsText,
+    careInstructionsTextAr: careInstructionsTextAr || null,
     shippingFee,
     depositPercent,
     freeShippingEnabled,

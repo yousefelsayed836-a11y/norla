@@ -7,6 +7,7 @@ export type TestimonialFormValues = {
   id?: string;
   customerName: string;
   quote: string;
+  quoteAr: string;
   rating: number;
   position: number;
 };
@@ -15,6 +16,7 @@ export default function TestimonialForm({ initial }: { initial?: TestimonialForm
   const router = useRouter();
   const [customerName, setCustomerName] = useState(initial?.customerName ?? "");
   const [quote, setQuote] = useState(initial?.quote ?? "");
+  const [quoteAr, setQuoteAr] = useState(initial?.quoteAr ?? "");
   const [rating, setRating] = useState(initial?.rating ?? 5);
   const [position, setPosition] = useState(initial?.position ?? 0);
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export default function TestimonialForm({ initial }: { initial?: TestimonialForm
     const res = await fetch(initial?.id ? `/api/testimonials/${initial.id}` : "/api/testimonials", {
       method: initial?.id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ customerName, quote, rating, position }),
+      body: JSON.stringify({ customerName, quote, quoteAr, rating, position }),
     });
 
     setLoading(false);
@@ -69,6 +71,18 @@ export default function TestimonialForm({ initial }: { initial?: TestimonialForm
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           value={quote}
           onChange={(e) => setQuote(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Review Text (Arabic)</label>
+        <textarea
+          rows={4}
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          value={quoteAr}
+          onChange={(e) => setQuoteAr(e.target.value)}
         />
       </div>
 

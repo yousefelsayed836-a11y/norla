@@ -8,10 +8,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const { customerName, quote, rating, position } = await req.json();
+  const { customerName, quote, quoteAr, rating, position } = await req.json();
   const testimonial = await prisma.testimonial.update({
     where: { id },
-    data: { customerName, quote, rating, position },
+    data: { customerName, quote, quoteAr: quoteAr || null, rating, position },
   });
   revalidateStorefront();
   return NextResponse.json({ testimonial });

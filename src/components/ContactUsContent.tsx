@@ -76,7 +76,9 @@ export default function ContactUsContent({
   phone,
   email,
   address,
+  addressAr,
   hours,
+  hoursAr,
   instagramUrl,
   tiktokUrl,
   facebookUrl,
@@ -85,13 +87,17 @@ export default function ContactUsContent({
   phone: string;
   email: string;
   address: string;
+  addressAr?: string | null;
   hours: string;
+  hoursAr?: string | null;
   instagramUrl: string;
   tiktokUrl: string;
   facebookUrl: string;
   whatsappUrl: string;
 }) {
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
+  const displayAddress = pick(address, addressAr);
+  const displayHours = pick(hours, hoursAr);
   const [name, setName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -124,8 +130,8 @@ export default function ContactUsContent({
 
   const cards = [
     phone && { icon: <PhoneIcon />, label: t("contact.phone"), value: phone, href: `tel:${phone}` },
-    address && { icon: <PinIcon />, label: t("contact.address"), value: address, href: undefined },
-    hours && { icon: <ClockIcon />, label: t("contact.hours"), value: hours, href: undefined },
+    address && { icon: <PinIcon />, label: t("contact.address"), value: displayAddress, href: undefined },
+    hours && { icon: <ClockIcon />, label: t("contact.hours"), value: displayHours, href: undefined },
     instagramUrl && {
       icon: <InstagramIcon />,
       label: t("contact.followUs"),

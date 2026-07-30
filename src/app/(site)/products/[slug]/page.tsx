@@ -44,9 +44,11 @@ export default async function ProductDetailPage({
           stockStatus: v.stockStatus,
         }))}
         shortDescription={product.shortDescription}
+        shortDescriptionAr={product.shortDescriptionAr}
         description={product.description}
+        descriptionAr={product.descriptionAr}
         careInstructions={settings.careInstructionsText}
-        returnPolicyText={settings.returnPolicyText}
+        careInstructionsAr={settings.careInstructionsTextAr}
       />
 
       {fallbackRelated.length > 0 && (
