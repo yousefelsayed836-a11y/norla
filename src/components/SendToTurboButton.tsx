@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SendToTurboButton({
   orderId,
@@ -61,12 +62,21 @@ export default function SendToTurboButton({
         <p className="text-sm text-green-700 font-medium">
           Sent — tracking number: {turboOrderId}
         </p>
-        <button
-          onClick={() => setOpen(true)}
-          className="mt-3 text-xs text-foreground/50 underline hover:text-brand-dark"
-        >
-          Send again
-        </button>
+        <div className="flex items-center gap-4 mt-3">
+          <Link
+            href={`/admin/orders/${orderId}/waybill`}
+            target="_blank"
+            className="text-sm font-medium text-brand-dark underline hover:no-underline"
+          >
+            Print Waybill
+          </Link>
+          <button
+            onClick={() => setOpen(true)}
+            className="text-xs text-foreground/50 underline hover:text-brand-dark"
+          >
+            Send again
+          </button>
+        </div>
         {open && (
           <TurboForm
             government={government}

@@ -93,7 +93,7 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
     });
     const data = await res.json();
     if (data.success) {
-      const turboOrderId = data.tracking_number || data.order_id || data.id || data.feed?.id;
+      const turboOrderId = data.result?.code ?? data.result?.bar_code ?? data.result?.invoice_number;
       return { success: true, turboOrderId, raw: data };
     }
     return { success: false, error: data.message || "Turbo rejected the order", raw: data };
