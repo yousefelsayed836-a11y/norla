@@ -95,7 +95,13 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
             ✕
           </button>
           <div className="relative w-full max-w-2xl aspect-[2/3]">
-            <Image src={openUrl} alt="" fill className="object-contain" />
+            <Image
+              src={openUrl}
+              alt=""
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 672px"
+            />
           </div>
         </div>
       )}

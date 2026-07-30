@@ -217,7 +217,13 @@ export default function ProductGallery({
             ✕
           </button>
           <div className="relative w-full max-w-2xl aspect-[3/4]">
-            <Image src={list[active].url} alt={title} fill className="object-contain" />
+            <Image
+              src={list[active].url}
+              alt={title}
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 672px"
+            />
           </div>
         </div>
       )}
