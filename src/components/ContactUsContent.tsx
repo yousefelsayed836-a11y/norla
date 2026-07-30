@@ -124,16 +124,37 @@ export default function ContactUsContent({
 
   const cards = [
     phone && { icon: <PhoneIcon />, label: t("contact.phone"), value: phone, href: `tel:${phone}` },
-    email && { icon: <MailIcon />, label: t("contact.email"), value: email, href: `mailto:${email}` },
     address && { icon: <PinIcon />, label: t("contact.address"), value: address, href: undefined },
     hours && { icon: <ClockIcon />, label: t("contact.hours"), value: hours, href: undefined },
-  ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string; href?: string }[];
-
-  const socials = [
-    instagramUrl && { icon: <InstagramIcon />, href: instagramUrl, label: "Instagram" },
-    tiktokUrl && { icon: <TiktokIcon />, href: tiktokUrl, label: "TikTok" },
-    facebookUrl && { icon: <FacebookIcon />, href: facebookUrl, label: "Facebook" },
-  ].filter(Boolean) as { icon: React.ReactNode; href: string; label: string }[];
+    instagramUrl && {
+      icon: <InstagramIcon />,
+      label: t("contact.followUs"),
+      value: "Instagram",
+      href: instagramUrl,
+      external: true,
+    },
+    tiktokUrl && {
+      icon: <TiktokIcon />,
+      label: t("contact.followUs"),
+      value: "TikTok",
+      href: tiktokUrl,
+      external: true,
+    },
+    facebookUrl && {
+      icon: <FacebookIcon />,
+      label: t("contact.followUs"),
+      value: "Facebook",
+      href: facebookUrl,
+      external: true,
+    },
+    email && { icon: <MailIcon />, label: t("contact.email"), value: email, href: `mailto:${email}` },
+  ].filter(Boolean) as {
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+    href?: string;
+    external?: boolean;
+  }[];
 
   return (
     <div className="relative overflow-hidden pt-[7.5rem] pb-24 min-h-[70vh]">
@@ -160,8 +181,9 @@ export default function ContactUsContent({
               const Wrapper = c.href ? "a" : "div";
               return (
                 <Wrapper
-                  key={c.label}
+                  key={c.value}
                   {...(c.href ? { href: c.href } : {})}
+                  {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="animate-rise-in group flex items-start gap-4 bg-white border border-brand-light rounded-2xl p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-brand"
                   style={{ animationDelay: `${0.2 + i * 0.1}s` }}
                 >
@@ -177,31 +199,6 @@ export default function ContactUsContent({
                 </Wrapper>
               );
             })}
-          </div>
-        )}
-
-        {socials.length > 0 && (
-          <div
-            className="animate-rise-in mb-10"
-            style={{ animationDelay: `${0.2 + cards.length * 0.1}s` }}
-          >
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-foreground/40 mb-4">
-              {t("contact.followUs")}
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="w-11 h-11 rounded-full border border-brand-light flex items-center justify-center text-foreground/60 transition-all duration-300 hover:text-white hover:bg-brand-dark hover:border-brand-dark hover:-translate-y-1"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
           </div>
         )}
 
