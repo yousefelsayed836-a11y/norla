@@ -3,7 +3,6 @@ const BASE_URL = "https://platform.turbo.info/external-api";
 const API_KEY = process.env.TURBO_API_KEY;
 const CLIENT_CODE = process.env.TURBO_CLIENT_CODE;
 export const SENDER_PHONE = "01027096110";
-export const SENDER_NAME = "Norla Designs";
 
 // Maps our ShippingZone.governorate (English) to Turbo's government name (Arabic).
 export const TURBO_GOVERNMENT_MAP: Record<string, string> = {
@@ -70,8 +69,6 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
   const body = {
     authentication_key: API_KEY,
     main_client_code: Number(CLIENT_CODE),
-    sender_name: SENDER_NAME,
-    sender_phone: SENDER_PHONE,
     government: params.government,
     area: params.area,
     api_followup_phone: params.apiFollowupPhone,
