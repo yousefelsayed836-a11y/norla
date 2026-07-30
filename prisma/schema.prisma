@@ -221,6 +221,9 @@ model Order {
   paymentMethod String?
   items      OrderItem[]
   notes      String?
+  turboOrderId String?
+  turboStatus  String?
+  turboRaw     String?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
+import SendToTurboButton from "@/components/SendToTurboButton";
+import { TURBO_GOVERNMENT_MAP } from "@/lib/turbo";
 
 export default async function OrderDetailPage({
   params,
@@ -106,6 +108,21 @@ export default async function OrderDetailPage({
             <span>{formatEGP(Number(order.depositAmount))}</span>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <SendToTurboButton
+          orderId={order.id}
+          defaultGovernment={
+            TURBO_GOVERNMENT_MAP[order.customer?.governorate ?? ""] ??
+            order.customer?.governorate ??
+            ""
+          }
+          defaultArea={order.customer?.city ?? ""}
+          defaultAmount={Number(order.total) - Number(order.depositAmount)}
+          turboOrderId={order.turboOrderId}
+          turboStatus={order.turboStatus}
+        />
       </div>
     </div>
   );

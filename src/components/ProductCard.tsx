@@ -50,7 +50,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           />
         )}
         {onSale && !outOfStock && (
-          <span className="absolute top-3 left-3 bg-brand-dark text-white text-xs px-2 py-1 rounded-full z-10 uppercase">
+          <span className="absolute top-3 left-3 bg-brand-dark text-white text-sm font-medium px-3 py-1.5 rounded-full z-10 uppercase">
             {t("product.sale")}
           </span>
         )}
