@@ -11,12 +11,13 @@ export default async function WaybillPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, customer: true },
+    include: { customer: true },
   });
   if (!order || !order.customer) notFound();
 
   const government =
     TURBO_GOVERNMENT_MAP[order.customer.governorate ?? ""] ?? order.customer.governorate ?? "";
+  const shippingDate = order.updatedAt.toISOString().slice(0, 10);
 
   return (
     <WaybillPrint
@@ -28,7 +29,7 @@ export default async function WaybillPage({
       address={order.customer.address ?? ""}
       government={government}
       area={order.customer.city ?? ""}
-      itemsSummary={order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}
+      shippingDate={shippingDate}
       amountToCollect={
         order.turboAmountToCollect != null
           ? Number(order.turboAmountToCollect)

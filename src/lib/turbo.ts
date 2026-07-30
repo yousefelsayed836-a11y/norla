@@ -2,6 +2,7 @@ const BASE_URL = "https://platform.turbo.info/external-api";
 
 const API_KEY = process.env.TURBO_API_KEY;
 const CLIENT_CODE = process.env.TURBO_CLIENT_CODE;
+export const SENDER_PHONE = "01027096110";
 
 // Maps our ShippingZone.governorate (English) to Turbo's government name (Arabic).
 export const TURBO_GOVERNMENT_MAP: Record<string, string> = {

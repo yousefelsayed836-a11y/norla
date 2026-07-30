@@ -2,10 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import JsBarcode from "jsbarcode";
-import { formatEGP } from "@/lib/format";
+import { SENDER_PHONE } from "@/lib/turbo";
 
-const SENDER_NAME = "Norla Designs";
-const SENDER_PHONE = "01027096110";
+const SENDER_NAME = "نورلا ديزاين";
 
 export default function WaybillPrint({
   orderNo,
@@ -16,7 +15,7 @@ export default function WaybillPrint({
   address,
   government,
   area,
-  itemsSummary,
+  shippingDate,
   amountToCollect,
   returnAmount,
   returnSummary,
@@ -29,7 +28,7 @@ export default function WaybillPrint({
   address: string;
   government: string;
   area: string;
-  itemsSummary: string;
+  shippingDate: string;
   amountToCollect: number;
   returnAmount?: number | null;
   returnSummary?: string | null;
@@ -40,13 +39,15 @@ export default function WaybillPrint({
     if (barcodeRef.current && trackingCode) {
       JsBarcode(barcodeRef.current, trackingCode, {
         format: "CODE128",
-        width: 1.6,
-        height: 45,
-        fontSize: 14,
-        margin: 4,
+        width: 1.5,
+        height: 38,
+        fontSize: 12,
+        margin: 2,
       });
     }
   }, [trackingCode]);
+
+  const fullAddress = [address, area, government].filter(Boolean).join(" - ");
 
   return (
     <div>
@@ -69,55 +70,79 @@ export default function WaybillPrint({
       </div>
 
       <div
-        className="bg-white border border-black text-black font-jost flex flex-col"
-        style={{ width: "10cm", height: "15cm", padding: "0.35cm", boxSizing: "border-box" }}
+        dir="rtl"
+        className="bg-white border border-black text-black font-jost flex flex-col text-[11px]"
+        style={{ width: "10cm", height: "15cm", padding: "0.3cm", boxSizing: "border-box" }}
       >
-        <div className="text-center border-b border-black pb-1 mb-2">
-          <p className="font-bold text-[13px] uppercase tracking-wide">Norla Designs</p>
-          <p className="text-[10px]">Order #{orderNo}</p>
+        <div className="flex items-start justify-between border-b border-black pb-1.5 mb-1.5">
+          <div className="text-center flex-1">
+            <p className="text-[10px]">قيمة</p>
+            <div className="border border-black rounded px-2 py-0.5 mt-0.5 inline-block">
+              <p className="text-[9px]">الإجمالي</p>
+              <p className="text-[12px] font-bold">
+                {amountToCollect} <span className="text-[9px] font-normal">ج.م</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center flex-1">
+            <p className="font-bold text-[15px] uppercase tracking-wide">Norla Designs</p>
+          </div>
+
+          <div className="text-center flex-1">
+            <p className="text-[10px]">الكود:</p>
+            <p className="text-[13px] font-bold mb-1">{trackingCode || "—"}</p>
+            {trackingCode && <svg ref={barcodeRef} />}
+          </div>
         </div>
 
-        <div className="border border-black rounded p-1.5 mb-2">
-          <p className="text-[9px] uppercase text-gray-600">From</p>
-          <p className="text-[11px] font-semibold">{SENDER_NAME}</p>
-          <p className="text-[11px]">{SENDER_PHONE}</p>
+        <div className="text-[10px] leading-relaxed border-b border-black pb-1.5 mb-1.5">
+          <p>تاريخ الشحن: {shippingDate}</p>
+          <p>تاريخ التسليم المتوقع: N/A</p>
+          <p>طريقة الشحن: Ground</p>
         </div>
 
-        <div className="border border-black rounded p-1.5 mb-2">
-          <p className="text-[9px] uppercase text-gray-600">To</p>
-          <p className="text-[12px] font-semibold">{receiverName}</p>
-          <p className="text-[11px]">{phone1}{phone2 && phone2 !== phone1 ? ` / ${phone2}` : ""}</p>
-          <p className="text-[11px] leading-snug">{address}</p>
-          <p className="text-[11px]">
-            {area}, {government}
-          </p>
-        </div>
-
-        <div className="border border-black rounded p-1.5 mb-2">
-          <p className="text-[9px] uppercase text-gray-600">Items</p>
-          <p className="text-[10px] leading-snug">{itemsSummary}</p>
-        </div>
-
-        <div className="border border-black rounded p-1.5 mb-2 text-center">
-          <p className="text-[9px] uppercase text-gray-600">Cash to Collect</p>
-          <p className="text-[16px] font-bold">{formatEGP(amountToCollect)}</p>
-        </div>
+        <table className="w-full border-collapse border border-black text-[10px]">
+          <tbody>
+            <tr>
+              <td className="border border-black p-1 font-medium w-[28%]">اسم الراسل:</td>
+              <td className="border border-black p-1">{SENDER_NAME}</td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 font-medium">رقم الراسل:</td>
+              <td className="border border-black p-1" dir="ltr">
+                {SENDER_PHONE}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 font-medium">اسم المستلم:</td>
+              <td className="border border-black p-1">{receiverName}</td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 font-medium">رقم المستلم:</td>
+              <td className="border border-black p-1" dir="ltr">
+                {phone1}
+                {phone2 && phone2 !== phone1 ? ` / ${phone2}` : ""}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 font-medium">العنوان:</td>
+              <td className="border border-black p-1 leading-snug">{fullAddress}</td>
+            </tr>
+          </tbody>
+        </table>
 
         {returnAmount != null && returnAmount > 0 && (
-          <div className="border border-black rounded p-1.5 mb-2 text-center">
-            <p className="text-[9px] uppercase text-gray-600">Return Pickup</p>
-            <p className="text-[13px] font-bold">{formatEGP(returnAmount)}</p>
-            {returnSummary && <p className="text-[9px] text-gray-600">{returnSummary}</p>}
+          <div className="border border-black rounded p-1.5 mt-1.5 text-center">
+            <p className="text-[9px]">استلام مرتجع</p>
+            <p className="text-[12px] font-bold">
+              {returnAmount} <span className="text-[9px] font-normal">ج.م</span>
+            </p>
+            {returnSummary && <p className="text-[9px]">{returnSummary}</p>}
           </div>
         )}
 
-        <div className="flex flex-col items-center mt-2">
-          {trackingCode ? (
-            <svg ref={barcodeRef} />
-          ) : (
-            <p className="text-[10px] text-gray-500">No tracking code yet</p>
-          )}
-        </div>
+        <p className="text-[10px] mt-1.5">رقم الفاتورة: {orderNo}</p>
 
         <div className="mt-auto pt-3 flex items-center gap-2" style={{ marginTop: "auto" }}>
           <span aria-hidden className="text-[12px]">✂</span>

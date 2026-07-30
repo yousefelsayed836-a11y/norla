@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { sendOrderToTurbo, TURBO_GOVERNMENT_MAP } from "@/lib/turbo";
+import { sendOrderToTurbo, TURBO_GOVERNMENT_MAP, SENDER_PHONE } from "@/lib/turbo";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     receiver: order.customer.name,
     phone1: order.customer.phone ?? "",
     phone2: order.customer.whatsappNumber ?? undefined,
-    apiFollowupPhone: order.customer.phone ?? "",
+    apiFollowupPhone: SENDER_PHONE,
     amountToBeCollected,
     orderSummary,
     weight,
