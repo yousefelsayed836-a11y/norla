@@ -1,5 +1,6 @@
 import { getSiteSettings } from "@/lib/settings";
 import SettingsForm from "@/components/SettingsForm";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
 
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
@@ -7,6 +8,9 @@ export default async function AdminSettingsPage() {
   return (
     <div>
       <h1 className="font-display text-3xl mb-8">Settings</h1>
+      <div className="mb-8">
+        <ChangePasswordForm />
+      </div>
       <SettingsForm
         initialText={settings.announcementText}
         initialTextAr={settings.announcementTextAr ?? ""}
