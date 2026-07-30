@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import SendToTurboButton from "@/components/SendToTurboButton";
-import { TURBO_GOVERNMENT_MAP } from "@/lib/turbo";
+import { TURBO_GOVERNMENT_MAP, TURBO_GOVERNMENT_ID } from "@/lib/turbo";
 
 export default async function OrderDetailPage({
   params,
@@ -118,6 +118,7 @@ export default async function OrderDetailPage({
             order.customer?.governorate ??
             ""
           }
+          defaultGovernmentId={TURBO_GOVERNMENT_ID[order.customer?.governorate ?? ""] ?? null}
           defaultArea={order.customer?.city ?? ""}
           defaultAmount={Number(order.total) - Number(order.depositAmount)}
           defaultOrderSummary={order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}

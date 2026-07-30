@@ -35,6 +35,54 @@ export const TURBO_GOVERNMENT_MAP: Record<string, string> = {
   "South Sinai": "جنوب سيناء",
 };
 
+// Maps our ShippingZone.governorate (English) to Turbo's numeric government id.
+export const TURBO_GOVERNMENT_ID: Record<string, number> = {
+  Cairo: 1,
+  Giza: 2,
+  Sharqia: 3,
+  Dakahlia: 4,
+  Beheira: 5,
+  Minya: 6,
+  Qalyubia: 7,
+  Alexandria: 8,
+  Gharbia: 9,
+  Sohag: 10,
+  Asyut: 11,
+  Monufia: 12,
+  "Kafr El Sheikh": 13,
+  Faiyum: 14,
+  Qena: 15,
+  "Beni Suef": 16,
+  Aswan: 17,
+  Damietta: 18,
+  Ismailia: 19,
+  Luxor: 20,
+  "Port Said": 21,
+  Suez: 22,
+  Matrouh: 23,
+  "North Sinai": 24,
+  "Red Sea": 25,
+  "New Valley": 26,
+  "South Sinai": 27,
+};
+
+export type TurboArea = { id: number; name: string };
+
+export async function getTurboAreas(governmentId: number): Promise<TurboArea[]> {
+  if (!API_KEY || !CLIENT_CODE) return [];
+  const url = new URL(`${BASE_URL}/get-area/${governmentId}`);
+  url.searchParams.set("authentication_key", API_KEY);
+  url.searchParams.set("main_client_code", CLIENT_CODE);
+  try {
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    if (!data.success) return [];
+    return (data.feed || []).map((a: { id: number; name: string }) => ({ id: a.id, name: a.name }));
+  } catch {
+    return [];
+  }
+}
+
 export type TurboAddOrderParams = {
   government: string;
   area: string;

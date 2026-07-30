@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatEGP } from "@/lib/format";
@@ -8,6 +8,7 @@ import { formatEGP } from "@/lib/format";
 export default function SendToTurboButton({
   orderId,
   defaultGovernment,
+  defaultGovernmentId,
   defaultArea,
   defaultAmount,
   defaultOrderSummary,
@@ -19,6 +20,7 @@ export default function SendToTurboButton({
 }: {
   orderId: string;
   defaultGovernment: string;
+  defaultGovernmentId: number | null;
   defaultArea: string;
   defaultAmount: number;
   defaultOrderSummary: string;
@@ -41,6 +43,15 @@ export default function SendToTurboButton({
   const [returnSummary, setReturnSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [areaOptions, setAreaOptions] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    if (!open || !defaultGovernmentId) return;
+    fetch(`/api/turbo/areas?governmentId=${defaultGovernmentId}`)
+      .then((r) => r.json())
+      .then((d) => setAreaOptions(d.areas || []))
+      .catch(() => {});
+  }, [open, defaultGovernmentId]);
 
   async function handleSend() {
     setLoading(true);
@@ -111,6 +122,7 @@ export default function SendToTurboButton({
             setGovernment={setGovernment}
             area={area}
             setArea={setArea}
+            areaOptions={areaOptions}
             amount={amount}
             setAmount={setAmount}
             orderSummary={orderSummary}
@@ -153,6 +165,7 @@ export default function SendToTurboButton({
           setGovernment={setGovernment}
           area={area}
           setArea={setArea}
+          areaOptions={areaOptions}
           amount={amount}
           setAmount={setAmount}
           orderSummary={orderSummary}
@@ -182,6 +195,7 @@ function TurboForm({
   setGovernment,
   area,
   setArea,
+  areaOptions,
   amount,
   setAmount,
   orderSummary,
@@ -205,6 +219,7 @@ function TurboForm({
   setGovernment: (v: string) => void;
   area: string;
   setArea: (v: string) => void;
+  areaOptions: { id: number; name: string }[];
   amount: string;
   setAmount: (v: string) => void;
   orderSummary: string;
@@ -240,12 +255,26 @@ function TurboForm({
           />
         </div>
         <div>
-          <label className="text-xs text-foreground/50 block mb-1">Area</label>
+          <label className="text-xs text-foreground/50 block mb-1">
+            Area {areaOptions.length > 0 && `(${areaOptions.length} valid options)`}
+          </label>
           <input
+            list="turbo-area-options"
             className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
             value={area}
             onChange={(e) => setArea(e.target.value)}
           />
+          <datalist id="turbo-area-options">
+            {areaOptions.map((a) => (
+              <option key={a.id} value={a.name} />
+            ))}
+          </datalist>
+          {areaOptions.length > 0 && !areaOptions.some((a) => a.name === area) && (
+            <p className="text-[11px] text-amber-600 mt-1">
+              &quot;{area}&quot; isn&apos;t in Turbo&apos;s known list for this government — pick a
+              suggestion below to avoid an unassigned branch.
+            </p>
+          )}
         </div>
         <div>
           <label className="text-xs text-foreground/50 block mb-1">Amount to collect (LE)</label>
