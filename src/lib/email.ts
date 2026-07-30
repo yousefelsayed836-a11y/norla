@@ -24,12 +24,33 @@ export async function sendAdminOrderNotification(params: {
   customerName: string;
   phone: string | null;
   whatsappNumber?: string | null;
+  items: { title: string; quantity: number; imageUrl?: string }[];
   total: number;
   depositAmount: number;
   paymentMethod?: string | null;
 }) {
   if (!resend || !params.to) return;
   const methodLabel = paymentMethodLabel(params.paymentMethod);
+
+  const itemsRows = params.items
+    .map((item) => {
+      const img = absoluteImageUrl(item.imageUrl);
+      return `
+        <tr>
+          <td style="padding:8px 0;border-bottom:1px solid #eee;width:52px">
+            ${
+              img
+                ? `<img src="${img}" width="44" height="44" alt="" style="display:block;width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee" />`
+                : `<div style="width:44px;height:44px;border-radius:6px;background:#fbe4ee"></div>`
+            }
+          </td>
+          <td style="padding:8px 0 8px 10px;border-bottom:1px solid #eee;color:#333;font-size:14px">
+            ${item.title} <span style="color:#999">× ${item.quantity}</span>
+          </td>
+        </tr>`;
+    })
+    .join("");
+
   try {
     await resend.emails.send({
       from: FROM,
@@ -41,6 +62,7 @@ export async function sendAdminOrderNotification(params: {
           <p><strong>Customer:</strong> ${params.customerName}</p>
           <p><strong>Phone:</strong> ${params.phone}</p>
           ${params.whatsappNumber ? `<p><strong>WhatsApp:</strong> ${params.whatsappNumber}</p>` : ""}
+          <table style="width:100%;border-collapse:collapse;margin:12px 0">${itemsRows}</table>
           <p><strong>Total:</strong> ${formatEGP(params.total)}</p>
           <p><strong>Deposit due:</strong> ${formatEGP(params.depositAmount)}</p>
           ${methodLabel ? `<p><strong>Deposit payment method:</strong> ${methodLabel}</p>` : ""}

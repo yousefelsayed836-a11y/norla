@@ -148,6 +148,11 @@ export async function POST(req: NextRequest) {
     customerName: order.customer!.name,
     phone: order.customer!.phone,
     whatsappNumber: order.customer!.whatsappNumber,
+    items: resolvedItems.map((i) => ({
+      title: i.title,
+      quantity: i.quantity,
+      imageUrl: i.imageUrl,
+    })),
     total,
     depositAmount,
     paymentMethod: order.paymentMethod,

@@ -26,6 +26,9 @@ export default function SendToTurboButton({
   const [amount, setAmount] = useState(String(defaultAmount));
   const [weight, setWeight] = useState("1");
   const [isFragile, setIsFragile] = useState(false);
+  const [isReturn, setIsReturn] = useState(false);
+  const [returnAmount, setReturnAmount] = useState("0");
+  const [returnSummary, setReturnSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +44,9 @@ export default function SendToTurboButton({
         amountToBeCollected: parseFloat(amount) || 0,
         weight: parseFloat(weight) || 1,
         isFragile,
+        isReturn,
+        returnAmount: parseFloat(returnAmount) || 0,
+        returnSummary,
       }),
     });
     setLoading(false);
@@ -89,6 +95,12 @@ export default function SendToTurboButton({
             setWeight={setWeight}
             isFragile={isFragile}
             setIsFragile={setIsFragile}
+            isReturn={isReturn}
+            setIsReturn={setIsReturn}
+            returnAmount={returnAmount}
+            setReturnAmount={setReturnAmount}
+            returnSummary={returnSummary}
+            setReturnSummary={setReturnSummary}
             loading={loading}
             error={error}
             onCancel={() => setOpen(false)}
@@ -123,6 +135,12 @@ export default function SendToTurboButton({
           setWeight={setWeight}
           isFragile={isFragile}
           setIsFragile={setIsFragile}
+          isReturn={isReturn}
+          setIsReturn={setIsReturn}
+          returnAmount={returnAmount}
+          setReturnAmount={setReturnAmount}
+          returnSummary={returnSummary}
+          setReturnSummary={setReturnSummary}
           loading={loading}
           error={error}
           onCancel={() => setOpen(false)}
@@ -144,6 +162,12 @@ function TurboForm({
   setWeight,
   isFragile,
   setIsFragile,
+  isReturn,
+  setIsReturn,
+  returnAmount,
+  setReturnAmount,
+  returnSummary,
+  setReturnSummary,
   loading,
   error,
   onCancel,
@@ -159,6 +183,12 @@ function TurboForm({
   setWeight: (v: string) => void;
   isFragile: boolean;
   setIsFragile: (v: boolean) => void;
+  isReturn: boolean;
+  setIsReturn: (v: boolean) => void;
+  returnAmount: string;
+  setReturnAmount: (v: string) => void;
+  returnSummary: string;
+  setReturnSummary: (v: string) => void;
   loading: boolean;
   error: string | null;
   onCancel: () => void;
@@ -216,6 +246,42 @@ function TurboForm({
         />
         Fragile
       </label>
+
+      <div className="border-t border-brand-light pt-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            checked={isReturn}
+            onChange={(e) => setIsReturn(e.target.checked)}
+            className="accent-brand-dark w-4 h-4"
+          />
+          Also pick up a return from the customer
+        </label>
+        {isReturn && (
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <div>
+              <label className="text-xs text-foreground/50 block mb-1">
+                Amount to collect for return (LE)
+              </label>
+              <input
+                type="number"
+                className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
+                value={returnAmount}
+                onChange={(e) => setReturnAmount(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-foreground/50 block mb-1">Return item summary</label>
+              <input
+                className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
+                value={returnSummary}
+                onChange={(e) => setReturnSummary(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {error && <p className="text-red-600 text-sm">{error}</p>}
       <div className="flex gap-2">
         <button

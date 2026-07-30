@@ -29,6 +29,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     body.amountToBeCollected != null
       ? Number(body.amountToBeCollected)
       : Number(order.total) - Number(order.depositAmount);
+  const isReturn = !!body.isReturn;
+  const returnAmount = isReturn ? Number(body.returnAmount) || 0 : 0;
+  const returnSummary = isReturn ? body.returnSummary || "" : "";
 
   const orderSummary = order.items.map((i) => `${i.title} x${i.quantity}`).join(", ");
 
@@ -46,6 +49,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     notes: order.notes ?? "",
     isFragile,
     remoteOrderId: order.orderNo,
+    returnAmount,
+    returnSummary,
   });
 
   await prisma.order.update({

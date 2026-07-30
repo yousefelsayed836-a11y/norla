@@ -48,6 +48,8 @@ export type TurboAddOrderParams = {
   notes?: string;
   isFragile: boolean;
   remoteOrderId: number;
+  returnAmount?: number;
+  returnSummary?: string;
 };
 
 export type TurboResult =
@@ -81,8 +83,8 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
     phone2: params.phone2 || params.phone1,
     is_order: "",
     is_fragile: params.isFragile ? 1 : 0,
-    return_amount: 0,
-    return_summary: "",
+    return_amount: params.returnAmount ?? 0,
+    return_summary: params.returnSummary || "",
   };
 
   try {
