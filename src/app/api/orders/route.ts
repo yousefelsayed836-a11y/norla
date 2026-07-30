@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { adjustStock } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
 import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -29,6 +30,11 @@ const orderSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const { allowed } = rateLimit(req, "orders", 10, 60 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many orders. Please try again later." }, { status: 429 });
+  }
+
   const parsed = orderSchema.safeParse(await req.json());
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });

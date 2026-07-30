@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { setSessionCookie } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const { allowed } = rateLimit(req, "login", 5, 15 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
+  }
+
   const { password } = await req.json();
   if (!password) {
     return NextResponse.json({ error: "Password required" }, { status: 400 });

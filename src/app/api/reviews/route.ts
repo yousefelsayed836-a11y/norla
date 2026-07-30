@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET() {
   const session = await getSession();
@@ -14,6 +15,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { allowed } = rateLimit(req, "reviews", 10, 60 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many reviews. Please try again later." }, { status: 429 });
+  }
+
   const { productId, authorName, rating, comment } = await req.json();
 
   if (!productId || !authorName?.trim() || !comment?.trim()) {
