@@ -77,7 +77,7 @@ export async function sendOrderToTurbo(params: TurboAddOrderParams): Promise<Tur
     order_summary: params.orderSummary,
     weight: params.weight,
     notes: params.notes || "",
-    delivery_type: 1,
+    delivery_type: 2,
     remote_order_id: params.remoteOrderId,
     receiver: params.receiver,
     phone1: params.phone1,
