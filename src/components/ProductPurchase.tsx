@@ -46,7 +46,7 @@ export default function ProductPurchase({
   const displayTitle = pick(title, titleAr);
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid md:grid-cols-2 gap-6 animate-rise-in">
       <ProductGallery images={images} title={displayTitle} focusUrl={focusUrl} />
 
       <div>

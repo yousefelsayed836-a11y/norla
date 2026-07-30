@@ -28,8 +28,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
     : product.stockStatus === "outofstock";
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block font-jost">
-      <div className="relative aspect-[2/3] overflow-hidden bg-brand-light">
+    <Link
+      href={`/products/${product.slug}`}
+      className="group block font-jost transition-transform duration-150 active:scale-[0.97]"
+    >
+      <div className="relative aspect-[2/3] overflow-hidden bg-brand-light pointer-events-none">
         <Image
           src={primary}
           alt={displayTitle}
@@ -57,7 +60,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </span>
         )}
       </div>
-      <div className="mt-3 text-center">
+      <div className="mt-3 text-center pointer-events-none">
         <h3 className="text-[16px] font-medium uppercase tracking-[0.2em] text-black">
           {displayTitle}
         </h3>
