@@ -18,6 +18,8 @@ export default function WaybillPrint({
   area,
   itemsSummary,
   amountToCollect,
+  returnAmount,
+  returnSummary,
 }: {
   orderNo: number;
   trackingCode: string;
@@ -29,6 +31,8 @@ export default function WaybillPrint({
   area: string;
   itemsSummary: string;
   amountToCollect: number;
+  returnAmount?: number | null;
+  returnSummary?: string | null;
 }) {
   const barcodeRef = useRef<SVGSVGElement>(null);
 
@@ -65,7 +69,7 @@ export default function WaybillPrint({
       </div>
 
       <div
-        className="bg-white border border-black text-black font-jost"
+        className="bg-white border border-black text-black font-jost flex flex-col"
         style={{ width: "10cm", height: "15cm", padding: "0.35cm", boxSizing: "border-box" }}
       >
         <div className="text-center border-b border-black pb-1 mb-2">
@@ -99,12 +103,25 @@ export default function WaybillPrint({
           <p className="text-[16px] font-bold">{formatEGP(amountToCollect)}</p>
         </div>
 
+        {returnAmount != null && returnAmount > 0 && (
+          <div className="border border-black rounded p-1.5 mb-2 text-center">
+            <p className="text-[9px] uppercase text-gray-600">Return Pickup</p>
+            <p className="text-[13px] font-bold">{formatEGP(returnAmount)}</p>
+            {returnSummary && <p className="text-[9px] text-gray-600">{returnSummary}</p>}
+          </div>
+        )}
+
         <div className="flex flex-col items-center mt-2">
           {trackingCode ? (
             <svg ref={barcodeRef} />
           ) : (
             <p className="text-[10px] text-gray-500">No tracking code yet</p>
           )}
+        </div>
+
+        <div className="mt-auto pt-3 flex items-center gap-2" style={{ marginTop: "auto" }}>
+          <span aria-hidden className="text-[12px]">✂</span>
+          <div className="flex-1 border-t border-dashed border-black" />
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { formatEGP } from "@/lib/format";
 
 export default function SendToTurboButton({
   orderId,
@@ -11,6 +12,9 @@ export default function SendToTurboButton({
   defaultAmount,
   turboOrderId,
   turboStatus,
+  turboAmountToCollect,
+  turboReturnAmount,
+  turboReturnSummary,
 }: {
   orderId: string;
   defaultGovernment: string;
@@ -18,6 +22,9 @@ export default function SendToTurboButton({
   defaultAmount: number;
   turboOrderId: string | null;
   turboStatus: string | null;
+  turboAmountToCollect: number | null;
+  turboReturnAmount: number | null;
+  turboReturnSummary: string | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -68,6 +75,17 @@ export default function SendToTurboButton({
         <p className="text-sm text-green-700 font-medium">
           Sent — tracking number: {turboOrderId}
         </p>
+        {turboAmountToCollect != null && (
+          <p className="text-sm text-foreground/70 mt-1">
+            Cash to collect: <span className="font-medium text-black">{formatEGP(turboAmountToCollect)}</span>
+          </p>
+        )}
+        {turboReturnAmount != null && (
+          <p className="text-sm text-foreground/70 mt-1">
+            Return pickup: <span className="font-medium text-black">{formatEGP(turboReturnAmount)}</span>
+            {turboReturnSummary ? ` — ${turboReturnSummary}` : ""}
+          </p>
+        )}
         <div className="flex items-center gap-4 mt-3">
           <Link
             href={`/admin/orders/${orderId}/waybill`}

@@ -224,6 +224,9 @@ model Order {
   turboOrderId String?
   turboStatus  String?
   turboRaw     String?
+  turboAmountToCollect Decimal? @db.Decimal(10, 2)
+  turboReturnAmount    Decimal? @db.Decimal(10, 2)
+  turboReturnSummary   String?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }

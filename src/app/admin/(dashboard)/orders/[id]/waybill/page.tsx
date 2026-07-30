@@ -29,7 +29,13 @@ export default async function WaybillPage({
       government={government}
       area={order.customer.city ?? ""}
       itemsSummary={order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}
-      amountToCollect={Number(order.total) - Number(order.depositAmount)}
+      amountToCollect={
+        order.turboAmountToCollect != null
+          ? Number(order.turboAmountToCollect)
+          : Number(order.total) - Number(order.depositAmount)
+      }
+      returnAmount={order.turboReturnAmount != null ? Number(order.turboReturnAmount) : null}
+      returnSummary={order.turboReturnSummary}
     />
   );
 }

@@ -59,6 +59,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       turboOrderId: result.success ? String(result.turboOrderId ?? "") : order.turboOrderId,
       turboStatus: result.success ? "sent" : "failed",
       turboRaw: JSON.stringify(result.raw ?? { error: !result.success ? result.error : undefined }),
+      turboAmountToCollect: result.success ? amountToBeCollected : order.turboAmountToCollect,
+      turboReturnAmount: result.success ? (isReturn ? returnAmount : null) : order.turboReturnAmount,
+      turboReturnSummary: result.success ? (isReturn ? returnSummary : null) : order.turboReturnSummary,
     },
   });
 

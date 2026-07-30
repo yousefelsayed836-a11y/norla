@@ -122,6 +122,11 @@ export default async function OrderDetailPage({
           defaultAmount={Number(order.total) - Number(order.depositAmount)}
           turboOrderId={order.turboOrderId}
           turboStatus={order.turboStatus}
+          turboAmountToCollect={
+            order.turboAmountToCollect != null ? Number(order.turboAmountToCollect) : null
+          }
+          turboReturnAmount={order.turboReturnAmount != null ? Number(order.turboReturnAmount) : null}
+          turboReturnSummary={order.turboReturnSummary}
         />
       </div>
     </div>
