@@ -238,7 +238,7 @@ const translations = {
     "policy.exchangeBullet3": "العميلة مسؤولة عن تكاليف الشحن الخاصة بالاستبدال.",
     "policy.exchangeBullet4": "منتجات التخفيضات النهائية غير قابلة للاسترداد أو الاستبدال تحت أي ظرف.",
     "policy.refundSectionTitle": "سياسة الاسترداد",
-    "policy.refundText": "لا نقبل استرداد الأموال.",
+    "policy.refundText": "لا نقبل الاسترداد.",
     "testimonials.heading": "آراء عملائنا",
     "testimonials.previous": "السابق",
     "testimonials.next": "التالي",
