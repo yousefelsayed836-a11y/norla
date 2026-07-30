@@ -32,6 +32,7 @@ export default async function ProductDetailPage({
         title={product.title}
         titleAr={product.titleAr}
         categoryName={product.category?.name}
+        categoryNameAr={product.category?.nameAr}
         basePrice={product.price}
         images={product.images}
         variants={product.variants.map((v) => ({

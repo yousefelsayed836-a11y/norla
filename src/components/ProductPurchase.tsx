@@ -22,6 +22,7 @@ export default function ProductPurchase({
   title,
   titleAr,
   categoryName,
+  categoryNameAr,
   basePrice,
   images,
   variants,
@@ -36,6 +37,7 @@ export default function ProductPurchase({
   title: string;
   titleAr?: string | null;
   categoryName?: string | null;
+  categoryNameAr?: string | null;
   basePrice: number;
   images: { url: string }[];
   variants: Variant[];
@@ -60,7 +62,7 @@ export default function ProductPurchase({
       <div>
         {categoryName && (
           <p className="text-xs uppercase tracking-wide text-foreground/50 mb-2 text-center">
-            {categoryName}
+            {pick(categoryName, categoryNameAr)}
           </p>
         )}
         <h1 className="font-jost text-3xl md:text-4xl mb-4 text-black text-center">{displayTitle}</h1>

@@ -8,11 +8,11 @@ import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 import { useLanguage } from "@/lib/i18n";
 
-type CategoryItem = { name: string; slug: string };
+type CategoryItem = { name: string; nameAr?: string | null; slug: string };
 
 export default function SiteHeader({ categories }: { categories: CategoryItem[] }) {
   const { count } = useCart();
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, pick } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
@@ -230,7 +230,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
                 href={`/products?category=${c.slug}`}
                 className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
               >
-                {c.name}
+                {pick(c.name, c.nameAr)}
               </Link>
             ))}
             <Link

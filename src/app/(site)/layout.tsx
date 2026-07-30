@@ -15,7 +15,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <LanguageProvider>
       <div className="public-site flex flex-col flex-1">
         <AnnouncementBar text={settings.announcementText} textAr={settings.announcementTextAr} />
-        <SiteHeader categories={categories.map((c) => ({ name: c.name, slug: c.slug }))} />
+        <SiteHeader
+          categories={categories.map((c) => ({ name: c.name, nameAr: c.nameAr, slug: c.slug }))}
+        />
         <main className="flex-1">{children}</main>
         <SiteFooter
           instagramUrl={settings.instagramUrl}

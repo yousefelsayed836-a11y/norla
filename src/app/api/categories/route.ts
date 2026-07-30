@@ -12,11 +12,12 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, slug, imageUrl, position, productIds } = await req.json();
+  const { name, nameAr, slug, imageUrl, position, productIds } = await req.json();
   const maxPos = await prisma.category.aggregate({ _max: { position: true } });
   const category = await prisma.category.create({
     data: {
       name,
+      nameAr: nameAr || null,
       slug,
       imageUrl: imageUrl || null,
       position: position ?? (maxPos._max.position ?? -1) + 1,

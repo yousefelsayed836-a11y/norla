@@ -8,6 +8,7 @@ import HeroSlider from "@/components/HeroSlider";
 import MadeByUsSection from "@/components/MadeByUsSection";
 import WriteReviewForm from "@/components/WriteReviewForm";
 import T from "@/components/T";
+import Pick from "@/components/Pick";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
@@ -68,7 +69,7 @@ export default async function HomePage() {
                 )}
                 <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
                   <span className="text-white text-sm font-medium uppercase tracking-[0.2em]">
-                    {c.name}
+                    <Pick en={c.name} ar={c.nameAr} />
                   </span>
                 </div>
               </Link>

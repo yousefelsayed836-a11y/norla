@@ -9,6 +9,7 @@ type ProductOption = { id: string; title: string };
 export type CategoryFormValues = {
   id?: string;
   name: string;
+  nameAr: string;
   slug: string;
   imageUrl: string;
   position: number;
@@ -24,6 +25,7 @@ export default function CategoryForm({
 }) {
   const router = useRouter();
   const [name, setName] = useState(initial?.name ?? "");
+  const [nameAr, setNameAr] = useState(initial?.nameAr ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? "");
   const [position, setPosition] = useState(initial?.position ?? 0);
@@ -43,7 +45,7 @@ export default function CategoryForm({
     const res = await fetch(initial?.id ? `/api/categories/${initial.id}` : "/api/categories", {
       method: initial?.id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, slug, imageUrl, position, productIds }),
+      body: JSON.stringify({ name, nameAr, slug, imageUrl, position, productIds }),
     });
 
     setLoading(false);
@@ -73,6 +75,17 @@ export default function CategoryForm({
           className="w-full border border-brand-light rounded-xl px-4 py-2.5"
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-1">Category Name (Arabic)</label>
+        <input
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+          dir="rtl"
+          placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+          value={nameAr}
+          onChange={(e) => setNameAr(e.target.value)}
         />
       </div>
 
