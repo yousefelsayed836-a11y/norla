@@ -10,6 +10,7 @@ export default function SendToTurboButton({
   defaultGovernment,
   defaultArea,
   defaultAmount,
+  defaultOrderSummary,
   turboOrderId,
   turboStatus,
   turboAmountToCollect,
@@ -20,6 +21,7 @@ export default function SendToTurboButton({
   defaultGovernment: string;
   defaultArea: string;
   defaultAmount: number;
+  defaultOrderSummary: string;
   turboOrderId: string | null;
   turboStatus: string | null;
   turboAmountToCollect: number | null;
@@ -31,6 +33,7 @@ export default function SendToTurboButton({
   const [government, setGovernment] = useState(defaultGovernment);
   const [area, setArea] = useState(defaultArea);
   const [amount, setAmount] = useState(String(defaultAmount));
+  const [orderSummary, setOrderSummary] = useState(defaultOrderSummary);
   const [weight, setWeight] = useState("1");
   const [isFragile, setIsFragile] = useState(false);
   const [isReturn, setIsReturn] = useState(false);
@@ -49,6 +52,7 @@ export default function SendToTurboButton({
         government,
         area,
         amountToBeCollected: parseFloat(amount) || 0,
+        orderSummary,
         weight: parseFloat(weight) || 1,
         isFragile,
         isReturn,
@@ -109,6 +113,8 @@ export default function SendToTurboButton({
             setArea={setArea}
             amount={amount}
             setAmount={setAmount}
+            orderSummary={orderSummary}
+            setOrderSummary={setOrderSummary}
             weight={weight}
             setWeight={setWeight}
             isFragile={isFragile}
@@ -149,6 +155,8 @@ export default function SendToTurboButton({
           setArea={setArea}
           amount={amount}
           setAmount={setAmount}
+          orderSummary={orderSummary}
+          setOrderSummary={setOrderSummary}
           weight={weight}
           setWeight={setWeight}
           isFragile={isFragile}
@@ -176,6 +184,8 @@ function TurboForm({
   setArea,
   amount,
   setAmount,
+  orderSummary,
+  setOrderSummary,
   weight,
   setWeight,
   isFragile,
@@ -197,6 +207,8 @@ function TurboForm({
   setArea: (v: string) => void;
   amount: string;
   setAmount: (v: string) => void;
+  orderSummary: string;
+  setOrderSummary: (v: string) => void;
   weight: string;
   setWeight: (v: string) => void;
   isFragile: boolean;
@@ -242,6 +254,16 @@ function TurboForm({
             className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+        <div className="col-span-2">
+          <label className="text-xs text-foreground/50 block mb-1">
+            Package content (pieces / description)
+          </label>
+          <input
+            className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
+            value={orderSummary}
+            onChange={(e) => setOrderSummary(e.target.value)}
           />
         </div>
         <div>

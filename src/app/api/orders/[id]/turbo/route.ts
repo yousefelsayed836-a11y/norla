@@ -33,7 +33,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const returnAmount = isReturn ? Number(body.returnAmount) || 0 : 0;
   const returnSummary = isReturn ? body.returnSummary || "" : "";
 
-  const orderSummary = order.items.map((i) => `${i.title} x${i.quantity}`).join(", ");
+  const defaultOrderSummary = order.items.map((i) => `${i.title} x${i.quantity}`).join(", ");
+  const orderSummary = body.orderSummary || defaultOrderSummary;
 
   const result = await sendOrderToTurbo({
     government,

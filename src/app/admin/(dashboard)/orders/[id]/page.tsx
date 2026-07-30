@@ -120,6 +120,7 @@ export default async function OrderDetailPage({
           }
           defaultArea={order.customer?.city ?? ""}
           defaultAmount={Number(order.total) - Number(order.depositAmount)}
+          defaultOrderSummary={order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}
           turboOrderId={order.turboOrderId}
           turboStatus={order.turboStatus}
           turboAmountToCollect={
