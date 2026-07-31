@@ -4,6 +4,15 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 
+function ZoomIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+
 export default function ProductGallery({
   images,
   title,
@@ -99,15 +108,22 @@ export default function ProductGallery({
             className={`flex gap-3 md:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory ${peekPadding}`}
           >
             {list.map((img, i) => (
-              <button
+              <div
                 key={img.url + i}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   setActive(i);
                   setLightbox(true);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setActive(i);
+                    setLightbox(true);
+                  }
+                }}
                 aria-label={t("gallery.viewFullImage")}
-                className="relative shrink-0 w-[86%] md:w-full aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
+                className="relative shrink-0 w-[86%] md:w-full aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300 cursor-pointer"
               >
                 <Image
                   src={img.url}
@@ -117,7 +133,19 @@ export default function ProductGallery({
                   priority={i === 0 || i === 1}
                   sizes="(max-width: 768px) 86vw, 32vw"
                 />
-              </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActive(i);
+                    setLightbox(true);
+                  }}
+                  aria-label={t("gallery.zoomImage")}
+                  className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
+                >
+                  <ZoomIcon />
+                </button>
+              </div>
             ))}
           </div>
         </div>
