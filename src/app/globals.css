@@ -35,13 +35,20 @@ body {
 }
 
 .animate-marquee-single {
-  animation: marquee-single 14s linear infinite;
+  animation: marquee-single 10s linear infinite;
 }
 
-@media (min-width: 768px) {
-  .animate-marquee-single {
-    animation-duration: 10s;
+@keyframes marquee-continuous {
+  from {
+    transform: translateX(0);
   }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-continuous {
+  animation: marquee-continuous 14s linear infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
