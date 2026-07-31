@@ -57,7 +57,7 @@ export default function ProductGallery({
     if (container && slide) {
       container.scrollTo({
         left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
-        behavior: "smooth",
+        behavior: "auto",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- list is derived from focusUrl+images each render, only re-run when the focus target itself changes
@@ -70,7 +70,7 @@ export default function ProductGallery({
     if (container && slide) {
       container.scrollTo({
         left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
-        behavior: "smooth",
+        behavior: "auto",
       });
     }
   }

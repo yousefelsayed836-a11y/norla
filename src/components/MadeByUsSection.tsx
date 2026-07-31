@@ -9,7 +9,6 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
   const [openUrl, setOpenUrl] = useState<string | null>(null);
   const [active, setActive] = useState(() => (images.length > 1 ? 1 : 0));
   const mobileRef = useRef<HTMLDivElement>(null);
-  const mounted = useRef(false);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -25,10 +24,9 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
     if (container && slide) {
       container.scrollTo({
         left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
-        behavior: mounted.current ? "smooth" : "auto",
+        behavior: "auto",
       });
     }
-    mounted.current = true;
   }, [active]);
 
   if (images.length === 0) return null;
