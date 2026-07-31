@@ -35,12 +35,12 @@ body {
 }
 
 .animate-marquee-continuous {
-  animation: marquee-continuous 40s linear infinite;
+  animation: marquee-continuous 6s linear infinite;
 }
 
 @media (min-width: 768px) {
   .animate-marquee-continuous {
-    animation-duration: 30s;
+    animation-duration: 10s;
   }
 }
 
