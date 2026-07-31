@@ -62,9 +62,11 @@ function buildInitialCells(variants: Variant[]): Record<string, CellState> {
 export default function VariantManager({
   productId,
   variants,
+  productImages = [],
 }: {
   productId: string;
   variants: Variant[];
+  productImages?: string[];
 }) {
   const router = useRouter();
   const [sizes, setSizes] = useState<string[]>(() => buildInitialSizes(variants));
@@ -75,6 +77,7 @@ export default function VariantManager({
   const [cells, setCells] = useState<Record<string, CellState>>(() => buildInitialCells(variants));
   const [uploadingColor, setUploadingColor] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [pickerColor, setPickerColor] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [legacyVariants, setLegacyVariants] = useState(() =>
     variants.filter((v) => !(v.color && v.size))
@@ -155,11 +158,17 @@ export default function VariantManager({
     if (res.ok) {
       const data = await res.json();
       setColors((prev) => prev.map((c) => (c.name === colorName ? { ...c, imageUrl: data.url } : c)));
+      setPickerColor(null);
     } else {
       const data = await res.json().catch(() => null);
       setUploadError(data?.error || "Failed to upload image.");
     }
     setUploadingColor(null);
+  }
+
+  function pickColorImage(colorName: string, url: string) {
+    setColors((prev) => prev.map((c) => (c.name === colorName ? { ...c, imageUrl: url } : c)));
+    setPickerColor(null);
   }
 
   async function handleSave() {
@@ -266,7 +275,7 @@ export default function VariantManager({
           {colors.map((c) => (
             <li
               key={c.name}
-              className="flex items-center gap-3 border border-brand-light rounded-xl px-3 py-2"
+              className="relative flex items-center gap-3 border border-brand-light rounded-xl px-3 py-2"
             >
               <span
                 className="w-6 h-6 rounded-full border border-black/10 shrink-0"
@@ -289,11 +298,10 @@ export default function VariantManager({
               />
               <button
                 type="button"
-                onClick={() => fileRefs.current[c.name]?.click()}
-                disabled={uploadingColor === c.name}
-                className="text-xs border border-brand-light rounded-lg px-2 py-1.5 hover:bg-brand-light/50 disabled:opacity-50"
+                onClick={() => setPickerColor((prev) => (prev === c.name ? null : c.name))}
+                className="text-xs border border-brand-light rounded-lg px-2 py-1.5 hover:bg-brand-light/50"
               >
-                {uploadingColor === c.name ? "Uploading..." : c.imageUrl ? "Change Photo" : "+ Photo"}
+                {c.imageUrl ? "Change Photo" : "Link Photo"}
               </button>
               <button
                 type="button"
@@ -303,6 +311,44 @@ export default function VariantManager({
               >
                 ✕
               </button>
+
+              {pickerColor === c.name && (
+                <div className="absolute z-10 top-full right-0 mt-1 w-72 bg-white border border-brand-light rounded-xl shadow-lg p-3">
+                  <p className="text-xs text-foreground/50 mb-2">
+                    Pick one of this product&apos;s photos, or upload a new one.
+                  </p>
+                  {productImages.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                      {productImages.map((url) => (
+                        <button
+                          key={url}
+                          type="button"
+                          onClick={() => pickColorImage(c.name, url)}
+                          className={`relative aspect-[2/3] overflow-hidden bg-brand-light border-2 transition-colors ${
+                            c.imageUrl === url
+                              ? "border-brand-dark"
+                              : "border-transparent hover:border-brand-light"
+                          }`}
+                        >
+                          <Image src={url} alt="" fill className="object-cover" sizes="64px" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-foreground/40 mb-3">
+                      No product photos uploaded yet.
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => fileRefs.current[c.name]?.click()}
+                    disabled={uploadingColor === c.name}
+                    className="w-full text-xs border border-brand-light rounded-lg px-2 py-1.5 hover:bg-brand-light/50 disabled:opacity-50"
+                  >
+                    {uploadingColor === c.name ? "Uploading..." : "Upload a new photo instead"}
+                  </button>
+                </div>
+              )}
             </li>
           ))}
           {colors.length === 0 && <p className="text-sm text-foreground/40">No colors yet.</p>}

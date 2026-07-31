@@ -47,6 +47,7 @@ export default async function EditProductPage({
       />
       <VariantManager
         productId={product.id}
+        productImages={product.images.sort((a, b) => a.position - b.position).map((i) => i.url)}
         variants={product.variants.map((v) => ({
           id: v.id,
           label: v.label,
