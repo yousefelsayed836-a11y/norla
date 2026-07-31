@@ -9,7 +9,7 @@ export default function AnnouncementBar({ text, textAr }: { text: string; textAr
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-white flex items-center justify-center px-3">
-      <div className="relative w-full h-full border border-brand-light rounded-md overflow-hidden">
+      <div className="relative w-full h-full overflow-hidden">
         <span className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap text-black text-sm font-medium tracking-wide px-3 animate-marquee-single">
           {displayText}
         </span>

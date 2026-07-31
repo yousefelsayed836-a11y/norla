@@ -26,24 +26,21 @@ body {
 }
 
 @keyframes marquee-single {
-  0% {
+  from {
     transform: translateX(100vw);
   }
-  55% {
-    transform: translateX(-100%);
-  }
-  100% {
+  to {
     transform: translateX(-100%);
   }
 }
 
 .animate-marquee-single {
-  animation: marquee-single 7s linear infinite;
+  animation: marquee-single 14s linear infinite;
 }
 
 @media (min-width: 768px) {
   .animate-marquee-single {
-    animation-duration: 5s;
+    animation-duration: 10s;
   }
 }
 
