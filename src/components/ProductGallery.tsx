@@ -24,9 +24,11 @@ export default function ProductGallery({
 }) {
   const { t } = useLanguage();
   const baseList = images.length ? images : [{ url: "/brand/logo.webp" }];
+  // Insert after the first photo (not at the very front) so the linked image always has a
+  // real neighbor to peek on both sides instead of landing with nothing before it.
   const list =
     focusUrl && !baseList.some((i) => i.url === focusUrl)
-      ? [{ url: focusUrl }, ...baseList]
+      ? [baseList[0], { url: focusUrl }, ...baseList.slice(1)]
       : baseList;
 
   const [active, setActive] = useState(() => (list.length > 1 ? 1 : 0));
