@@ -12,6 +12,14 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "browserslist": [
+    "> 0.3%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead",
+    "iOS >= 12",
+    "Safari >= 12"
+  ],
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",
