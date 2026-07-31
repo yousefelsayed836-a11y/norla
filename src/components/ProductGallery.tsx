@@ -49,11 +49,8 @@ export default function ProductGallery({
 
   useEffect(() => {
     if (!focusUrl) return;
-    let idx = list.findIndex((i) => i.url === focusUrl);
+    const idx = list.findIndex((i) => i.url === focusUrl);
     if (idx === -1) return;
-    // a color's image matching the very first photo carries no real preference —
-    // keep the peek-both-sides default instead of snapping back to slide 0
-    if (idx === 0 && list.length > 1) idx = 1;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing gallery to an external color selection
     setActive(idx);
     const container = mobileRef.current;

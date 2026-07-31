@@ -37,7 +37,7 @@ body {
 .animate-marquee-single {
   display: flex;
   width: max-content;
-  animation: marquee-single 14s linear infinite;
+  animation: marquee-single 10s linear infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
