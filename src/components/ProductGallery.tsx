@@ -31,7 +31,6 @@ export default function ProductGallery({
 
   const [active, setActive] = useState(() => (list.length > 1 ? 1 : 0));
   const [lightbox, setLightbox] = useState(false);
-  const stripRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,10 +63,6 @@ export default function ProductGallery({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- list is derived from focusUrl+images each render, only re-run when the focus target itself changes
   }, [focusUrl]);
 
-  function scrollStrip(dir: -1 | 1) {
-    stripRef.current?.scrollBy({ top: dir * 100, left: dir * 100, behavior: "smooth" });
-  }
-
   function goToMobileSlide(i: number) {
     setActive(i);
     const container = mobileRef.current;
@@ -98,20 +93,22 @@ export default function ProductGallery({
     setActive(closest);
   }
 
+  const peekPadding = list.length > 1 ? "px-[7%] md:px-[19%]" : "px-4 md:px-[19%]";
+
   return (
     <>
-      {/* Mobile: peek carousel */}
-      <div className="md:hidden -mx-4">
+      {/* Centered main image with side peeks of neighboring photos (3+ images) */}
+      <div className="-mx-4 md:mx-0">
         <div className="relative">
           <div
             ref={mobileRef}
             onScroll={handleMobileScroll}
-            className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-[7%]"
+            className={`flex gap-3 md:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory ${peekPadding}`}
           >
             {list.map((img, i) => (
               <div
                 key={img.url + i}
-                className="relative shrink-0 w-[86%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
+                className="relative shrink-0 w-[86%] md:w-[62%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
                 <Image
                   src={img.url}
@@ -119,7 +116,7 @@ export default function ProductGallery({
                   fill
                   className="object-cover"
                   priority={i === 0 || i === 1}
-                  sizes="86vw"
+                  sizes="(max-width: 768px) 86vw, 62vw"
                 />
               </div>
             ))}
@@ -127,7 +124,7 @@ export default function ProductGallery({
           <button
             onClick={() => setLightbox(true)}
             aria-label={t("gallery.zoomImage")}
-            className="absolute bottom-4 right-[9%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
+            className="absolute bottom-4 right-[9%] md:right-[21%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
           >
             <ZoomIcon />
           </button>
@@ -147,58 +144,6 @@ export default function ProductGallery({
             ))}
           </div>
         )}
-      </div>
-
-      {/* Desktop: thumbnail column + main image */}
-      <div className="hidden md:flex gap-3">
-        {list.length > 1 && (
-          <div className="flex flex-col items-center gap-2 w-20 shrink-0">
-            <button
-              onClick={() => scrollStrip(-1)}
-              className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
-              aria-label={t("gallery.scrollUp")}
-            >
-              ▲
-            </button>
-            <div
-              ref={stripRef}
-              className="flex flex-col justify-center items-center gap-2 overflow-y-auto no-scrollbar max-h-[520px] min-h-[300px] w-full"
-            >
-              {list.map((img, i) => (
-                <button
-                  key={img.url + i}
-                  onClick={() => setActive(i)}
-                  className={`relative w-full shrink-0 overflow-hidden border-2 transition-all duration-300 ${
-                    i === active
-                      ? "h-28 border-brand-dark"
-                      : "h-24 border-transparent hover:border-brand-light"
-                  }`}
-                >
-                  <Image src={img.url} alt="" fill className="object-cover" sizes="80px" />
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => scrollStrip(1)}
-              className="text-foreground/40 hover:text-brand-dark py-1 transition-colors"
-              aria-label={t("gallery.scrollDown")}
-            >
-              ▼
-            </button>
-          </div>
-        )}
-
-        <div className="relative flex-1 aspect-[3/4] bg-white overflow-hidden">
-          <Image
-            key={list[active].url}
-            src={list[active].url}
-            alt={title}
-            fill
-            className="object-cover animate-fade-in"
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </div>
       </div>
 
       {lightbox && (

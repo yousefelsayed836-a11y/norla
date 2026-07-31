@@ -25,19 +25,6 @@ body {
   font-family: var(--font-sans), "Segoe UI", Arial, sans-serif;
 }
 
-@keyframes marquee-single {
-  from {
-    transform: translateX(100vw);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-.animate-marquee-single {
-  animation: marquee-single 10s linear infinite;
-}
-
 @keyframes marquee-continuous {
   from {
     transform: translateX(0);
@@ -49,6 +36,12 @@ body {
 
 .animate-marquee-continuous {
   animation: marquee-continuous 14s linear infinite;
+}
+
+@media (min-width: 768px) {
+  .animate-marquee-continuous {
+    animation-duration: 10s;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
