@@ -40,7 +40,7 @@ export default function ProductGallery({
     if (container && slide) {
       container.scrollTo({
         left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
-        behavior: "instant",
+        behavior: "auto",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only position the peek carousel once on mount, no animation

@@ -25,7 +25,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
     if (container && slide) {
       container.scrollTo({
         left: slide.offsetLeft - (container.clientWidth - slide.clientWidth) / 2,
-        behavior: mounted.current ? "smooth" : "instant",
+        behavior: mounted.current ? "smooth" : "auto",
       });
     }
     mounted.current = true;
