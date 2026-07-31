@@ -12,6 +12,9 @@ export default function AnnouncementBar({ text, textAr }: { text: string; textAr
       <div className="w-full h-full border border-brand-light rounded-md flex items-center overflow-hidden">
         <div className="whitespace-nowrap animate-marquee-single">
           <span className="text-black text-sm font-medium tracking-wide px-3">{displayText}</span>
+          <span className="text-black text-sm font-medium tracking-wide px-3" aria-hidden="true">
+            {displayText}
+          </span>
         </div>
       </div>
     </div>

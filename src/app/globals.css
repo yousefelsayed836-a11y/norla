@@ -27,16 +27,17 @@ body {
 
 @keyframes marquee-single {
   from {
-    transform: translateX(100vw);
+    transform: translateX(0);
   }
   to {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
 .animate-marquee-single {
-  display: inline-block;
-  animation: marquee-single 20s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee-single 14s linear infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
