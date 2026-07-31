@@ -11,13 +11,13 @@ export default function AnnouncementBar({ text, textAr }: { text: string; textAr
     <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-white flex items-center justify-center">
       <div className="relative w-full h-full overflow-hidden">
         <div className="flex w-max absolute top-1/2 left-0 -translate-y-1/2 animate-marquee-continuous">
-          {/* The gap between the two copies is one viewport-width, so the second copy's
-              leading edge reaches the right edge exactly as the first copy's trailing
-              edge leaves the left edge - one message crossing at a time, no dead pause,
+          {/* The gap is slightly less than a full viewport-width, so the second copy's
+              leading edge reaches the right edge just as the first copy's leading edge
+              starts exiting the left edge (not waiting for it to fully leave) -
               regardless of screen width. */}
           <span
             className="whitespace-nowrap text-black text-sm font-medium tracking-wide px-3"
-            style={{ marginRight: "100vw" }}
+            style={{ marginRight: "92vw" }}
           >
             {displayText}
           </span>
