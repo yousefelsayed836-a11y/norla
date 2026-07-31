@@ -4,15 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 
-function ZoomIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="11" cy="11" r="7" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-
 export default function ProductGallery({
   images,
   title,
@@ -129,13 +120,6 @@ export default function ProductGallery({
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setLightbox(true)}
-            aria-label={t("gallery.zoomImage")}
-            className="absolute bottom-4 right-[9%] md:right-[20%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
-          >
-            <ZoomIcon />
-          </button>
         </div>
 
         {list.length > 1 && (
