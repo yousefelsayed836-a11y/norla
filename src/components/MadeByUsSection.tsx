@@ -2,13 +2,20 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/lib/i18n";
 
 export default function MadeByUsSection({ images }: { images: { id: string; url: string }[] }) {
   const { t } = useLanguage();
   const [openUrl, setOpenUrl] = useState<string | null>(null);
   const [active, setActive] = useState(() => (images.length > 1 ? 1 : 0));
+  const [mounted, setMounted] = useState(false);
   const mobileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target (document.body) only exists client-side
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -80,23 +87,26 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
         ))}
       </div>
 
-      {openUrl && (
-        <div
-          className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
-          onClick={() => setOpenUrl(null)}
-        >
-          <button
+      {mounted &&
+        openUrl &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
             onClick={() => setOpenUrl(null)}
-            aria-label={t("gallery.close")}
-            className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none flex items-center justify-center transition-transform hover:rotate-90 duration-300"
           >
-            ✕
-          </button>
-          <div className="relative w-full h-full">
-            <Image src={openUrl} alt="" fill className="object-cover" sizes="100vw" />
-          </div>
-        </div>
-      )}
+            <button
+              onClick={() => setOpenUrl(null)}
+              aria-label={t("gallery.close")}
+              className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none flex items-center justify-center transition-transform hover:rotate-90 duration-300"
+            >
+              ✕
+            </button>
+            <div className="relative w-full h-full">
+              <Image src={openUrl} alt="" fill className="object-cover" sizes="100vw" />
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 }

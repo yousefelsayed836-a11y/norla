@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/lib/i18n";
 
 function ZoomIcon() {
@@ -33,7 +34,13 @@ export default function ProductGallery({
 
   const [active, setActive] = useState(() => (list.length > 1 ? 1 : 0));
   const [lightbox, setLightbox] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const mobileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- portal target (document.body) only exists client-side
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (focusUrl || list.length <= 1) return;
@@ -166,29 +173,32 @@ export default function ProductGallery({
         )}
       </div>
 
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
-          onClick={() => setLightbox(false)}
-        >
-          <button
+      {mounted &&
+        lightbox &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
             onClick={() => setLightbox(false)}
-            aria-label={t("gallery.close")}
-            className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none flex items-center justify-center transition-transform hover:rotate-90 duration-300"
           >
-            ✕
-          </button>
-          <div className="relative w-full h-full">
-            <Image
-              src={list[active].url}
-              alt={title}
-              fill
-              className="object-cover"
-              sizes="100vw"
-            />
-          </div>
-        </div>
-      )}
+            <button
+              onClick={() => setLightbox(false)}
+              aria-label={t("gallery.close")}
+              className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none flex items-center justify-center transition-transform hover:rotate-90 duration-300"
+            >
+              ✕
+            </button>
+            <div className="relative w-full h-full">
+              <Image
+                src={list[active].url}
+                alt={title}
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }
