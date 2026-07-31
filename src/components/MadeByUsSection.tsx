@@ -91,7 +91,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
         openUrl &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
+            className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center animate-fade-in"
             onClick={() => setOpenUrl(null)}
           >
             <button
@@ -101,8 +101,8 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
             >
               ✕
             </button>
-            <div className="relative w-[94%] h-[94%]">
-              <Image src={openUrl} alt="" fill className="object-cover" sizes="94vw" />
+            <div className="relative w-[85%] h-[85%]">
+              <Image src={openUrl} alt="" fill className="object-cover" sizes="85vw" />
             </div>
           </div>,
           document.body

@@ -177,7 +177,7 @@ export default function ProductGallery({
         lightbox &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
+            className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center animate-fade-in"
             onClick={() => setLightbox(false)}
           >
             <button
@@ -187,13 +187,13 @@ export default function ProductGallery({
             >
               ✕
             </button>
-            <div className="relative w-[94%] h-[94%]">
+            <div className="relative w-[85%] h-[85%]">
               <Image
                 src={list[active].url}
                 alt={title}
                 fill
                 className="object-cover"
-                sizes="94vw"
+                sizes="85vw"
               />
             </div>
           </div>,
