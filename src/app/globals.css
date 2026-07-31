@@ -35,13 +35,7 @@ body {
 }
 
 .animate-marquee-continuous {
-  animation: marquee-continuous 6s linear infinite;
-}
-
-@media (min-width: 768px) {
-  .animate-marquee-continuous {
-    animation-duration: 10s;
-  }
+  animation: marquee-continuous 8s linear infinite;
 }
 
 .no-scrollbar::-webkit-scrollbar {
