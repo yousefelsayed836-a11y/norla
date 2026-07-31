@@ -82,7 +82,7 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
 
       {openUrl && (
         <div
-          className="fixed inset-0 z-[100] bg-black/30 flex items-center justify-center p-6 animate-fade-in"
+          className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-fade-in"
           onClick={() => setOpenUrl(null)}
         >
           <button
@@ -92,8 +92,8 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
           >
             ✕
           </button>
-          <div className="relative w-[92vw] max-w-xl aspect-[2/3]">
-            <Image src={openUrl} alt="" fill className="object-cover" sizes="92vw" />
+          <div className="relative w-full h-full">
+            <Image src={openUrl} alt="" fill className="object-cover" sizes="100vw" />
           </div>
         </div>
       )}
