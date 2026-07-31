@@ -187,13 +187,13 @@ export default function ProductGallery({
             >
               ✕
             </button>
-            <div className="relative w-full h-full">
+            <div className="relative w-[94%] h-[94%]">
               <Image
                 src={list[active].url}
                 alt={title}
                 fill
                 className="object-cover"
-                sizes="100vw"
+                sizes="94vw"
               />
             </div>
           </div>,

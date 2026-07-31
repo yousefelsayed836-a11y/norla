@@ -101,8 +101,8 @@ export default function MadeByUsSection({ images }: { images: { id: string; url:
             >
               ✕
             </button>
-            <div className="relative w-full h-full">
-              <Image src={openUrl} alt="" fill className="object-cover" sizes="100vw" />
+            <div className="relative w-[94%] h-[94%]">
+              <Image src={openUrl} alt="" fill className="object-cover" sizes="94vw" />
             </div>
           </div>,
           document.body
