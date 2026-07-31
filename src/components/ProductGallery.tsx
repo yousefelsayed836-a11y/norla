@@ -108,8 +108,14 @@ export default function ProductGallery({
             className={`flex gap-3 md:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory ${peekPadding}`}
           >
             {list.map((img, i) => (
-              <div
+              <button
                 key={img.url + i}
+                type="button"
+                onClick={() => {
+                  setActive(i);
+                  setLightbox(true);
+                }}
+                aria-label={t("gallery.viewFullImage")}
                 className="relative shrink-0 w-[86%] md:w-full aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
                 <Image
@@ -120,7 +126,7 @@ export default function ProductGallery({
                   priority={i === 0 || i === 1}
                   sizes="(max-width: 768px) 86vw, 32vw"
                 />
-              </div>
+              </button>
             ))}
           </div>
           <button
