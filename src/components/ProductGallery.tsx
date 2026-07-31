@@ -168,7 +168,7 @@ export default function ProductGallery({
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] bg-gray-500/70 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in"
+          className="fixed inset-0 z-[100] bg-black/30 flex items-center justify-center p-6 animate-fade-in"
           onClick={() => setLightbox(false)}
         >
           <button
@@ -178,13 +178,13 @@ export default function ProductGallery({
           >
             ✕
           </button>
-          <div className="relative w-full max-w-md aspect-[2/3]">
+          <div className="relative w-[92vw] max-w-xl aspect-[2/3]">
             <Image
               src={list[active].url}
               alt={title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 90vw, 448px"
+              sizes="92vw"
             />
           </div>
         </div>
