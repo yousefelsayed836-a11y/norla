@@ -93,7 +93,7 @@ export default function ProductGallery({
     setActive(closest);
   }
 
-  const peekPadding = list.length > 1 ? "px-[7%] md:px-[19%]" : "px-4 md:px-[19%]";
+  const peekPadding = list.length > 1 ? "px-[7%] md:px-[18%]" : "px-4 md:px-[18%]";
 
   return (
     <>
@@ -108,7 +108,7 @@ export default function ProductGallery({
             {list.map((img, i) => (
               <div
                 key={img.url + i}
-                className="relative shrink-0 w-[86%] md:w-[62%] aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
+                className="relative shrink-0 w-[86%] md:w-full aspect-[3/4] snap-center overflow-hidden bg-white transition-opacity duration-300"
               >
                 <Image
                   src={img.url}
@@ -116,7 +116,7 @@ export default function ProductGallery({
                   fill
                   className="object-cover"
                   priority={i === 0 || i === 1}
-                  sizes="(max-width: 768px) 86vw, 62vw"
+                  sizes="(max-width: 768px) 86vw, 32vw"
                 />
               </div>
             ))}
@@ -124,7 +124,7 @@ export default function ProductGallery({
           <button
             onClick={() => setLightbox(true)}
             aria-label={t("gallery.zoomImage")}
-            className="absolute bottom-4 right-[9%] md:right-[21%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
+            className="absolute bottom-4 right-[9%] md:right-[20%] w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center text-foreground/70 transition-transform active:scale-90"
           >
             <ZoomIcon />
           </button>
