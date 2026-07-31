@@ -150,13 +150,13 @@ export default function ProductGallery({
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] bg-black flex items-center justify-center md:bg-black/90 md:p-6 animate-fade-in"
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center animate-fade-in"
           onClick={() => setLightbox(false)}
         >
           <button
             onClick={() => setLightbox(false)}
             aria-label={t("gallery.close")}
-            className="absolute top-5 right-5 text-white text-3xl leading-none transition-transform hover:rotate-90 duration-300"
+            className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none flex items-center justify-center transition-transform hover:rotate-90 duration-300"
           >
             ✕
           </button>
@@ -165,7 +165,7 @@ export default function ProductGallery({
               src={list[active].url}
               alt={title}
               fill
-              className="object-cover md:object-contain"
+              className="object-contain"
               sizes="100vw"
             />
           </div>
