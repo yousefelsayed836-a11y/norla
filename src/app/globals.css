@@ -26,18 +26,25 @@ body {
 }
 
 @keyframes marquee-single {
-  from {
-    transform: translateX(0);
+  0% {
+    transform: translateX(100vw);
   }
-  to {
-    transform: translateX(-50%);
+  55% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }
 
 .animate-marquee-single {
-  display: flex;
-  width: max-content;
-  animation: marquee-single 10s linear infinite;
+  animation: marquee-single 7s linear infinite;
+}
+
+@media (min-width: 768px) {
+  .animate-marquee-single {
+    animation-duration: 5s;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
