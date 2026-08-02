@@ -6,6 +6,7 @@ export const FROM = "Norla Designs <orders@norla-designs.com>";
 const OWNER_EMAIL = "me.nouryossry00@gmail.com";
 const SITE_URL = "https://norla-designs.com";
 const EMAIL_FONT = "Georgia, 'Times New Roman', serif";
+const PRICE_FONT = "Helvetica, Arial, sans-serif";
 
 function absoluteImageUrl(url?: string) {
   if (!url) return null;
@@ -109,7 +110,7 @@ export async function sendCustomerOrderConfirmation(params: {
             ${item.title}<br/>
             <span style="color:#999;font-size:12px;font-family:${EMAIL_FONT}">Qty: ${item.quantity}</span>
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;text-align:right;font-family:${EMAIL_FONT}">
+          <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;text-align:right;font-family:${PRICE_FONT}">
             ${formatEGP(item.price * item.quantity)}
           </td>
         </tr>`;
@@ -144,15 +145,15 @@ export async function sendCustomerOrderConfirmation(params: {
           <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;font-family:${EMAIL_FONT}">
             <tr>
               <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Subtotal</td>
-              <td style="padding:4px 0;text-align:right;color:#333;font-family:${EMAIL_FONT}">${formatEGP(params.subtotal)}</td>
+              <td style="padding:4px 0;text-align:right;color:#333;font-family:${PRICE_FONT}">${formatEGP(params.subtotal)}</td>
             </tr>
             <tr>
               <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Shipping</td>
-              <td style="padding:4px 0;text-align:right;color:#333;font-family:${EMAIL_FONT}">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
+              <td style="padding:4px 0;text-align:right;color:#333;font-family:${PRICE_FONT}">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
             </tr>
             <tr>
               <td style="padding:10px 0 4px;border-top:1px solid #eee;font-weight:bold;color:#2b2226;font-family:${EMAIL_FONT}">Total</td>
-              <td style="padding:10px 0 4px;border-top:1px solid #eee;text-align:right;font-weight:bold;color:#d14f83;font-family:${EMAIL_FONT}">${formatEGP(params.total)}</td>
+              <td style="padding:10px 0 4px;border-top:1px solid #eee;text-align:right;font-weight:bold;color:#d14f83;font-family:${PRICE_FONT}">${formatEGP(params.total)}</td>
             </tr>
           </table>
 
@@ -160,7 +161,7 @@ export async function sendCustomerOrderConfirmation(params: {
             <p style="margin:0;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#d14f83;font-weight:bold;font-family:${EMAIL_FONT}">
               Deposit Due Now (${params.depositPercent}%)
             </p>
-            <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226;font-family:${EMAIL_FONT}">
+            <p style="margin:6px 0 0;font-size:20px;font-weight:bold;color:#2b2226;font-family:${PRICE_FONT}">
               ${formatEGP(params.depositAmount)}
             </p>
             ${methodLabel ? `<p style="margin:6px 0 0;font-size:13px;color:#2b2226;font-family:${EMAIL_FONT}">via ${methodLabel}</p>` : ""}
