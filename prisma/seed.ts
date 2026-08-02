@@ -210,10 +210,11 @@ async function main() {
       await prisma.shippingZone.create({
         data: {
           governorate: g.name,
+          governorateAr: g.nameAr,
           fee: 0,
           active: true,
           position: i,
-          cities: { create: g.cities.map((name) => ({ name })) },
+          cities: { create: g.cities.map((c) => ({ name: c.name, nameAr: c.nameAr })) },
         },
       });
     }

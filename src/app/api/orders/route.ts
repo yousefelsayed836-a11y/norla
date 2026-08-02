@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
 
   const zone = await prisma.shippingZone.findUnique({
     where: { governorate: customer.governorate },
+    include: { cities: true },
   });
   if (!zone || !zone.active) {
     return NextResponse.json(
@@ -157,11 +158,12 @@ export async function POST(req: NextRequest) {
     depositAmount,
     paymentMethod: order.paymentMethod,
   });
-  if (order.customer?.email) {
+  const orderCustomer = order.customer;
+  if (orderCustomer?.email) {
     sendCustomerOrderConfirmation({
-      to: order.customer.email,
+      to: orderCustomer.email,
       orderNo: order.orderNo,
-      customerName: order.customer.name,
+      customerName: orderCustomer.name,
       items: resolvedItems.map((i) => ({
         title: i.title,
         price: i.price,
@@ -174,9 +176,9 @@ export async function POST(req: NextRequest) {
       depositPercent: settings.depositPercent,
       depositAmount,
       paymentMethod: order.paymentMethod,
-      address: order.customer.address ?? "",
-      city: order.customer.city ?? "",
-      governorate: order.customer.governorate ?? "",
+      address: orderCustomer.address ?? "",
+      city: zone.cities.find((c) => c.name === orderCustomer.city)?.nameAr || orderCustomer.city || "",
+      governorate: zone.governorateAr || orderCustomer.governorate || "",
     });
   }
 

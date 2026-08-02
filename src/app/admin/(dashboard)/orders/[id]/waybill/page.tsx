@@ -14,9 +14,14 @@ export default async function WaybillPage({
     include: { customer: true, items: true },
   });
   if (!order || !order.customer) notFound();
+  const customer = order.customer;
 
-  const government =
-    TURBO_GOVERNMENT_MAP[order.customer.governorate ?? ""] ?? order.customer.governorate ?? "";
+  const government = TURBO_GOVERNMENT_MAP[customer.governorate ?? ""] ?? customer.governorate ?? "";
+  const zone = await prisma.shippingZone.findUnique({
+    where: { governorate: customer.governorate ?? "" },
+    include: { cities: true },
+  });
+  const area = zone?.cities.find((c) => c.name === customer.city)?.nameAr || customer.city || "";
   const shippingDate = order.updatedAt.toISOString().slice(0, 10);
   const orderSummary = order.items.map((i) => `${i.title} x${i.quantity}`).join(", ");
 
@@ -28,7 +33,7 @@ export default async function WaybillPage({
       phone1={order.customer.phone ?? ""}
       address={order.customer.address ?? ""}
       government={government}
-      area={order.customer.city ?? ""}
+      area={area}
       shippingDate={shippingDate}
       orderSummary={orderSummary}
       amountToCollect={

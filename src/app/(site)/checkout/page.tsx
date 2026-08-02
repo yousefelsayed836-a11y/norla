@@ -7,8 +7,15 @@ import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
 import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
 
-type ShippingCity = { id: string; name: string };
-type ShippingZone = { id: string; governorate: string; fee: string; active: boolean; cities: ShippingCity[] };
+type ShippingCity = { id: string; name: string; nameAr: string | null };
+type ShippingZone = {
+  id: string;
+  governorate: string;
+  governorateAr: string | null;
+  fee: string;
+  active: boolean;
+  cities: ShippingCity[];
+};
 
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
@@ -128,7 +135,7 @@ export default function CheckoutPage() {
               <option value="">{t("checkout.governorate")}</option>
               {zones.map((z) => (
                 <option key={z.id} value={z.governorate}>
-                  {z.governorate}
+                  {z.governorateAr || z.governorate}
                 </option>
               ))}
             </select>
@@ -141,7 +148,7 @@ export default function CheckoutPage() {
               <option value="">{t("checkout.city")}</option>
               {cities.map((c) => (
                 <option key={c.id} value={c.name}>
-                  {c.name}
+                  {c.nameAr || c.name}
                 </option>
               ))}
             </select>
@@ -252,7 +259,7 @@ export default function CheckoutPage() {
           <div className="flex justify-between text-foreground/70">
             <span>
               {t("checkout.shipping")}
-              {selectedZone ? ` (${selectedZone.governorate})` : ""}
+              {selectedZone ? ` (${selectedZone.governorateAr || selectedZone.governorate})` : ""}
             </span>
             <span>
               {!selectedZone
