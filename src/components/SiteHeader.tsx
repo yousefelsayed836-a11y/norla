@@ -214,12 +214,14 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
           <nav className="flex-1 flex flex-col px-5 py-4 font-medium text-sm overflow-y-auto uppercase tracking-wide">
             <Link
               href="/"
+              onClick={() => setNavOpen(false)}
               className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
             >
               {t("nav.home")}
             </Link>
             <Link
               href="/products"
+              onClick={() => setNavOpen(false)}
               className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
             >
               {t("nav.store")}
@@ -228,6 +230,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
               <Link
                 key={c.slug}
                 href={`/products?category=${c.slug}`}
+                onClick={() => setNavOpen(false)}
                 className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
               >
                 {pick(c.name, c.nameAr)}
@@ -235,12 +238,14 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
             ))}
             <Link
               href="/contact-us"
+              onClick={() => setNavOpen(false)}
               className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
             >
               {t("nav.contactUs")}
             </Link>
             <Link
               href="/exchange-policy"
+              onClick={() => setNavOpen(false)}
               className="py-3 border-b border-brand-light/60 transition-colors hover:text-brand-dark"
             >
               {t("nav.exchangePolicy")}
