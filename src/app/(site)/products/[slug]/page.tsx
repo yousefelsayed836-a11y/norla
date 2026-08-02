@@ -26,7 +26,7 @@ export default async function ProductDetailPage({
     related.length > 0 ? related : allProducts.filter((p) => p.id !== product.id).slice(0, 4);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-16">
+    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-16">
       <ProductPurchase
         productId={product.id}
         title={product.title}

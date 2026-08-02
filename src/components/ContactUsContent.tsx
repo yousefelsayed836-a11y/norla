@@ -163,7 +163,7 @@ export default function ContactUsContent({
   }[];
 
   return (
-    <div className="relative overflow-hidden pt-[7.5rem] pb-24 min-h-[70vh]">
+    <div className="relative overflow-hidden pt-[7.5rem] md:pt-[8.25rem] pb-24 min-h-[70vh]">
       <div className="pointer-events-none absolute -top-10 -left-16 w-72 h-72 rounded-full bg-brand-light/60 blur-3xl animate-float-blob" />
       <div
         className="pointer-events-none absolute top-40 -right-20 w-80 h-80 rounded-full bg-brand-light/50 blur-3xl animate-float-blob"

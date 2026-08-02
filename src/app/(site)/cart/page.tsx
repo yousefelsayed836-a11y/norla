@@ -12,7 +12,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-4 pt-[9rem] pb-24 text-center">
+      <div className="mx-auto max-w-3xl px-4 pt-[9rem] md:pt-[9.75rem] pb-24 text-center">
         <h1 className="font-display text-3xl mb-4">{t("cart.empty")}</h1>
         <Link
           href="/products"
@@ -25,7 +25,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] pb-10">
+    <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-10">
       <h1 className="font-display text-4xl mb-8">{t("cart.title")}</h1>
 
       <div className="space-y-4">

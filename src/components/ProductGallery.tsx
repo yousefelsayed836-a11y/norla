@@ -192,7 +192,7 @@ export default function ProductGallery({
                 src={list[active].url}
                 alt={title}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="85vw"
               />
             </div>

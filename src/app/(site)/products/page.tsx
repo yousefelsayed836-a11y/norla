@@ -16,7 +16,7 @@ export default async function ProductsPage({
   const heading = categories.find((c) => c.slug === category);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-10">
+    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-10">
       <h1 className="font-jost text-4xl mb-8 text-center">
         {heading ? <Pick en={heading.name} ar={heading.nameAr} /> : <T k="products.title" />}
       </h1>

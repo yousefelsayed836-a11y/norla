@@ -60,7 +60,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
   return (
     <>
       <header
-        className={`fixed top-9 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-9 md:top-12 left-0 right-0 z-50 transition-all duration-300 ${
           solid ? "bg-white shadow-sm" : "bg-transparent"
         }`}
       >

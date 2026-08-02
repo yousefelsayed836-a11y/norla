@@ -84,14 +84,14 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-4 pt-[9rem] pb-24 text-center">
+      <div className="mx-auto max-w-3xl px-4 pt-[9rem] md:pt-[9.75rem] pb-24 text-center">
         <h1 className="font-display text-3xl">{t("checkout.cartEmpty")}</h1>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] pb-10 grid md:grid-cols-2 gap-12">
+    <div className="mx-auto max-w-4xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-10 grid md:grid-cols-2 gap-12">
       <div>
         <h1 className="font-display text-3xl mb-6">{t("checkout.title")}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">

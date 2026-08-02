@@ -8,7 +8,7 @@ export default function AnnouncementBar({ text, textAr }: { text: string; textAr
   if (!displayText) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-white flex items-center">
+    <div className="fixed top-0 left-0 right-0 z-50 h-9 md:h-12 bg-white flex items-center">
       <div className="flex-1 overflow-hidden">
         {/* Each span is its own full-viewport-wide slot (flex-basis 50% of a 200%-wide
             track) with the text centered inside it, so the two slots sit edge-to-edge

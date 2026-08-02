@@ -14,7 +14,7 @@ export default async function CollectionPage({
   if (!section) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] pb-16">
+    <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-16">
       <h1 className="font-display text-4xl mb-8 text-center">
         <PickText en={section.title} ar={section.titleAr} />
       </h1>
