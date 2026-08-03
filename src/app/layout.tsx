@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Jost } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
@@ -24,6 +24,21 @@ const jost = Jost({
 export const metadata: Metadata = {
   title: "Norla Designs",
   description: "Norla Designs — Elegant abayas, dresses, skirts & blouses.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Norla Admin",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#d14f83",
 };
 
 export default function RootLayout({
@@ -81,6 +96,17 @@ export default function RootLayout({
     });
   });
 })();
+`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("/sw.js").catch(function () {});
+  });
+}
 `,
           }}
         />
