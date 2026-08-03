@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PushNotificationToggle from "@/components/PushNotificationToggle";
 
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: "▦" },
@@ -85,6 +86,7 @@ export default function AdminSidebar({ name }: { name: string }) {
             {navList}
             <div className="px-4 py-4 border-t border-white/10">
               <p className="text-xs text-white/50 px-2 mb-2">{name}</p>
+              <PushNotificationToggle />
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10"
@@ -105,6 +107,7 @@ export default function AdminSidebar({ name }: { name: string }) {
         {navList}
         <div className="px-4 py-4 border-t border-white/10">
           <p className="text-xs text-white/50 px-2 mb-2">{name}</p>
+          <PushNotificationToggle />
           <button
             onClick={handleLogout}
             className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10"

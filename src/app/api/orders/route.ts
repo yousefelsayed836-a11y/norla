@@ -4,6 +4,8 @@ import { getSession } from "@/lib/auth";
 import { adjustStock } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
 import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib/email";
+import { sendPushToAdmins } from "@/lib/push";
+import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
@@ -158,6 +160,11 @@ export async function POST(req: NextRequest) {
     depositAmount,
     paymentMethod: order.paymentMethod,
   });
+  sendPushToAdmins({
+    title: `New order #${order.orderNo}`,
+    body: `${order.customer!.name} — ${formatEGP(total)}`,
+    url: `/admin/orders/${order.id}`,
+  }).catch((err) => console.error("Failed to send push notification", err));
   const orderCustomer = order.customer;
   if (orderCustomer?.email) {
     sendCustomerOrderConfirmation({
