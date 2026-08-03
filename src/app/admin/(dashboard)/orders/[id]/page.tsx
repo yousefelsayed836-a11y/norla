@@ -18,6 +18,16 @@ export default async function OrderDetailPage({
   });
   if (!order) notFound();
 
+  const depositReminderText = order.customer
+    ? `Hi ${order.customer.name}, thanks for your order from Norla Designs! Order #${order.orderNo} — please transfer the deposit (${Number(
+        order.depositAmount
+      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} LE) to 01027096110 (Nourhan) and send the receipt screenshot here to confirm.\n\nمرحباً ${
+        order.customer.name
+      }، شكراً لطلبك من Norla Designs! طلب رقم #${order.orderNo} — برجاء تحويل العربون (${Number(
+        order.depositAmount
+      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} جنيه) على 01027096110 (نورهان) وإرسال صورة الإيصال هنا للتأكيد.`
+    : "";
+
   return (
     <div className="max-w-3xl">
       <Link
@@ -39,17 +49,27 @@ export default async function OrderDetailPage({
           <p className="font-medium">{order.customer?.name}</p>
           <p className="text-sm text-foreground/70">Phone: {order.customer?.phone}</p>
           {order.customer?.whatsappNumber && (
-            <p className="text-sm text-foreground/70">
-              WhatsApp:{" "}
+            <>
+              <p className="text-sm text-foreground/70">
+                WhatsApp:{" "}
+                <a
+                  href={`https://wa.me/${order.customer.whatsappNumber.replace(/\D/g, "").replace(/^0/, "20")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-dark underline hover:no-underline"
+                >
+                  {order.customer.whatsappNumber}
+                </a>
+              </p>
               <a
-                href={`https://wa.me/${order.customer.whatsappNumber.replace(/\D/g, "").replace(/^0/, "20")}`}
+                href={`https://wa.me/${order.customer.whatsappNumber.replace(/\D/g, "").replace(/^0/, "20")}?text=${encodeURIComponent(depositReminderText)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-dark underline hover:no-underline"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-white bg-[#25D366] rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
               >
-                {order.customer.whatsappNumber}
+                Send deposit reminder
               </a>
-            </p>
+            </>
           )}
           {order.customer?.email && (
             <p className="text-sm text-foreground/70">{order.customer.email}</p>
