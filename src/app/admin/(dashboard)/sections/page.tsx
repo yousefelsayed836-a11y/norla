@@ -20,7 +20,7 @@ export default async function AdminSectionsPage() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm hidden md:table">
           <thead>
             <tr className="text-left text-foreground/40 border-b border-brand-light/60">
               <th className="p-4 font-medium">Order</th>
@@ -53,6 +53,29 @@ export default async function AdminSectionsPage() {
             )}
           </tbody>
         </table>
+
+        <div className="md:hidden divide-y divide-brand-light/40">
+          {sections.map((s) => (
+            <Link
+              key={s.id}
+              href={`/admin/sections/${s.id}`}
+              className="p-4 flex items-center gap-3 active:bg-brand-light/20"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{s.title}</p>
+                <p className="text-xs text-foreground/50 truncate">
+                  /collections/{s.slug} · {s.products.length} products
+                </p>
+              </div>
+              <span className="text-brand-dark font-medium text-sm shrink-0">Edit</span>
+            </Link>
+          ))}
+          {sections.length === 0 && (
+            <p className="p-8 text-center text-foreground/40 text-sm">
+              No sections yet. Add one to start building the homepage.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

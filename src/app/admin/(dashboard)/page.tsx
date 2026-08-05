@@ -68,7 +68,7 @@ export default async function AdminDashboardPage() {
               View all →
             </Link>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm hidden md:table">
             <thead>
               <tr className="text-left text-foreground/40 border-b border-brand-light/60">
                 <th className="pb-2 font-medium">Order</th>
@@ -103,6 +103,30 @@ export default async function AdminDashboardPage() {
               )}
             </tbody>
           </table>
+
+          <div className="md:hidden divide-y divide-brand-light/40">
+            {stats.recentOrders.map((o) => (
+              <Link
+                key={o.id}
+                href={`/admin/orders/${o.id}`}
+                className="py-3 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium">#{o.orderNo}</p>
+                  <p className="text-xs text-foreground/50 truncate">{o.customer?.name ?? "—"}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm">{formatEGP(Number(o.total))}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs ${STATUS_STYLES[o.status]}`}>
+                    {o.status}
+                  </span>
+                </div>
+              </Link>
+            ))}
+            {stats.recentOrders.length === 0 && (
+              <p className="py-6 text-center text-foreground/40 text-sm">No orders yet.</p>
+            )}
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm">

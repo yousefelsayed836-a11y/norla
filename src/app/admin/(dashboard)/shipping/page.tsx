@@ -17,7 +17,7 @@ export default async function AdminShippingPage() {
       </p>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm hidden md:table">
           <thead>
             <tr className="text-left text-foreground/40 border-b border-brand-light/60">
               <th className="p-4 font-medium">Governorate</th>
@@ -51,6 +51,31 @@ export default async function AdminShippingPage() {
             ))}
           </tbody>
         </table>
+
+        <div className="md:hidden divide-y divide-brand-light/40">
+          {zones.map((z) => (
+            <Link
+              key={z.id}
+              href={`/admin/shipping/${z.id}`}
+              className="p-4 flex items-center gap-3 active:bg-brand-light/20"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{z.governorate}</p>
+                <p className="text-xs text-foreground/50">
+                  {z._count.cities} cities · {formatEGP(Number(z.fee))}
+                </p>
+                <span
+                  className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[11px] ${
+                    z.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {z.active ? "Active" : "Closed"}
+                </span>
+              </div>
+              <span className="text-brand-dark font-medium text-sm shrink-0">Edit</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
