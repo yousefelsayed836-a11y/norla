@@ -14,9 +14,13 @@ export function pushConfigured() {
 }
 
 export async function sendPushToAdmins(payload: { title: string; body: string; url: string }) {
-  if (!pushConfigured()) return;
+  if (!pushConfigured()) {
+    console.warn("[push] Skipped: VAPID keys not configured");
+    return;
+  }
 
   const subscriptions = await prisma.pushSubscription.findMany();
+  console.log(`[push] Sending "${payload.title}" to ${subscriptions.length} subscription(s)`);
   await Promise.all(
     subscriptions.map(async (sub) => {
       try {
@@ -27,12 +31,14 @@ export async function sendPushToAdmins(payload: { title: string; body: string; u
           },
           JSON.stringify(payload)
         );
+        console.log(`[push] Sent OK to ${sub.endpoint.slice(0, 50)}...`);
       } catch (err) {
         const statusCode = (err as { statusCode?: number }).statusCode;
         if (statusCode === 404 || statusCode === 410) {
+          console.warn(`[push] Subscription expired (${statusCode}), removing: ${sub.endpoint.slice(0, 50)}...`);
           await prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
         } else {
-          console.error("Failed to send push notification", err);
+          console.error(`[push] Failed to send to ${sub.endpoint.slice(0, 50)}...`, err);
         }
       }
     })

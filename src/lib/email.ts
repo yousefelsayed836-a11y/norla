@@ -165,6 +165,12 @@ export async function sendCustomerOrderConfirmation(params: {
               ${formatEGP(params.depositAmount)}
             </p>
             ${methodLabel ? `<p style="margin:6px 0 0;font-size:13px;color:#2b2226;font-family:${EMAIL_FONT}">via ${methodLabel}</p>` : ""}
+            <p style="margin:10px 0 0;font-size:13px;color:#2b2226;font-family:${EMAIL_FONT}">
+              Transfer to <strong>01027096110</strong> (InstaPay) — account name: Nourhan
+            </p>
+            <p style="margin:8px 0 0;font-size:13px;font-weight:bold;color:#a33b1e;font-family:${EMAIL_FONT}">
+              Please pay the deposit within 24 hours of placing this order, or it will automatically be considered cancelled.
+            </p>
           </div>
 
           <div style="margin-bottom:24px">

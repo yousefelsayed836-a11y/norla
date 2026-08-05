@@ -15,6 +15,7 @@ type Status = "checking" | "unsupported" | "subscribed" | "unsubscribed" | "work
 
 export default function PushNotificationToggle() {
   const [status, setStatus] = useState<Status>("checking");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function check() {
@@ -31,15 +32,19 @@ export default function PushNotificationToggle() {
 
   async function subscribe() {
     setStatus("working");
+    setError(null);
     try {
       const reg = await navigator.serviceWorker.ready;
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
+        setError(`Notification permission was ${permission}. Allow notifications for this site in your browser settings, then try again.`);
         setStatus("unsubscribed");
         return;
       }
-      const { publicKey } = await fetch("/api/push/public-key").then((r) => r.json());
+      const keyRes = await fetch("/api/push/public-key");
+      const { publicKey } = await keyRes.json();
       if (!publicKey) {
+        setError("Server has no VAPID public key configured.");
         setStatus("unsupported");
         return;
       }
@@ -47,13 +52,18 @@ export default function PushNotificationToggle() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicKey),
       });
-      await fetch("/api/push/subscribe", {
+      const saveRes = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sub),
       });
+      if (!saveRes.ok) {
+        const body = await saveRes.json().catch(() => null);
+        throw new Error(body?.error || `Server rejected subscription (${saveRes.status})`);
+      }
       setStatus("subscribed");
-    } catch {
+    } catch (err) {
+      setError(err instanceof Error ? `${err.name}: ${err.message}` : String(err));
       setStatus("unsubscribed");
     }
   }
@@ -80,16 +90,19 @@ export default function PushNotificationToggle() {
   if (status === "unsupported") return null;
 
   return (
-    <button
-      onClick={status === "subscribed" ? unsubscribe : subscribe}
-      disabled={status === "checking" || status === "working"}
-      className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 disabled:opacity-50"
-    >
-      {status === "subscribed"
-        ? "🔔 Order alerts on"
-        : status === "working"
-          ? "…"
-          : "🔕 Enable order alerts"}
-    </button>
+    <div>
+      <button
+        onClick={status === "subscribed" ? unsubscribe : subscribe}
+        disabled={status === "checking" || status === "working"}
+        className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 disabled:opacity-50"
+      >
+        {status === "subscribed"
+          ? "🔔 Order alerts on"
+          : status === "working"
+            ? "…"
+            : "🔕 Enable order alerts"}
+      </button>
+      {error && <p className="px-3 text-xs text-red-300 break-words">{error}</p>}
+    </div>
   );
 }
