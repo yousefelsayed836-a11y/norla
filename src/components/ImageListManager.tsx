@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { maybeConvertHeic } from "@/lib/heic";
+import { compressImage } from "@/lib/image-compress";
 
 type Item = { id: string; url: string };
 
@@ -17,39 +18,57 @@ export default function ImageListManager({
 }) {
   const [items, setItems] = useState(initialItems);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
     setUploading(true);
+    setProgress({ done: 0, total: fileList.length });
     setError(null);
     const newItems = [...items];
-    for (const file of Array.from(files)) {
+    for (const file of fileList) {
       let toUpload = file;
       try {
-        toUpload = await maybeConvertHeic(file);
+        toUpload = await maybeConvertHeic(toUpload);
+        toUpload = await compressImage(toUpload);
       } catch {
-        setError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        setError(`Couldn't process ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        setProgress((p) => ({ ...p, done: p.done + 1 }));
         continue;
       }
       const formData = new FormData();
       formData.append("file", toUpload);
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!uploadRes.ok) {
-        const data = await uploadRes.json().catch(() => null);
-        setError(data?.error || `Failed to upload ${file.name}.`);
-        continue;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
+      try {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        });
+        if (!uploadRes.ok) {
+          const data = await uploadRes.json().catch(() => null);
+          setError(data?.error || `Failed to upload ${file.name}.`);
+        } else {
+          const { url } = await uploadRes.json();
+          const createRes = await fetch(apiBase, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          const data = await createRes.json();
+          const created = data.image;
+          newItems.push({ id: created.id, url: created.url });
+        }
+      } catch {
+        setError(`${file.name} timed out. Check your connection and try again.`);
+      } finally {
+        clearTimeout(timeout);
       }
-      const { url } = await uploadRes.json();
-      const createRes = await fetch(apiBase, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await createRes.json();
-      const created = data.image;
-      newItems.push({ id: created.id, url: created.url });
+      setProgress((p) => ({ ...p, done: p.done + 1 }));
     }
     setItems(newItems);
     setUploading(false);
@@ -135,7 +154,7 @@ export default function ImageListManager({
         disabled={uploading}
         className="border border-brand-light rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-brand-light/50 disabled:opacity-50"
       >
-        {uploading ? "Uploading..." : "+ Upload Images"}
+        {uploading ? `Uploading ${progress.done}/${progress.total}...` : "+ Upload Images"}
       </button>
     </div>
   );

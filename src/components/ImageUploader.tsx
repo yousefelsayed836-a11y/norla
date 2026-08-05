@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { maybeConvertHeic } from "@/lib/heic";
+import { compressImage } from "@/lib/image-compress";
 
 export default function ImageUploader({
   images,
@@ -13,31 +14,45 @@ export default function ImageUploader({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
     setUploading(true);
+    setProgress({ done: 0, total: fileList.length });
     setError(null);
     const uploaded: string[] = [];
-    for (const file of Array.from(files)) {
+    for (const file of fileList) {
       let toUpload = file;
       try {
-        toUpload = await maybeConvertHeic(file);
+        toUpload = await maybeConvertHeic(toUpload);
+        toUpload = await compressImage(toUpload);
       } catch {
-        setError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        setError(`Couldn't process ${file.name}. Try a JPG, PNG, or WebP photo.`);
+        setProgress((p) => ({ ...p, done: p.done + 1 }));
         continue;
       }
       const formData = new FormData();
       formData.append("file", toUpload);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.error || "One or more images failed to upload.");
-        continue;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: formData, signal: controller.signal });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          setError(data?.error || `Failed to upload ${file.name}.`);
+        } else {
+          const data = await res.json();
+          uploaded.push(data.url);
+        }
+      } catch {
+        setError(`${file.name} timed out. Check your connection and try again.`);
+      } finally {
+        clearTimeout(timeout);
       }
-      const data = await res.json();
-      uploaded.push(data.url);
+      setProgress((p) => ({ ...p, done: p.done + 1 }));
     }
     onChange([...images, ...uploaded]);
     setUploading(false);
@@ -117,7 +132,7 @@ export default function ImageUploader({
         disabled={uploading}
         className="border border-brand-light rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-brand-light/50 disabled:opacity-50"
       >
-        {uploading ? "Uploading..." : "+ Upload Images"}
+        {uploading ? `Uploading ${progress.done}/${progress.total}...` : "+ Upload Images"}
       </button>
       <p className="text-xs text-foreground/40 mt-1">
         Choose photos from your computer or phone (camera or gallery).

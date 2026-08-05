@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { maybeConvertHeic } from "@/lib/heic";
+import { compressImage } from "@/lib/image-compress";
 
 export type Variant = {
   id: string;
@@ -146,22 +147,31 @@ export default function VariantManager({
     setUploadError(null);
     let toUpload = file;
     try {
-      toUpload = await maybeConvertHeic(file);
+      toUpload = await maybeConvertHeic(toUpload);
+      toUpload = await compressImage(toUpload);
     } catch {
-      setUploadError(`Couldn't convert ${file.name}. Try a JPG, PNG, or WebP photo.`);
+      setUploadError(`Couldn't process ${file.name}. Try a JPG, PNG, or WebP photo.`);
       setUploadingColor(null);
       return;
     }
     const formData = new FormData();
     formData.append("file", toUpload);
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    if (res.ok) {
-      const data = await res.json();
-      setColors((prev) => prev.map((c) => (c.name === colorName ? { ...c, imageUrl: data.url } : c)));
-      setPickerColor(null);
-    } else {
-      const data = await res.json().catch(() => null);
-      setUploadError(data?.error || "Failed to upload image.");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData, signal: controller.signal });
+      if (res.ok) {
+        const data = await res.json();
+        setColors((prev) => prev.map((c) => (c.name === colorName ? { ...c, imageUrl: data.url } : c)));
+        setPickerColor(null);
+      } else {
+        const data = await res.json().catch(() => null);
+        setUploadError(data?.error || "Failed to upload image.");
+      }
+    } catch {
+      setUploadError(`${file.name} timed out. Check your connection and try again.`);
+    } finally {
+      clearTimeout(timeout);
     }
     setUploadingColor(null);
   }
