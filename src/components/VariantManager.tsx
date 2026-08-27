@@ -19,7 +19,7 @@ export type Variant = {
 };
 
 type ColorOption = { name: string; hex: string; imageUrl: string | null };
-type CellState = { checked: boolean; stockQty: string; variantId?: string };
+type CellState = { checked: boolean; stockQty: string; price: string; variantId?: string };
 
 function buildInitialSizes(variants: Variant[]): string[] {
   const seen = new Set<string>();
@@ -54,6 +54,7 @@ function buildInitialCells(variants: Variant[]): Record<string, CellState> {
     map[`${v.color}||${v.size}`] = {
       checked: true,
       stockQty: v.stockQty != null ? String(v.stockQty) : "",
+      price: v.price ?? "",
       variantId: v.id,
     };
   }
@@ -133,13 +134,26 @@ export default function VariantManager({
     setCells((prev) => {
       const existing = prev[key];
       if (existing?.checked) return { ...prev, [key]: { ...existing, checked: false } };
-      return { ...prev, [key]: { checked: true, stockQty: existing?.stockQty ?? "", variantId: existing?.variantId } };
+      return {
+        ...prev,
+        [key]: {
+          checked: true,
+          stockQty: existing?.stockQty ?? "",
+          price: existing?.price ?? "",
+          variantId: existing?.variantId,
+        },
+      };
     });
   }
 
   function setCellStock(color: string, size: string, stockQty: string) {
     const key = `${color}||${size}`;
-    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true }), stockQty } }));
+    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, price: "" }), stockQty } }));
+  }
+
+  function setCellPrice(color: string, size: string, price: string) {
+    const key = `${color}||${size}`;
+    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, stockQty: "" }), price } }));
   }
 
   async function handleColorImageUpload(colorName: string, file: File) {
@@ -185,12 +199,12 @@ export default function VariantManager({
     setSaving(true);
     const colorByName = new Map(colors.map((c) => [c.name, c]));
 
-    const targets: { color: string; size: string; stockQty: string; variantId?: string }[] = [];
+    const targets: { color: string; size: string; stockQty: string; price: string; variantId?: string }[] = [];
     for (const [key, cell] of Object.entries(cells)) {
       if (!cell.checked) continue;
       const [color, size] = key.split("||");
       if (!colorByName.has(color) || !sizes.includes(size)) continue;
-      targets.push({ color, size, stockQty: cell.stockQty, variantId: cell.variantId });
+      targets.push({ color, size, stockQty: cell.stockQty, price: cell.price, variantId: cell.variantId });
     }
     const targetIds = new Set(targets.filter((t) => t.variantId).map((t) => t.variantId));
 
@@ -210,6 +224,7 @@ export default function VariantManager({
         imageUrl: colorOpt.imageUrl,
         stockStatus: "instock",
         stockQty: t.stockQty !== "" ? parseInt(t.stockQty) : null,
+        price: t.price !== "" ? parseFloat(t.price) : null,
       };
       if (t.variantId) {
         await fetch(`/api/variants/${t.variantId}`, {
@@ -389,7 +404,10 @@ export default function VariantManager({
       </div>
 
       <div className="border-t border-brand-light pt-6">
-        <p className="text-sm font-medium mb-3">3. Stock per Color &amp; Size</p>
+        <p className="text-sm font-medium mb-1">3. Stock &amp; Price per Color &amp; Size</p>
+        <p className="text-xs text-foreground/50 mb-3">
+          Leave price blank to use the product&apos;s base price for that variant.
+        </p>
         {colors.length === 0 || sizes.length === 0 ? (
           <p className="text-sm text-foreground/40">Add at least one size and one color above.</p>
         ) : (
@@ -428,14 +446,25 @@ export default function VariantManager({
                               className="accent-brand-dark w-4 h-4"
                             />
                             {cell?.checked && (
-                              <input
-                                type="number"
-                                min={0}
-                                placeholder="Qty"
-                                className="w-16 border border-brand-light rounded-lg px-1.5 py-1 text-xs text-center"
-                                value={cell.stockQty}
-                                onChange={(e) => setCellStock(c.name, s, e.target.value)}
-                              />
+                              <>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  placeholder="Qty"
+                                  className="w-16 border border-brand-light rounded-lg px-1.5 py-1 text-xs text-center"
+                                  value={cell.stockQty}
+                                  onChange={(e) => setCellStock(c.name, s, e.target.value)}
+                                />
+                                <input
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  placeholder="Price"
+                                  className="w-16 border border-brand-light rounded-lg px-1.5 py-1 text-xs text-center"
+                                  value={cell.price}
+                                  onChange={(e) => setCellPrice(c.name, s, e.target.value)}
+                                />
+                              </>
                             )}
                           </div>
                         </td>
