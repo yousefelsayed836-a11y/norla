@@ -126,7 +126,7 @@ export default function AddToCartPanel({
                     onClick={() => setSelectedColor(color)}
                     disabled={colorOutOfStock}
                     title={color}
-                    className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 overflow-hidden disabled:cursor-not-allowed ${
                       selectedColor === color ? "border-brand-dark scale-110" : "border-transparent"
                     }`}
                   >
