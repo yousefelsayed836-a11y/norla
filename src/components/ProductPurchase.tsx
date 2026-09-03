@@ -14,6 +14,7 @@ type Variant = {
   size: string | null;
   imageUrl: string | null;
   price: number | null;
+  regularPrice: number | null;
   stockStatus: string;
 };
 
@@ -24,6 +25,7 @@ export default function ProductPurchase({
   categoryName,
   categoryNameAr,
   basePrice,
+  baseRegularPrice,
   images,
   variants,
   shortDescription,
@@ -39,6 +41,7 @@ export default function ProductPurchase({
   categoryName?: string | null;
   categoryNameAr?: string | null;
   basePrice: number;
+  baseRegularPrice?: number | null;
   images: { url: string }[];
   variants: Variant[];
   shortDescription: string;
@@ -71,6 +74,7 @@ export default function ProductPurchase({
           productId={productId}
           title={displayTitle}
           basePrice={basePrice}
+          baseRegularPrice={baseRegularPrice}
           image={images[0]?.url}
           variants={variants}
           onColorImage={setFocusUrl}

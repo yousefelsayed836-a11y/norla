@@ -13,6 +13,7 @@ type Variant = {
   size: string | null;
   imageUrl: string | null;
   price: number | null;
+  regularPrice: number | null;
   stockStatus: string;
 };
 
@@ -20,6 +21,7 @@ export default function AddToCartPanel({
   productId,
   title,
   basePrice,
+  baseRegularPrice,
   image,
   variants,
   onColorImage,
@@ -27,6 +29,7 @@ export default function AddToCartPanel({
   productId: string;
   title: string;
   basePrice: number;
+  baseRegularPrice?: number | null;
   image?: string;
   variants: Variant[];
   onColorImage?: (url: string | null) => void;
@@ -74,6 +77,8 @@ export default function AddToCartPanel({
     variants[0];
 
   const price = selected?.price ?? basePrice;
+  const regularPrice = selected?.regularPrice ?? (selected?.price ? null : baseRegularPrice);
+  const showOldPrice = regularPrice != null && regularPrice > price;
   const outOfStock = selected
     ? selected.stockStatus === "outofstock"
     : variants.length > 0 && variants.every((v) => v.stockStatus === "outofstock");
@@ -96,7 +101,12 @@ export default function AddToCartPanel({
 
   return (
     <div className="text-center">
-      <p className="text-2xl font-semibold text-brand-dark mb-4">{formatEGP(price)}</p>
+      <div className="flex items-baseline justify-center gap-3 mb-4">
+        <p className="text-2xl font-semibold text-brand-dark">{formatEGP(price)}</p>
+        {showOldPrice && (
+          <p className="text-base text-foreground/40 line-through">{formatEGP(regularPrice!)}</p>
+        )}
+      </div>
 
       {colors.length > 0 && (
         <div className="mb-6">
@@ -116,7 +126,7 @@ export default function AddToCartPanel({
                     onClick={() => setSelectedColor(color)}
                     disabled={colorOutOfStock}
                     title={color}
-                    className={`w-10 h-10 rounded-full border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                    className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
                       selectedColor === color ? "border-brand-dark scale-110" : "border-transparent"
                     }`}
                   >
@@ -124,6 +134,11 @@ export default function AddToCartPanel({
                       className="block w-full h-full rounded-full border border-black/10"
                       style={{ backgroundColor: v?.colorHex ?? "#ccc" }}
                     />
+                    {colorOutOfStock && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="block w-[140%] h-[1.5px] bg-red-500/70 rotate-45" />
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -163,13 +178,18 @@ export default function AddToCartPanel({
                   key={size}
                   onClick={() => setSelectedSize(size)}
                   disabled={sizeOutOfStock}
-                  className={`min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                  className={`relative min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
                     selectedSize === size
                       ? "border-2 border-brand-dark text-brand-dark font-semibold"
                       : "border border-brand-dark text-foreground"
                   }`}
                 >
                   {size}
+                  {sizeOutOfStock && (
+                    <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <span className="block w-[130%] h-px bg-red-500/60 rotate-[-25deg]" />
+                    </span>
+                  )}
                 </button>
               );
             })}

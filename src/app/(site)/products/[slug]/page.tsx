@@ -35,6 +35,7 @@ export default async function ProductDetailPage({
         categoryNameAr={product.category?.nameAr}
         basePrice={product.price}
         images={product.images}
+        baseRegularPrice={product.regularPrice}
         variants={product.variants.map((v) => ({
           id: v.id,
           color: v.color,
@@ -42,6 +43,7 @@ export default async function ProductDetailPage({
           size: v.size,
           imageUrl: v.imageUrl,
           price: v.price,
+          regularPrice: v.regularPrice,
           stockStatus: v.stockStatus,
         }))}
         shortDescription={product.shortDescription}
