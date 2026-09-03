@@ -48,3 +48,4 @@ dev.log
 /.agents/
 /.windsurf/
 skills-lock.json
+!.env.example
