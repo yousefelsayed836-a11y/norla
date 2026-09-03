@@ -19,7 +19,7 @@ export type Variant = {
 };
 
 type ColorOption = { name: string; hex: string; imageUrl: string | null };
-type CellState = { checked: boolean; stockQty: string; price: string; variantId?: string };
+type CellState = { checked: boolean; stockQty: string; price: string; regularPrice: string; variantId?: string };
 
 function buildInitialSizes(variants: Variant[]): string[] {
   const seen = new Set<string>();
@@ -55,6 +55,7 @@ function buildInitialCells(variants: Variant[]): Record<string, CellState> {
       checked: true,
       stockQty: v.stockQty != null ? String(v.stockQty) : "",
       price: v.price ?? "",
+      regularPrice: "",
       variantId: v.id,
     };
   }
@@ -140,6 +141,7 @@ export default function VariantManager({
           checked: true,
           stockQty: existing?.stockQty ?? "",
           price: existing?.price ?? "",
+          regularPrice: existing?.regularPrice ?? "",
           variantId: existing?.variantId,
         },
       };
@@ -148,12 +150,17 @@ export default function VariantManager({
 
   function setCellStock(color: string, size: string, stockQty: string) {
     const key = `${color}||${size}`;
-    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, price: "" }), stockQty } }));
+    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, price: "", regularPrice: "" }), stockQty } }));
   }
 
   function setCellPrice(color: string, size: string, price: string) {
     const key = `${color}||${size}`;
-    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, stockQty: "" }), price } }));
+    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, stockQty: "", regularPrice: "" }), price } }));
+  }
+
+  function setCellRegularPrice(color: string, size: string, regularPrice: string) {
+    const key = `${color}||${size}`;
+    setCells((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { checked: true, stockQty: "", price: "" }), regularPrice } }));
   }
 
   async function handleColorImageUpload(colorName: string, file: File) {
@@ -199,12 +206,12 @@ export default function VariantManager({
     setSaving(true);
     const colorByName = new Map(colors.map((c) => [c.name, c]));
 
-    const targets: { color: string; size: string; stockQty: string; price: string; variantId?: string }[] = [];
+    const targets: { color: string; size: string; stockQty: string; price: string; regularPrice: string; variantId?: string }[] = [];
     for (const [key, cell] of Object.entries(cells)) {
       if (!cell.checked) continue;
       const [color, size] = key.split("||");
       if (!colorByName.has(color) || !sizes.includes(size)) continue;
-      targets.push({ color, size, stockQty: cell.stockQty, price: cell.price, variantId: cell.variantId });
+      targets.push({ color, size, stockQty: cell.stockQty, price: cell.price, regularPrice: cell.regularPrice ?? "", variantId: cell.variantId });
     }
     const targetIds = new Set(targets.filter((t) => t.variantId).map((t) => t.variantId));
 
@@ -216,15 +223,17 @@ export default function VariantManager({
 
     for (const t of targets) {
       const colorOpt = colorByName.get(t.color)!;
+      const qtyVal = t.stockQty !== "" ? parseInt(t.stockQty) : null;
       const payload = {
         label: `${t.color}, ${t.size}`,
         color: t.color,
         colorHex: colorOpt.hex,
         size: t.size,
         imageUrl: colorOpt.imageUrl,
-        stockStatus: "instock",
-        stockQty: t.stockQty !== "" ? parseInt(t.stockQty) : null,
+        stockStatus: qtyVal === 0 ? "outofstock" : "instock",
+        stockQty: qtyVal,
         price: t.price !== "" ? parseFloat(t.price) : null,
+        regularPrice: t.regularPrice !== "" ? parseFloat(t.regularPrice) : null,
       };
       if (t.variantId) {
         await fetch(`/api/variants/${t.variantId}`, {
@@ -463,6 +472,15 @@ export default function VariantManager({
                                   className="w-16 border border-brand-light rounded-lg px-1.5 py-1 text-xs text-center"
                                   value={cell.price}
                                   onChange={(e) => setCellPrice(c.name, s, e.target.value)}
+                                />
+                                <input
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  placeholder="Old Price"
+                                  className="w-16 border border-brand-light rounded-lg px-1.5 py-1 text-xs text-center text-foreground/50"
+                                  value={cell.regularPrice ?? ""}
+                                  onChange={(e) => setCellRegularPrice(c.name, s, e.target.value)}
                                 />
                               </>
                             )}
