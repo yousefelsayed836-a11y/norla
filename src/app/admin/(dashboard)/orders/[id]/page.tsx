@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import SendToTurboButton from "@/components/SendToTurboButton";
+import AdminOrderEditor from "@/components/AdminOrderEditor";
 import { TURBO_GOVERNMENT_MAP, TURBO_GOVERNMENT_ID } from "@/lib/turbo";
 
 export default async function OrderDetailPage({
@@ -111,6 +112,12 @@ export default async function OrderDetailPage({
             <span>Shipping</span>
             <span>{formatEGP(Number(order.shippingFee))}</span>
           </div>
+          {Number(order.serviceFee) > 0 && (
+            <div className="flex justify-between text-foreground/60">
+              <span>Vodafone Cash fee</span>
+              <span>{formatEGP(Number(order.serviceFee))}</span>
+            </div>
+          )}
           <div className="flex justify-between font-semibold text-base pt-1.5 border-t border-brand-light/60">
             <span>Total</span>
             <span className="text-brand-dark">{formatEGP(Number(order.total))}</span>
@@ -129,6 +136,18 @@ export default async function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      <AdminOrderEditor
+        orderId={order.id}
+        initialItems={order.items.map((i) => ({
+          id: i.id,
+          title: i.title,
+          price: Number(i.price),
+          quantity: i.quantity,
+          productId: i.productId,
+          variantId: i.variantId ?? null,
+        }))}
+      />
 
       <div className="mt-6">
         <SendToTurboButton

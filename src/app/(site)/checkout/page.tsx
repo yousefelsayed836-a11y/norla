@@ -56,7 +56,14 @@ export default function CheckoutPage() {
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
   const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
   const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  const grandTotal = total + shippingFee;
+  const baseTotal = total + shippingFee;
+  const vodafoneFee =
+    paymentMethod === "vodafone_cash"
+      ? baseTotal < 1000
+        ? 5
+        : Math.floor(baseTotal / 1000) * 10
+      : 0;
+  const grandTotal = baseTotal + vodafoneFee;
   const deposit = (grandTotal * depositPercent) / 100;
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
@@ -77,11 +84,12 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, items, paymentMethod }),
+        body: JSON.stringify({ customer: form, items, paymentMethod, serviceFee: vodafoneFee }),
       });
       if (!res.ok) throw new Error("Failed to place order");
+      const data = await res.json();
       clear();
-      router.push("/order-confirmed");
+      router.push(`/order-confirmed?id=${data.order.id}`);
     } catch {
       setError(t("checkout.orderError"));
     } finally {
@@ -269,6 +277,12 @@ export default function CheckoutPage() {
                   : formatEGP(shippingFee)}
             </span>
           </div>
+          {vodafoneFee > 0 && (
+            <div className="flex justify-between text-foreground/70">
+              <span>{t("checkout.vodafoneFee")}</span>
+              <span>{formatEGP(vodafoneFee)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
             <span>{t("checkout.total")}</span>
             <span className="text-brand-dark">{formatEGP(grandTotal)}</span>

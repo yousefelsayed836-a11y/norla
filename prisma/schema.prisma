@@ -240,6 +240,7 @@ model Order {
   turboAmountToCollect Decimal? @db.Decimal(10, 2)
   turboReturnAmount    Decimal? @db.Decimal(10, 2)
   turboReturnSummary   String?
+  serviceFee Decimal     @default(0) @db.Decimal(10, 2)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
