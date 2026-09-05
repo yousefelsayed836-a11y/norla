@@ -252,15 +252,7 @@ export default function CheckoutPage() {
                 </div>
                 <p className="text-xs text-foreground/50">{t("checkout.accountNameNote")}</p>
                 <p className="text-xs text-foreground/60 leading-relaxed pt-1.5 border-t border-brand-dark/10">
-                  {t("checkout.sendScreenshotNote")}{" "}
-                  <a
-                    href="https://wa.me/201027096110"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand-dark underline hover:no-underline"
-                  >
-                    01027096110
-                  </a>
+                  {t("checkout.depositNote")}
                 </p>
               </div>
             )}
