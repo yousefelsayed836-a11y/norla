@@ -267,7 +267,6 @@ export default function CheckoutPage() {
           >
             {loading ? t("checkout.placingOrder") : `${t("checkout.placeOrder")} — ${formatEGP(grandTotal)}`}
           </button>
-          <p className="text-xs text-foreground/50 text-center">{t("checkout.depositNote")}</p>
         </form>
       </div>
 
@@ -322,7 +321,6 @@ export default function CheckoutPage() {
             </span>
             <span>{formatEGP(deposit)}</span>
           </div>
-          <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
         </div>
       </div>
     </div>
