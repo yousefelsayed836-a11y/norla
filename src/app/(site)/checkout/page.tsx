@@ -37,6 +37,8 @@ export default function CheckoutPage() {
   const [depositPercent, setDepositPercent] = useState(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cityQuery, setCityQuery] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -67,6 +69,18 @@ export default function CheckoutPage() {
   const deposit = (grandTotal * depositPercent) / 100;
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
+  const selectedCityDisplay = form.city
+    ? (cities.find((c) => c.name === form.city)?.nameAr || form.city)
+    : "";
+  const filteredCities = useMemo(() => {
+    const q = cityQuery.trim().toLowerCase();
+    if (!q) return cities;
+    return cities.filter(
+      (c) =>
+        (c.nameAr || "").toLowerCase().includes(q) ||
+        c.name.toLowerCase().includes(q)
+    );
+  }, [cities, cityQuery]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -138,7 +152,7 @@ export default function CheckoutPage() {
             <select
               className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white"
               value={form.governorate}
-              onChange={(e) => setForm({ ...form, governorate: e.target.value, city: "" })}
+              onChange={(e) => { setForm({ ...form, governorate: e.target.value, city: "" }); setCityQuery(""); }}
             >
               <option value="">{t("checkout.governorate")}</option>
               {zones.map((z) => (
@@ -147,19 +161,40 @@ export default function CheckoutPage() {
                 </option>
               ))}
             </select>
-            <select
-              className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
-              value={form.city}
-              disabled={!selectedZone}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-            >
-              <option value="">{t("checkout.city")}</option>
-              {cities.map((c) => (
-                <option key={c.id} value={c.name}>
-                  {c.nameAr || c.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t("checkout.city")}
+                className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
+                disabled={!selectedZone}
+                value={cityQuery || selectedCityDisplay}
+                onChange={(e) => {
+                  setCityQuery(e.target.value);
+                  setForm({ ...form, city: "" });
+                  setCityOpen(true);
+                }}
+                onFocus={() => setCityOpen(true)}
+                onBlur={() => setTimeout(() => setCityOpen(false), 150)}
+              />
+              {cityOpen && filteredCities.length > 0 && (
+                <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-brand-light rounded-xl shadow-lg z-10 max-h-52 overflow-y-auto">
+                  {filteredCities.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className="w-full text-right px-4 py-2.5 text-sm hover:bg-brand-light/30 border-b border-brand-light/40 last:border-0"
+                      onMouseDown={() => {
+                        setForm({ ...form, city: c.name });
+                        setCityQuery("");
+                        setCityOpen(false);
+                      }}
+                    >
+                      {c.nameAr || c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <textarea
             placeholder={t("checkout.address")}

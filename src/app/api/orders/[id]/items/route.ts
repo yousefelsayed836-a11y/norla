@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { adjustStock } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
 
-// Add item to order
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,57 +11,50 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const body = await req.json();
   const { productId, variantId, quantity } = body;
+  const qty: number = quantity || 1;
 
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: { images: { orderBy: { position: "asc" }, take: 1 } },
-  });
+  const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
   let price = Number(product.price);
   let title = product.title;
-  let variant = null;
   if (variantId) {
-    variant = await prisma.productVariant.findUnique({ where: { id: variantId } });
+    const variant = await prisma.productVariant.findUnique({ where: { id: variantId } });
     if (variant) {
       if (variant.price) price = Number(variant.price);
       title = `${product.title} (${variant.label})`;
     }
   }
 
-  const item = await prisma.orderItem.create({
-    data: {
-      orderId: id,
-      productId,
-      variantId: variantId || null,
-      title,
-      price,
-      quantity: quantity || 1,
-    },
-  });
+  const updated = await prisma.$transaction(async (tx) => {
+    const item = await tx.orderItem.create({
+      data: { orderId: id, productId, variantId: variantId || null, title, price, quantity: qty },
+    });
 
-  // Recalculate order totals
-  const allItems = await prisma.orderItem.findMany({ where: { orderId: id } });
-  const subtotal = allItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
-  const total = subtotal + Number(order.shippingFee) + Number(order.serviceFee);
-  const settings = await prisma.siteSetting.findUnique({ where: { id: "singleton" } });
-  const depositPercent = settings?.depositPercent ?? 50;
-  const depositAmount = (total * depositPercent) / 100;
+    await adjustStock(tx, [{ productId, variantId, quantity: qty }], -1);
 
-  const updated = await prisma.order.update({
-    where: { id },
-    data: { subtotal, total, depositAmount },
-    include: { items: true },
+    const allItems = await tx.orderItem.findMany({ where: { orderId: id } });
+    const subtotal = allItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
+    const settings = await tx.siteSetting.findUnique({ where: { id: "singleton" } });
+    const depositPercent = settings?.depositPercent ?? 50;
+    const total = subtotal + Number(order.shippingFee) + Number(order.serviceFee);
+    const depositAmount = (total * depositPercent) / 100;
+
+    const updatedOrder = await tx.order.update({
+      where: { id },
+      data: { subtotal, total, depositAmount },
+      include: { items: true },
+    });
+    return { item, order: updatedOrder };
   });
 
   revalidateStorefront();
-  return NextResponse.json({ item, order: updated });
+  return NextResponse.json(updated);
 }
 
-// Update item quantity or delete
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -73,23 +66,42 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (remove) {
-    await prisma.orderItem.delete({ where: { id: itemId } });
-  } else {
-    await prisma.orderItem.update({ where: { id: itemId }, data: { quantity } });
-  }
+  const updated = await prisma.$transaction(async (tx) => {
+    const existingItem = await tx.orderItem.findUnique({ where: { id: itemId } });
+    if (!existingItem) throw new Error("Item not found");
 
-  const allItems = await prisma.orderItem.findMany({ where: { orderId: id } });
-  const subtotal = allItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
-  const total = subtotal + Number(order.shippingFee) + Number(order.serviceFee);
-  const settings = await prisma.siteSetting.findUnique({ where: { id: "singleton" } });
-  const depositPercent = settings?.depositPercent ?? 50;
-  const depositAmount = (total * depositPercent) / 100;
+    if (remove) {
+      await tx.orderItem.delete({ where: { id: itemId } });
+      // Restock when removing
+      await adjustStock(
+        tx,
+        [{ productId: existingItem.productId, variantId: existingItem.variantId, quantity: existingItem.quantity }],
+        1
+      );
+    } else {
+      const diff = quantity - existingItem.quantity;
+      await tx.orderItem.update({ where: { id: itemId }, data: { quantity } });
+      if (diff !== 0) {
+        await adjustStock(
+          tx,
+          [{ productId: existingItem.productId, variantId: existingItem.variantId, quantity: Math.abs(diff) }],
+          diff > 0 ? -1 : 1
+        );
+      }
+    }
 
-  const updated = await prisma.order.update({
-    where: { id },
-    data: { subtotal, total, depositAmount },
-    include: { items: true },
+    const allItems = await tx.orderItem.findMany({ where: { orderId: id } });
+    const subtotal = allItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
+    const settings = await tx.siteSetting.findUnique({ where: { id: "singleton" } });
+    const depositPercent = settings?.depositPercent ?? 50;
+    const total = subtotal + Number(order.shippingFee) + Number(order.serviceFee);
+    const depositAmount = (total * depositPercent) / 100;
+
+    return tx.order.update({
+      where: { id },
+      data: { subtotal, total, depositAmount },
+      include: { items: true },
+    });
   });
 
   revalidateStorefront();
