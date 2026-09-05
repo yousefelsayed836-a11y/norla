@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { formatEGP } from "@/lib/format";
@@ -20,7 +20,7 @@ type OrderDetails = {
   customer: { name: string; phone: string; governorate: string | null; city: string | null; address: string | null } | null;
 };
 
-export default function OrderConfirmedPage() {
+function OrderConfirmedContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("id");
   const { t } = useLanguage();
@@ -138,5 +138,13 @@ export default function OrderConfirmedPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmedPage() {
+  return (
+    <Suspense>
+      <OrderConfirmedContent />
+    </Suspense>
   );
 }
