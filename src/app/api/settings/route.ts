@@ -36,6 +36,8 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
+    checkoutPaymentNote,
+    checkoutPaymentNoteAr,
   } = await req.json();
   const data = {
     announcementText,
@@ -57,6 +59,8 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
+    checkoutPaymentNote: checkoutPaymentNote || "",
+    checkoutPaymentNoteAr: checkoutPaymentNoteAr || "",
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },

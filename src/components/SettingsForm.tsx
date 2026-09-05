@@ -23,6 +23,8 @@ export default function SettingsForm({
   initialDepositPercent,
   initialFreeShippingEnabled,
   initialFreeShippingThreshold,
+  initialCheckoutPaymentNote,
+  initialCheckoutPaymentNoteAr,
 }: {
   initialText: string;
   initialTextAr: string;
@@ -42,6 +44,8 @@ export default function SettingsForm({
   initialDepositPercent: number;
   initialFreeShippingEnabled: boolean;
   initialFreeShippingThreshold: string;
+  initialCheckoutPaymentNote: string;
+  initialCheckoutPaymentNoteAr: string;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -61,6 +65,8 @@ export default function SettingsForm({
   const [depositPercent, setDepositPercent] = useState(String(initialDepositPercent));
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(initialFreeShippingEnabled);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(initialFreeShippingThreshold);
+  const [checkoutPaymentNote, setCheckoutPaymentNote] = useState(initialCheckoutPaymentNote);
+  const [checkoutPaymentNoteAr, setCheckoutPaymentNoteAr] = useState(initialCheckoutPaymentNoteAr);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -90,6 +96,8 @@ export default function SettingsForm({
         depositPercent: parseInt(depositPercent) || 0,
         freeShippingEnabled,
         freeShippingThreshold: parseFloat(freeShippingThreshold) || 0,
+        checkoutPaymentNote,
+        checkoutPaymentNoteAr,
       }),
     });
     setSaving(false);
@@ -295,6 +303,34 @@ export default function SettingsForm({
           value={careInstructionsAr}
           onChange={(e) => setCareInstructionsAr(e.target.value)}
         />
+      </div>
+
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">Checkout Payment Note</p>
+        <p className="text-xs text-foreground/50 -mt-2">
+          Shown inside the payment section on the checkout page. Describe how to pay and confirm.
+        </p>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">English</label>
+          <textarea
+            rows={4}
+            placeholder="e.g. Make the transfer to InstaPay account (name: Nourhan): 01027096110. Send a screenshot to WhatsApp to confirm."
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+            value={checkoutPaymentNote}
+            onChange={(e) => setCheckoutPaymentNote(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Arabic</label>
+          <textarea
+            rows={4}
+            dir="rtl"
+            placeholder="اختياري — يظهر للزوار اللي مختارين اللغة العربية"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+            value={checkoutPaymentNoteAr}
+            onChange={(e) => setCheckoutPaymentNoteAr(e.target.value)}
+          />
+        </div>
       </div>
 
       <button

@@ -35,6 +35,8 @@ model SiteSetting {
   depositPercent    Int     @default(50)
   freeShippingEnabled   Boolean @default(false)
   freeShippingThreshold Decimal @default(0) @db.Decimal(10, 2)
+  checkoutPaymentNote   String  @default("")
+  checkoutPaymentNoteAr String  @default("")
 }
 
 model HeroImage {

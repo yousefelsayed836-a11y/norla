@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
+  const [paymentNote, setPaymentNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cityQuery, setCityQuery] = useState("");
@@ -47,6 +48,7 @@ export default function CheckoutPage() {
         setFreeShippingEnabled(!!d.settings.freeShippingEnabled);
         setFreeShippingThreshold(Number(d.settings.freeShippingThreshold) || 0);
         setDepositPercent(d.settings.depositPercent ?? 50);
+        setPaymentNote(d.settings.checkoutPaymentNote || "");
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -252,7 +254,7 @@ export default function CheckoutPage() {
                 </div>
                 <p className="text-xs text-foreground/50">{t("checkout.accountNameNote")}</p>
                 <p className="text-xs text-foreground/60 leading-relaxed pt-1.5 border-t border-brand-dark/10">
-                  {t("checkout.depositNote")}
+                  {paymentNote || t("checkout.depositNote")}
                 </p>
               </div>
             )}

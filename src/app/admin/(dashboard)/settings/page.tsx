@@ -30,6 +30,8 @@ export default async function AdminSettingsPage() {
         initialDepositPercent={settings.depositPercent}
         initialFreeShippingEnabled={settings.freeShippingEnabled}
         initialFreeShippingThreshold={String(settings.freeShippingThreshold)}
+        initialCheckoutPaymentNote={settings.checkoutPaymentNote}
+        initialCheckoutPaymentNoteAr={settings.checkoutPaymentNoteAr}
       />
     </div>
   );
