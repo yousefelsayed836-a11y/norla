@@ -34,6 +34,7 @@ export default async function AdminSettingsPage() {
         initialFreeShippingThreshold={String(settings.freeShippingThreshold)}
         initialCheckoutPaymentNote={s.checkoutPaymentNote ?? ""}
         initialCheckoutPaymentNoteAr={s.checkoutPaymentNoteAr ?? ""}
+        initialWhatsappMessageTemplate={s.whatsappMessageTemplate ?? ""}
       />
     </div>
   );

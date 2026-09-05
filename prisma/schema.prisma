@@ -37,6 +37,7 @@ model SiteSetting {
   freeShippingThreshold Decimal @default(0) @db.Decimal(10, 2)
   checkoutPaymentNote   String  @default("")
   checkoutPaymentNoteAr String  @default("")
+  whatsappMessageTemplate String @default("")
 }
 
 model HeroImage {

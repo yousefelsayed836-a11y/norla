@@ -38,6 +38,7 @@ export async function PUT(req: NextRequest) {
     freeShippingThreshold,
     checkoutPaymentNote,
     checkoutPaymentNoteAr,
+    whatsappMessageTemplate,
   } = await req.json();
   const data = {
     announcementText,
@@ -61,6 +62,7 @@ export async function PUT(req: NextRequest) {
     freeShippingThreshold,
     checkoutPaymentNote: checkoutPaymentNote || "",
     checkoutPaymentNoteAr: checkoutPaymentNoteAr || "",
+    whatsappMessageTemplate: whatsappMessageTemplate || "",
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },

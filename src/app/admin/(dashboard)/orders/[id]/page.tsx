@@ -13,20 +13,22 @@ export default async function OrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: { items: true, customer: true },
-  });
+  const [order, settings] = await Promise.all([
+    prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } }),
+    prisma.siteSetting.upsert({ where: { id: "singleton" }, update: {}, create: { id: "singleton" } }),
+  ]);
   if (!order) notFound();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const s = settings as any;
+  const templateBase = s.whatsappMessageTemplate ||
+    `Hi {name}, thanks for your order from Norla Designs!\nOrder #{orderNo} — please transfer the deposit ({deposit} LE) to 01027096110 (Nourhan) and send the receipt screenshot here to confirm.\n\nمرحباً {name}، شكراً لطلبك من Norla Designs!\nطلب رقم #{orderNo} — برجاء تحويل العربون ({deposit} جنيه) على 01027096110 (نورهان) وإرسال صورة الإيصال هنا للتأكيد.`;
+
   const depositReminderText = order.customer
-    ? `Hi ${order.customer.name}, thanks for your order from Norla Designs! Order #${order.orderNo} — please transfer the deposit (${Number(
-        order.depositAmount
-      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} LE) to 01027096110 (Nourhan) and send the receipt screenshot here to confirm.\n\nمرحباً ${
-        order.customer.name
-      }، شكراً لطلبك من Norla Designs! طلب رقم #${order.orderNo} — برجاء تحويل العربون (${Number(
-        order.depositAmount
-      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} جنيه) على 01027096110 (نورهان) وإرسال صورة الإيصال هنا للتأكيد.`
+    ? templateBase
+        .replace(/{name}/g, order.customer.name)
+        .replace(/{orderNo}/g, String(order.orderNo))
+        .replace(/{deposit}/g, Number(order.depositAmount).toLocaleString("en-US", { maximumFractionDigits: 0 }))
     : "";
 
   return (

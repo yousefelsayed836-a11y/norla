@@ -25,6 +25,7 @@ export default function SettingsForm({
   initialFreeShippingThreshold,
   initialCheckoutPaymentNote,
   initialCheckoutPaymentNoteAr,
+  initialWhatsappMessageTemplate,
 }: {
   initialText: string;
   initialTextAr: string;
@@ -46,6 +47,7 @@ export default function SettingsForm({
   initialFreeShippingThreshold: string;
   initialCheckoutPaymentNote: string;
   initialCheckoutPaymentNoteAr: string;
+  initialWhatsappMessageTemplate: string;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -67,6 +69,7 @@ export default function SettingsForm({
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(initialFreeShippingThreshold);
   const [checkoutPaymentNote, setCheckoutPaymentNote] = useState(initialCheckoutPaymentNote);
   const [checkoutPaymentNoteAr, setCheckoutPaymentNoteAr] = useState(initialCheckoutPaymentNoteAr);
+  const [whatsappMessageTemplate, setWhatsappMessageTemplate] = useState(initialWhatsappMessageTemplate);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -98,6 +101,7 @@ export default function SettingsForm({
         freeShippingThreshold: parseFloat(freeShippingThreshold) || 0,
         checkoutPaymentNote,
         checkoutPaymentNoteAr,
+        whatsappMessageTemplate,
       }),
     });
     setSaving(false);
@@ -331,6 +335,23 @@ export default function SettingsForm({
             onChange={(e) => setCheckoutPaymentNoteAr(e.target.value)}
           />
         </div>
+      </div>
+
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">WhatsApp Deposit Reminder</p>
+        <p className="text-xs text-foreground/50 -mt-2">
+          Sent to the customer via WhatsApp after placing an order. Use{" "}
+          <code className="bg-brand-light/60 px-1 rounded">{"{name}"}</code>,{" "}
+          <code className="bg-brand-light/60 px-1 rounded">{"{orderNo}"}</code>,{" "}
+          <code className="bg-brand-light/60 px-1 rounded">{"{deposit}"}</code> as placeholders.
+        </p>
+        <textarea
+          rows={6}
+          placeholder={`Hi {name}, thanks for your order from Norla Designs!\nOrder #{orderNo} — please transfer the deposit ({deposit} LE) to 01027096110 and send the receipt here to confirm.\n\nمرحباً {name}، شكراً لطلبك!\nطلب رقم #{orderNo} — برجاء تحويل العربون ({deposit} جنيه) على 01027096110 وإرسال الإيصال هنا.`}
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+          value={whatsappMessageTemplate}
+          onChange={(e) => setWhatsappMessageTemplate(e.target.value)}
+        />
       </div>
 
       <button
