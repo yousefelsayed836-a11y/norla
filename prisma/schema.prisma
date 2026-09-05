@@ -38,6 +38,8 @@ model SiteSetting {
   checkoutPaymentNote   String  @default("")
   checkoutPaymentNoteAr String  @default("")
   whatsappMessageTemplate String @default("")
+  checkoutTransferPhone String @default("01027096110")
+  checkoutAccountName   String @default("")
 }
 
 model HeroImage {
@@ -148,6 +150,7 @@ model HomeSectionProduct {
 
 model Product {
   id              String           @id @default(cuid())
+  position        Int              @default(0)
   title           String
   titleAr         String?
   slug            String           @unique
@@ -199,6 +202,7 @@ model ProductVariant {
   id           String      @id @default(cuid())
   productId    String
   product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  position     Int         @default(0)
   label        String
   color        String?
   colorHex     String?

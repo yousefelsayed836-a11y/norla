@@ -36,6 +36,8 @@ export default function CheckoutPage() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
   const [paymentNote, setPaymentNote] = useState("");
+  const [transferPhone, setTransferPhone] = useState("01027096110");
+  const [accountName, setAccountName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cityQuery, setCityQuery] = useState("");
@@ -49,6 +51,8 @@ export default function CheckoutPage() {
         setFreeShippingThreshold(Number(d.settings.freeShippingThreshold) || 0);
         setDepositPercent(d.settings.depositPercent ?? 50);
         setPaymentNote(d.settings.checkoutPaymentNote || "");
+        setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
+        setAccountName(d.settings.checkoutAccountName || "");
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -244,15 +248,15 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/70">{t("checkout.transferTo")}</span>
                   <a
-                    href="https://wa.me/201027096110"
+                    href={`https://wa.me/${transferPhone.replace(/\D/g, "").replace(/^0/, "20")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-black underline hover:no-underline"
                   >
-                    01027096110
+                    {transferPhone}
                   </a>
                 </div>
-                <p className="text-xs text-foreground/50">{t("checkout.accountNameNote")}</p>
+                {accountName && <p className="text-xs text-foreground/50">{accountName}</p>}
                 <p className="text-xs text-foreground/60 leading-relaxed pt-1.5 border-t border-brand-dark/10">
                   {paymentNote || t("checkout.depositNote")}
                 </p>

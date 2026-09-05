@@ -5,7 +5,7 @@ const productWithRelations = {
   include: {
     images: { orderBy: { position: "asc" as const } },
     category: true,
-    variants: true,
+    variants: { orderBy: [{ position: "asc" as const }, { id: "asc" as const }] },
     reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
   },
 } satisfies Prisma.ProductDefaultArgs;
@@ -25,7 +25,7 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
       ...(opts?.search ? { title: { contains: opts.search, mode: "insensitive" } } : {}),
     },
     ...productWithRelations,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ position: "asc" as const }, { createdAt: "desc" as const }],
   });
   return products.map(serializeProduct);
 }

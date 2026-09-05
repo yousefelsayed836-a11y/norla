@@ -35,6 +35,8 @@ export default async function AdminSettingsPage() {
         initialCheckoutPaymentNote={s.checkoutPaymentNote ?? ""}
         initialCheckoutPaymentNoteAr={s.checkoutPaymentNoteAr ?? ""}
         initialWhatsappMessageTemplate={s.whatsappMessageTemplate ?? ""}
+        initialCheckoutTransferPhone={s.checkoutTransferPhone ?? "01027096110"}
+        initialCheckoutAccountName={s.checkoutAccountName ?? ""}
       />
     </div>
   );

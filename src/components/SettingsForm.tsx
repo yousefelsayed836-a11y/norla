@@ -26,6 +26,8 @@ export default function SettingsForm({
   initialCheckoutPaymentNote,
   initialCheckoutPaymentNoteAr,
   initialWhatsappMessageTemplate,
+  initialCheckoutTransferPhone,
+  initialCheckoutAccountName,
 }: {
   initialText: string;
   initialTextAr: string;
@@ -48,6 +50,8 @@ export default function SettingsForm({
   initialCheckoutPaymentNote: string;
   initialCheckoutPaymentNoteAr: string;
   initialWhatsappMessageTemplate: string;
+  initialCheckoutTransferPhone: string;
+  initialCheckoutAccountName: string;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -70,6 +74,8 @@ export default function SettingsForm({
   const [checkoutPaymentNote, setCheckoutPaymentNote] = useState(initialCheckoutPaymentNote);
   const [checkoutPaymentNoteAr, setCheckoutPaymentNoteAr] = useState(initialCheckoutPaymentNoteAr);
   const [whatsappMessageTemplate, setWhatsappMessageTemplate] = useState(initialWhatsappMessageTemplate);
+  const [checkoutTransferPhone, setCheckoutTransferPhone] = useState(initialCheckoutTransferPhone);
+  const [checkoutAccountName, setCheckoutAccountName] = useState(initialCheckoutAccountName);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -102,6 +108,8 @@ export default function SettingsForm({
         checkoutPaymentNote,
         checkoutPaymentNoteAr,
         whatsappMessageTemplate,
+        checkoutTransferPhone,
+        checkoutAccountName,
       }),
     });
     setSaving(false);
@@ -333,6 +341,31 @@ export default function SettingsForm({
             className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
             value={checkoutPaymentNoteAr}
             onChange={(e) => setCheckoutPaymentNoteAr(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">Checkout — Transfer Details</p>
+        <p className="text-xs text-foreground/50 -mt-2">
+          Shown inside the payment box on the checkout page.
+        </p>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Transfer Phone Number</label>
+          <input
+            placeholder="01027096110"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={checkoutTransferPhone}
+            onChange={(e) => setCheckoutTransferPhone(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-foreground/50 block mb-1">Account Name Note</label>
+          <input
+            placeholder="Account name: Nourhan"
+            className="w-full border border-brand-light rounded-xl px-4 py-2.5"
+            value={checkoutAccountName}
+            onChange={(e) => setCheckoutAccountName(e.target.value)}
           />
         </div>
       </div>

@@ -119,6 +119,16 @@ export default function VariantManager({
     setColorNameInput("");
   }
 
+  function moveColor(index: number, dir: -1 | 1) {
+    setColors((prev) => {
+      const next = [...prev];
+      const target = index + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
   function removeColor(name: string) {
     setColors((prev) => prev.filter((c) => c.name !== name));
     setCells((prev) => {
@@ -230,6 +240,7 @@ export default function VariantManager({
         colorHex: colorOpt.hex,
         size: t.size,
         imageUrl: colorOpt.imageUrl,
+        position: colors.findIndex((c) => c.name === t.color),
         stockStatus: qtyVal === 0 ? "outofstock" : "instock",
         stockQty: qtyVal,
         price: t.price !== "" ? parseFloat(t.price) : null,
@@ -306,11 +317,15 @@ export default function VariantManager({
       <div className="border-t border-brand-light pt-6">
         <p className="text-sm font-medium mb-2">2. Colors</p>
         <ul className="space-y-2 mb-3">
-          {colors.map((c) => (
+          {colors.map((c, ci) => (
             <li
               key={c.name}
               className="relative flex items-center gap-3 border border-brand-light rounded-xl px-3 py-2"
             >
+              <div className="flex flex-col gap-0.5 shrink-0">
+                <button type="button" disabled={ci === 0} onClick={() => moveColor(ci, -1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▲</button>
+                <button type="button" disabled={ci === colors.length - 1} onClick={() => moveColor(ci, 1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▼</button>
+              </div>
               <span
                 className="w-6 h-6 rounded-full border border-black/10 shrink-0"
                 style={{ backgroundColor: c.hex }}

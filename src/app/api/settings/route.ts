@@ -39,6 +39,8 @@ export async function PUT(req: NextRequest) {
     checkoutPaymentNote,
     checkoutPaymentNoteAr,
     whatsappMessageTemplate,
+    checkoutTransferPhone,
+    checkoutAccountName,
   } = await req.json();
   const data = {
     announcementText,
@@ -63,6 +65,8 @@ export async function PUT(req: NextRequest) {
     checkoutPaymentNote: checkoutPaymentNote || "",
     checkoutPaymentNoteAr: checkoutPaymentNoteAr || "",
     whatsappMessageTemplate: whatsappMessageTemplate || "",
+    checkoutTransferPhone: checkoutTransferPhone || "01027096110",
+    checkoutAccountName: checkoutAccountName || "",
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },

@@ -13,7 +13,7 @@ export default async function EditProductPage({
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findUnique({
       where: { id },
-      include: { images: true, variants: { orderBy: { id: "asc" } } },
+      include: { images: true, variants: { orderBy: [{ position: "asc" }, { id: "asc" }] } },
     }),
   ]);
   if (!product) notFound();

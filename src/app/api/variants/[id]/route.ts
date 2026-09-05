@@ -17,6 +17,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       colorHex: body.colorHex || null,
       size: body.size || null,
       imageUrl: body.imageUrl || null,
+      position: body.position ?? 0,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
       stockStatus: body.stockStatus,
