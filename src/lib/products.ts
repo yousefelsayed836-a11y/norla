@@ -1,16 +1,24 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
-const productWithRelations = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const productWithRelations: any = {
   include: {
-    images: { orderBy: { position: "asc" as const } },
+    images: { orderBy: { position: "asc" } },
     category: true,
-    variants: { orderBy: [{ position: "asc" as const }, { id: "asc" as const }] },
-    reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
+    variants: { orderBy: [{ position: "asc" }, { id: "asc" }] },
+    reviews: { where: { approved: true }, orderBy: { createdAt: "desc" } },
   },
-} satisfies Prisma.ProductDefaultArgs;
+};
 
-type ProductWithRelations = Prisma.ProductGetPayload<typeof productWithRelations>;
+type ProductWithRelations = Prisma.ProductGetPayload<{
+  include: {
+    images: true;
+    category: true;
+    variants: true;
+    reviews: true;
+  };
+}>;
 
 export async function getCategories() {
   return prisma.category.findMany({ orderBy: { position: "asc" } });
@@ -25,7 +33,8 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
       ...(opts?.search ? { title: { contains: opts.search, mode: "insensitive" } } : {}),
     },
     ...productWithRelations,
-    orderBy: [{ position: "asc" as const }, { createdAt: "desc" as const }],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    orderBy: [{ position: "asc" }, { createdAt: "desc" }] as any,
   });
   return products.map(serializeProduct);
 }

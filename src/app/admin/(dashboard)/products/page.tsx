@@ -5,7 +5,8 @@ import ProductReorderList from "@/components/ProductReorderList";
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     include: { images: { orderBy: { position: "asc" }, take: 1 }, category: true },
-    orderBy: { position: "asc" },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    orderBy: { position: "asc" } as any,
   });
 
   return (
