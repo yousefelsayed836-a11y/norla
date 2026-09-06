@@ -1,24 +1,17 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const productWithRelations: any = {
-  include: {
-    images: { orderBy: { position: "asc" } },
-    category: true,
-    variants: { orderBy: [{ position: "asc" }, { id: "asc" }] },
-    reviews: { where: { approved: true }, orderBy: { createdAt: "desc" } },
-  },
-};
+// Typed include — orderBy fields for `position` are cast to any individually
+// because the generated Prisma client predates the migration that added those columns.
+const productInclude = {
+  images: { orderBy: { position: "asc" as const } },
+  category: true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variants: { orderBy: [{ position: "asc" }, { id: "asc" }] as any },
+  reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
+} satisfies Prisma.ProductInclude;
 
-type ProductWithRelations = Prisma.ProductGetPayload<{
-  include: {
-    images: true;
-    category: true;
-    variants: true;
-    reviews: true;
-  };
-}>;
+type ProductWithRelations = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
 export async function getCategories() {
   return prisma.category.findMany({ orderBy: { position: "asc" } });
@@ -32,7 +25,7 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
       ...(opts?.categorySlug ? { category: { slug: opts.categorySlug } } : {}),
       ...(opts?.search ? { title: { contains: opts.search, mode: "insensitive" } } : {}),
     },
-    ...productWithRelations,
+    include: productInclude,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     orderBy: [{ position: "asc" }, { createdAt: "desc" }] as any,
   });
@@ -42,7 +35,7 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
 export async function getProductBySlug(slug: string) {
   const product = await prisma.product.findUnique({
     where: { slug },
-    ...productWithRelations,
+    include: productInclude,
   });
   if (!product || !product.visible || product.status === "trash") return null;
   return serializeProduct(product);
