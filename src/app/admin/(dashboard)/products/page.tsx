@@ -24,7 +24,8 @@ export default async function AdminProductsPage() {
         initial={products.map((p) => ({
           id: p.id,
           title: p.title,
-          position: p.position,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          position: (p as any).position ?? 0,
           price: String(p.price),
           stockStatus: p.stockStatus,
           visible: p.visible,
