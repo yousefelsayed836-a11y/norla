@@ -37,6 +37,7 @@ export default async function AdminSettingsPage() {
         initialWhatsappMessageTemplate={s.whatsappMessageTemplate ?? ""}
         initialCheckoutTransferPhone={s.checkoutTransferPhone ?? "01027096110"}
         initialCheckoutAccountName={s.checkoutAccountName ?? ""}
+        initialCheckoutDeliveryNote={s.checkoutDeliveryNote ?? "مدة تنفيذ الاوردر من 4 ل 7 ايام"}
       />
     </div>
   );

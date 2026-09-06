@@ -25,12 +25,19 @@ function OrderConfirmedContent() {
   const orderId = searchParams.get("id");
   const { t } = useLanguage();
   const [order, setOrder] = useState<OrderDetails | null>(null);
+  const [deliveryNote, setDeliveryNote] = useState("مدة تنفيذ الاوردر من 4 ل 7 ايام");
 
   useEffect(() => {
     if (!orderId) return;
     fetch(`/api/orders/${orderId}/public`)
       .then((r) => r.json())
       .then((d) => setOrder(d.order))
+      .catch(() => {});
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.settings.checkoutDeliveryNote) setDeliveryNote(d.settings.checkoutDeliveryNote);
+      })
       .catch(() => {});
   }, [orderId]);
 
@@ -85,6 +92,11 @@ function OrderConfirmedContent() {
                 <span>{t("order.deposit")}</span>
                 <span>{formatEGP(Number(order.depositAmount))}</span>
               </div>
+              {deliveryNote && (
+                <p className="text-xs text-foreground/60 text-center pt-2" dir="rtl">
+                  {deliveryNote}
+                </p>
+              )}
             </div>
 
             {order.paymentMethod && (

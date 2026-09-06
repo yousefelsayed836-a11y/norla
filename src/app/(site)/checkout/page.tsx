@@ -38,6 +38,7 @@ export default function CheckoutPage() {
   const [paymentNote, setPaymentNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("مدة تنفيذ الاوردر من 4 ل 7 ايام");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cityQuery, setCityQuery] = useState("");
@@ -53,6 +54,7 @@ export default function CheckoutPage() {
         setPaymentNote(d.settings.checkoutPaymentNote || "");
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
+        setDeliveryNote(d.settings.checkoutDeliveryNote || "مدة تنفيذ الاوردر من 4 ل 7 ايام");
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -325,6 +327,11 @@ export default function CheckoutPage() {
             </span>
             <span>{formatEGP(deposit)}</span>
           </div>
+          {deliveryNote && (
+            <p className="text-xs text-foreground/60 text-center pt-2 mt-1" dir="rtl">
+              {deliveryNote}
+            </p>
+          )}
         </div>
       </div>
     </div>

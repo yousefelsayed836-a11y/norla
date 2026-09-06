@@ -41,6 +41,7 @@ export async function PUT(req: NextRequest) {
     whatsappMessageTemplate,
     checkoutTransferPhone,
     checkoutAccountName,
+    checkoutDeliveryNote,
   } = await req.json();
   const data = {
     announcementText,
@@ -67,6 +68,7 @@ export async function PUT(req: NextRequest) {
     whatsappMessageTemplate: whatsappMessageTemplate || "",
     checkoutTransferPhone: checkoutTransferPhone || "01027096110",
     checkoutAccountName: checkoutAccountName || "",
+    checkoutDeliveryNote: checkoutDeliveryNote ?? "مدة تنفيذ الاوردر من 4 ل 7 ايام",
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },

@@ -28,6 +28,7 @@ export default function SettingsForm({
   initialWhatsappMessageTemplate,
   initialCheckoutTransferPhone,
   initialCheckoutAccountName,
+  initialCheckoutDeliveryNote,
 }: {
   initialText: string;
   initialTextAr: string;
@@ -52,6 +53,7 @@ export default function SettingsForm({
   initialWhatsappMessageTemplate: string;
   initialCheckoutTransferPhone: string;
   initialCheckoutAccountName: string;
+  initialCheckoutDeliveryNote: string;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -76,6 +78,7 @@ export default function SettingsForm({
   const [whatsappMessageTemplate, setWhatsappMessageTemplate] = useState(initialWhatsappMessageTemplate);
   const [checkoutTransferPhone, setCheckoutTransferPhone] = useState(initialCheckoutTransferPhone);
   const [checkoutAccountName, setCheckoutAccountName] = useState(initialCheckoutAccountName);
+  const [checkoutDeliveryNote, setCheckoutDeliveryNote] = useState(initialCheckoutDeliveryNote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -110,6 +113,7 @@ export default function SettingsForm({
         whatsappMessageTemplate,
         checkoutTransferPhone,
         checkoutAccountName,
+        checkoutDeliveryNote,
       }),
     });
     setSaving(false);
@@ -384,6 +388,21 @@ export default function SettingsForm({
           className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
           value={whatsappMessageTemplate}
           onChange={(e) => setWhatsappMessageTemplate(e.target.value)}
+        />
+      </div>
+
+      <div className="border border-brand-light rounded-xl p-4 space-y-3">
+        <p className="text-sm font-medium">Delivery Time Note</p>
+        <p className="text-xs text-foreground/50 -mt-2">
+          Shown in the order summary on the checkout page and on the order confirmation page. Edit freely.
+        </p>
+        <textarea
+          rows={2}
+          dir="rtl"
+          placeholder="مدة تنفيذ الاوردر من 4 ل 7 ايام"
+          className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
+          value={checkoutDeliveryNote}
+          onChange={(e) => setCheckoutDeliveryNote(e.target.value)}
         />
       </div>
 

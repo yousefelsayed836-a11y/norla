@@ -40,6 +40,7 @@ model SiteSetting {
   whatsappMessageTemplate String @default("")
   checkoutTransferPhone String @default("01027096110")
   checkoutAccountName   String @default("")
+  checkoutDeliveryNote  String @default("مدة تنفيذ الاوردر من 4 ل 7 ايام")
 }
 
 model HeroImage {

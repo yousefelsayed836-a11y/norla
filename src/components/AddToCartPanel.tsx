@@ -38,13 +38,16 @@ export default function AddToCartPanel({
   const router = useRouter();
   const { t } = useLanguage();
 
-  const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[];
+  const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean))).filter(
+    (color) => variants.filter((v) => v.color === color).some((v) => v.stockStatus !== "outofstock")
+  ) as string[];
   const [selectedColor, setSelectedColor] = useState<string | undefined>(colors[0]);
 
   const sizesForColor = Array.from(
     new Set(
       variants
         .filter((v) => (selectedColor ? v.color === selectedColor : true))
+        .filter((v) => v.stockStatus !== "outofstock")
         .map((v) => v.size)
         .filter(Boolean)
     )
@@ -56,6 +59,7 @@ export default function AddToCartPanel({
       new Set(
         variants
           .filter((v) => (selectedColor ? v.color === selectedColor : true))
+          .filter((v) => v.stockStatus !== "outofstock")
           .map((v) => v.size)
           .filter(Boolean)
       )
@@ -117,9 +121,6 @@ export default function AddToCartPanel({
             <div className="flex flex-wrap justify-center gap-2">
               {colors.map((color) => {
                 const v = variants.find((vv) => vv.color === color);
-                const colorOutOfStock = variants
-                  .filter((vv) => vv.color === color)
-                  .every((vv) => vv.stockStatus === "outofstock");
                 return (
                   <button
                     key={color}
@@ -133,11 +134,6 @@ export default function AddToCartPanel({
                       className="block w-full h-full rounded-full border border-black/10"
                       style={{ backgroundColor: v?.colorHex ?? "#ccc" }}
                     />
-                    {colorOutOfStock && (
-                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="block w-[140%] h-[1.5px] bg-red-500/70 rotate-45" />
-                      </span>
-                    )}
                   </button>
                 );
               })}
@@ -168,30 +164,24 @@ export default function AddToCartPanel({
             {t("product.size")} — {selectedSize}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {sizesForColor.map((size) => {
-              const sizeOutOfStock = variants.find(
-                (v) => v.color === selectedColor && v.size === size
-              )?.stockStatus === "outofstock";
-              return (
+            {sizesForColor
+              .filter((size) => {
+                const v = variants.find((vv) => vv.color === selectedColor && vv.size === size);
+                return !v || v.stockStatus !== "outofstock";
+              })
+              .map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  disabled={sizeOutOfStock}
-                  className={`relative min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 ${
                     selectedSize === size
                       ? "border-2 border-brand-dark text-brand-dark font-semibold"
                       : "border border-brand-dark text-foreground"
                   }`}
                 >
                   {size}
-                  {sizeOutOfStock && (
-                    <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="block w-[130%] h-px bg-red-500/60 rotate-[-25deg]" />
-                    </span>
-                  )}
                 </button>
-              );
-            })}
+              ))}
           </div>
         </div>
       )}
