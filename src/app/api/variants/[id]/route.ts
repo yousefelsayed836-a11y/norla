@@ -9,7 +9,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   const body = await req.json();
-  const variant = await prisma.productVariant.update({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variant = await (prisma.productVariant.update as any)({
     where: { id },
     data: {
       label: body.label,

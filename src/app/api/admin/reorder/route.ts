@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
   } else if (resource === "product") {
     await Promise.all(
       items.map((item) =>
-        prisma.product.update({ where: { id: item.id }, data: { position: item.position } })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (prisma.product.update as any)({ where: { id: item.id }, data: { position: item.position } })
       )
     );
   } else {

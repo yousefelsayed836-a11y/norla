@@ -70,7 +70,8 @@ export async function PUT(req: NextRequest) {
     checkoutAccountName: checkoutAccountName || "",
     checkoutDeliveryNote: checkoutDeliveryNote ?? "مدة تنفيذ الاوردر من 4 ل 7 ايام",
   };
-  const settings = await prisma.siteSetting.upsert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (prisma.siteSetting.upsert as any)({
     where: { id: "singleton" },
     update: data,
     create: { id: "singleton", ...data },

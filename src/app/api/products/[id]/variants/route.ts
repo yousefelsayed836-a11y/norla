@@ -9,7 +9,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { id } = await params;
   const body = await req.json();
-  const variant = await prisma.productVariant.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variant = await (prisma.productVariant.create as any)({
     data: {
       productId: id,
       label: body.label,
