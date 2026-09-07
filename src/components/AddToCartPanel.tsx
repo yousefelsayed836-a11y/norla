@@ -38,9 +38,7 @@ export default function AddToCartPanel({
   const router = useRouter();
   const { t } = useLanguage();
 
-  const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean))).filter(
-    (color) => variants.filter((v) => v.color === color).some((v) => v.stockStatus !== "outofstock")
-  ) as string[];
+  const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean))) as string[];
   const [selectedColor, setSelectedColor] = useState<string | undefined>(colors[0]);
 
   const sizesForColor = Array.from(
