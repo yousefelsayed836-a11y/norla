@@ -119,6 +119,7 @@ export default function AddToCartPanel({
             <div className="flex flex-wrap justify-center gap-2">
               {colors.map((color) => {
                 const v = variants.find((vv) => vv.color === color);
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => vv.stockStatus === "outofstock");
                 return (
                   <button
                     key={color}
@@ -132,25 +133,42 @@ export default function AddToCartPanel({
                       className="block w-full h-full rounded-full border border-black/10"
                       style={{ backgroundColor: v?.colorHex ?? "#ccc" }}
                     />
+                    {colorOos && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <svg viewBox="0 0 40 40" className="w-full h-full" aria-hidden="true">
+                          <line x1="6" y1="6" x2="34" y2="34" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
           ) : (
             <div className="flex flex-wrap justify-center gap-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`px-4 py-2 rounded-full text-sm border transition-colors duration-200 ${
-                    selectedColor === color
-                      ? "bg-brand-dark text-white border-brand-dark"
-                      : "border-brand-light hover:border-brand-dark"
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
+              {colors.map((color) => {
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => vv.stockStatus === "outofstock");
+                return (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`relative px-4 py-2 rounded-full text-sm border transition-colors duration-200 ${
+                      selectedColor === color
+                        ? "bg-brand-dark text-white border-brand-dark"
+                        : "border-brand-light hover:border-brand-dark"
+                    } ${colorOos ? "opacity-50" : ""}`}
+                  >
+                    {color}
+                    {colorOos && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-full">
+                        <svg viewBox="0 0 100 40" className="w-full h-full" aria-hidden="true" preserveAspectRatio="none">
+                          <line x1="4" y1="4" x2="96" y2="36" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
