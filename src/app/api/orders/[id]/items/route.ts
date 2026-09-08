@@ -66,11 +66,42 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const { replace } = body;
+
   const updated = await prisma.$transaction(async (tx) => {
     const existingItem = await tx.orderItem.findUnique({ where: { id: itemId } });
     if (!existingItem) throw new Error("Item not found");
 
-    if (remove) {
+    if (replace) {
+      const { productId: newProductId, variantId: newVariantId, quantity: newQty } = replace;
+      const finalQty = newQty || existingItem.quantity;
+
+      // Remove old item and restock
+      await tx.orderItem.delete({ where: { id: itemId } });
+      await adjustStock(
+        tx,
+        [{ productId: existingItem.productId, variantId: existingItem.variantId, quantity: existingItem.quantity }],
+        1
+      );
+
+      // Resolve new product/variant info
+      const product = await tx.product.findUnique({ where: { id: newProductId } });
+      if (!product) throw new Error("Product not found");
+      let newPrice = Number(product.price);
+      let newTitle = product.title;
+      if (newVariantId) {
+        const variant = await tx.productVariant.findUnique({ where: { id: newVariantId } });
+        if (variant) {
+          if (variant.price) newPrice = Number(variant.price);
+          newTitle = `${product.title} (${variant.label})`;
+        }
+      }
+
+      await tx.orderItem.create({
+        data: { orderId: id, productId: newProductId, variantId: newVariantId || null, title: newTitle, price: newPrice, quantity: finalQty },
+      });
+      await adjustStock(tx, [{ productId: newProductId, variantId: newVariantId, quantity: finalQty }], -1);
+    } else if (remove) {
       await tx.orderItem.delete({ where: { id: itemId } });
       // Restock when removing
       await adjustStock(
