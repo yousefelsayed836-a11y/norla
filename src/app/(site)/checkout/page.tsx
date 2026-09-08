@@ -184,13 +184,7 @@ export default function CheckoutPage() {
                   setForm({ ...form, city: "" });
                   setCityOpen(true);
                 }}
-                onFocus={() => {
-                  if (form.city) {
-                    setCityQuery(selectedCityDisplay);
-                    setForm({ ...form, city: "" });
-                  }
-                  setCityOpen(true);
-                }}
+                onFocus={() => setCityOpen(true)}
                 onBlur={() => setTimeout(() => setCityOpen(false), 300)}
               />
               {cityOpen && filteredCities.length > 0 && (
