@@ -93,7 +93,7 @@ export default function CheckoutPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate || !form.city) {
+    if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate) {
       setError(t("checkout.fillRequired"));
       return;
     }
