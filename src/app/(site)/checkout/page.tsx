@@ -173,9 +173,8 @@ export default function CheckoutPage() {
               <input
                 type="text"
                 placeholder={t("checkout.city")}
-                className={`w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50 ${form.city ? "cursor-pointer" : ""}`}
+                className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
                 disabled={!selectedZone}
-                readOnly={!!form.city}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
@@ -185,13 +184,12 @@ export default function CheckoutPage() {
                   setForm({ ...form, city: "" });
                   setCityOpen(true);
                 }}
-                onFocus={() => setCityOpen(true)}
-                onClick={() => {
+                onFocus={() => {
                   if (form.city) {
+                    setCityQuery(selectedCityDisplay);
                     setForm({ ...form, city: "" });
-                    setCityQuery("");
-                    setCityOpen(true);
                   }
+                  setCityOpen(true);
                 }}
                 onBlur={() => setTimeout(() => setCityOpen(false), 300)}
               />
