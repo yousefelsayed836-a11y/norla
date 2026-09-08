@@ -17,7 +17,7 @@ const orderSchema = z.object({
     email: z.string().optional(),
     address: z.string().min(1),
     governorate: z.string().min(1),
-    city: z.string().min(1),
+    city: z.string().optional(),
   }),
   items: z
     .array(
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
             email: customer.email || null,
             address: customer.address,
             governorate: customer.governorate,
-            city: customer.city,
+            city: customer.city || "",
           },
         },
         items: {
