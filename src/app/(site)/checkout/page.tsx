@@ -106,7 +106,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, items, paymentMethod, serviceFee: vodafoneFee }),
+        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee }),
       });
       if (!res.ok) throw new Error("Failed to place order");
       const data = await res.json();
