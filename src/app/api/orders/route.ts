@@ -94,17 +94,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No valid items" }, { status: 400 });
   }
 
-  const settings = await prisma.siteSetting.upsert({
-    where: { id: "singleton" },
-    update: {},
-    create: { id: "singleton" },
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings: any = await prisma.$queryRaw`
+    SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold"
+    FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
+  `.then((rows: any) => rows[0] ?? {}).catch(() => ({}));
+
+  const depositPercent = Number(settings.depositPercent ?? 50);
+  const freeShippingEnabled = !!settings.freeShippingEnabled;
+  const freeShippingThreshold = Number(settings.freeShippingThreshold ?? 0);
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const qualifiesFreeShipping =
-    settings.freeShippingEnabled &&
-    Number(settings.freeShippingThreshold) > 0 &&
-    subtotal >= Number(settings.freeShippingThreshold);
+    freeShippingEnabled &&
+    freeShippingThreshold > 0 &&
+    subtotal >= freeShippingThreshold;
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
   const baseTotal = subtotal + shippingFee;
   const expectedServiceFee =
@@ -115,7 +119,7 @@ export async function POST(req: NextRequest) {
       : 0;
   const resolvedServiceFee = serviceFee === expectedServiceFee ? serviceFee : expectedServiceFee;
   const total = baseTotal + resolvedServiceFee;
-  const depositAmount = (total * settings.depositPercent) / 100;
+  const depositAmount = (total * depositPercent) / 100;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -190,7 +194,7 @@ export async function POST(req: NextRequest) {
       subtotal,
       shippingFee,
       total,
-      depositPercent: settings.depositPercent,
+      depositPercent: depositPercent,
       depositAmount,
       paymentMethod: order.paymentMethod,
       address: orderCustomer.address ?? "",
