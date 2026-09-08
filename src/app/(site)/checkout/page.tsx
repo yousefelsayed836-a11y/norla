@@ -173,16 +173,27 @@ export default function CheckoutPage() {
               <input
                 type="text"
                 placeholder={t("checkout.city")}
-                className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
+                className={`w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50 ${form.city ? "cursor-pointer" : ""}`}
                 disabled={!selectedZone}
-                value={cityQuery || selectedCityDisplay}
+                readOnly={!!form.city}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                value={form.city ? selectedCityDisplay : cityQuery}
                 onChange={(e) => {
                   setCityQuery(e.target.value);
                   setForm({ ...form, city: "" });
                   setCityOpen(true);
                 }}
                 onFocus={() => setCityOpen(true)}
-                onBlur={() => setTimeout(() => setCityOpen(false), 150)}
+                onClick={() => {
+                  if (form.city) {
+                    setForm({ ...form, city: "" });
+                    setCityQuery("");
+                    setCityOpen(true);
+                  }
+                }}
+                onBlur={() => setTimeout(() => setCityOpen(false), 300)}
               />
               {cityOpen && filteredCities.length > 0 && (
                 <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-brand-light rounded-xl shadow-lg z-10 max-h-52 overflow-y-auto">
@@ -191,7 +202,14 @@ export default function CheckoutPage() {
                       key={c.id}
                       type="button"
                       className="w-full text-right px-4 py-2.5 text-sm hover:bg-brand-light/30 border-b border-brand-light/40 last:border-0"
-                      onMouseDown={() => {
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setForm({ ...form, city: c.name });
+                        setCityQuery("");
+                        setCityOpen(false);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
                         setForm({ ...form, city: c.name });
                         setCityQuery("");
                         setCityOpen(false);
