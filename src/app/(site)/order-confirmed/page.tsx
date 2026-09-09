@@ -88,23 +88,23 @@ function OrderConfirmedContent() {
           {order.customer && (
             <div className="bg-white rounded-2xl shadow-sm p-6 space-y-3">
               <h2 className="font-medium text-sm text-foreground/50 uppercase tracking-wide mb-4">
-                {t("order.yourInfo") || "بياناتك"}
+                {t("order.yourInfo")}
               </h2>
-              <Row label={t("checkout.fullName") || "الاسم"} value={order.customer.name} />
-              <Row label={t("checkout.phone") || "رقم الهاتف"} value={order.customer.phone} />
+              <Row label={t("checkout.fullName")} value={order.customer.name} />
+              <Row label={t("checkout.phone")} value={order.customer.phone} />
               {order.customer.whatsappNumber && (
-                <Row label={t("checkout.whatsapp") || "واتساب"} value={order.customer.whatsappNumber} />
+                <Row label={t("checkout.whatsapp")} value={order.customer.whatsappNumber} />
               )}
               {order.customer.email && (
-                <Row label={t("checkout.email") || "الإيميل"} value={order.customer.email} />
+                <Row label={t("checkout.email")} value={order.customer.email} />
               )}
               <div className="border-t border-brand-light/60 pt-3 mt-1 space-y-2">
                 {order.customer.address && (
-                  <Row label={t("checkout.address") || "العنوان"} value={order.customer.address} />
+                  <Row label={t("checkout.address")} value={order.customer.address} />
                 )}
                 {(order.customer.city || order.customer.governorate) && (
                   <Row
-                    label={t("order.city") || "المدينة / المحافظة"}
+                    label={t("order.city")}
                     value={[order.customer.city, order.customer.governorate].filter(Boolean).join("، ")}
                   />
                 )}
@@ -136,7 +136,7 @@ function OrderConfirmedContent() {
               <div className="flex justify-between text-foreground/60">
                 <span>{t("order.shipping")}</span>
                 <span>
-                  {Number(order.shippingFee) === 0 ? (t("checkout.free") || "مجانى") : formatEGP(Number(order.shippingFee))}
+                  {Number(order.shippingFee) === 0 ? t("checkout.free") : formatEGP(Number(order.shippingFee))}
                 </span>
               </div>
               {Number(order.serviceFee) > 0 && (
@@ -166,7 +166,7 @@ function OrderConfirmedContent() {
           {order.paymentMethod && (
             <div className="bg-white rounded-2xl shadow-sm p-6 space-y-3">
               <h2 className="font-medium text-sm text-foreground/50 uppercase tracking-wide mb-1">
-                {t("order.paymentInstructions") || "تعليمات الدفع"}
+                {t("order.paymentInstructions")}
               </h2>
               <div className="flex justify-between text-sm">
                 <span className="text-foreground/60">{t("order.payVia")}</span>
@@ -189,7 +189,7 @@ function OrderConfirmedContent() {
                 <p className="text-xs text-foreground/50">{accountName}</p>
               )}
               <div className="bg-brand-light/30 rounded-xl px-4 py-3 text-sm font-semibold text-brand-dark flex justify-between">
-                <span>{t("order.depositDue") || "العربون المطلوب"}</span>
+                <span>{t("order.depositDue")}</span>
                 <span>{formatEGP(Number(order.depositAmount))}</span>
               </div>
             </div>

@@ -139,6 +139,10 @@ const translations = {
     "order.vodafoneCash": "Vodafone Cash",
     "order.transferTo": "Transfer to",
     "order.deliveryTo": "Delivery to",
+    "order.yourInfo": "Your Details",
+    "order.city": "City / Governorate",
+    "order.paymentInstructions": "Payment Instructions",
+    "order.depositDue": "Deposit Due",
   },
   ar: {
     "nav.menu": "القائمة",
@@ -274,6 +278,10 @@ const translations = {
     "order.vodafoneCash": "فودافون كاش",
     "order.transferTo": "التحويل إلى",
     "order.deliveryTo": "التوصيل إلى",
+    "order.yourInfo": "بياناتك",
+    "order.city": "المدينة / المحافظة",
+    "order.paymentInstructions": "تعليمات الدفع",
+    "order.depositDue": "العربون المطلوب",
   },
 } satisfies Record<Lang, Record<string, string>>;
 
