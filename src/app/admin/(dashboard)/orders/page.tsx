@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/generated/prisma/client";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import OrderStatusBadge, { STATUS_CONFIG } from "@/components/OrderStatusBadge";
 
-const ALL_STATUSES: OrderStatus[] = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"];
+const ALL_STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"] as const;
+type AppStatus = (typeof ALL_STATUSES)[number];
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -13,12 +13,16 @@ export default async function AdminOrdersPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status: rawStatus } = await searchParams;
-  const filterStatus = ALL_STATUSES.includes(rawStatus as OrderStatus) ? (rawStatus as OrderStatus) : undefined;
+  const filterStatus: AppStatus | undefined =
+    rawStatus && (ALL_STATUSES as readonly string[]).includes(rawStatus)
+      ? (rawStatus as AppStatus)
+      : undefined;
 
   const [allOrders, filteredOrders] = await Promise.all([
     prisma.order.findMany({ select: { status: true, total: true } }),
     prisma.order.findMany({
-      where: filterStatus ? { status: filterStatus } : undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where: filterStatus ? { status: filterStatus as any } : undefined,
       include: { customer: true, items: true },
       orderBy: { createdAt: "desc" },
     }),
