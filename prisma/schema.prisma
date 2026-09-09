@@ -96,6 +96,8 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  EXPRESS
+  PROBLEM
 }
 
 model User {
