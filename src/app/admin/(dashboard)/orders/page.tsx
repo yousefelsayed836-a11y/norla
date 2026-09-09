@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { OrderStatus } from "@/generated/prisma/client";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import OrderStatusBadge, { STATUS_CONFIG } from "@/components/OrderStatusBadge";
 
-const ALL_STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"];
+const ALL_STATUSES: OrderStatus[] = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"];
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const { status: filterStatus } = await searchParams;
+  const { status: rawStatus } = await searchParams;
+  const filterStatus = ALL_STATUSES.includes(rawStatus as OrderStatus) ? (rawStatus as OrderStatus) : undefined;
 
   const [allOrders, filteredOrders] = await Promise.all([
     prisma.order.findMany({ select: { status: true, total: true } }),

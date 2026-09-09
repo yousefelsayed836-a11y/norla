@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { STATUS_CONFIG } from "@/components/OrderStatusBadge";
 
@@ -35,7 +35,7 @@ export default function OrderStatusSelect({
     <select
       value={value}
       disabled={saving}
-      onChange={(e) => handleChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value)}
       style={{ backgroundColor: cfg.selectBg }}
       className="border border-black/10 rounded-lg px-2 py-1.5 text-xs font-semibold cursor-pointer disabled:opacity-60 transition-colors"
     >
