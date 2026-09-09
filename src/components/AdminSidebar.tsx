@@ -17,6 +17,7 @@ const NAV = [
   { label: "Reviews", href: "/admin/reviews", icon: "💬" },
   { label: "Shipping", href: "/admin/shipping", icon: "🚚" },
   { label: "Orders", href: "/admin/orders", icon: "📦" },
+  { label: "Analytics", href: "/admin/analytics", icon: "📊" },
   { label: "Settings", href: "/admin/settings", icon: "⚙" },
 ];
 

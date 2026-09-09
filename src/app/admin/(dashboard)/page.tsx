@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import Link from "next/link";
+import OrderStatusBadge from "@/components/OrderStatusBadge";
 
 async function getStats() {
   const [productCount, orderCount, customerCount, orders, recentOrders, lowStock] =
@@ -28,13 +29,6 @@ async function getStats() {
   return { productCount, orderCount, customerCount, revenue, pendingOrders, recentOrders, lowStock };
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-700",
-  PROCESSING: "bg-blue-100 text-blue-700",
-  SHIPPED: "bg-purple-100 text-purple-700",
-  DELIVERED: "bg-green-100 text-green-700",
-  CANCELLED: "bg-red-100 text-red-700",
-};
 
 export default async function AdminDashboardPage() {
   const stats = await getStats();
@@ -88,9 +82,7 @@ export default async function AdminDashboardPage() {
                   <td className="py-3">{o.customer?.name ?? "—"}</td>
                   <td className="py-3">{formatEGP(Number(o.total))}</td>
                   <td className="py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${STATUS_STYLES[o.status]}`}>
-                      {o.status}
-                    </span>
+                    <OrderStatusBadge status={o.status} />
                   </td>
                 </tr>
               ))}
