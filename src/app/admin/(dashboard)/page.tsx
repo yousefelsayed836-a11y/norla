@@ -109,9 +109,7 @@ export default async function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-sm">{formatEGP(Number(o.total))}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${STATUS_STYLES[o.status]}`}>
-                    {o.status}
-                  </span>
+                  <OrderStatusBadge status={o.status} />
                 </div>
               </Link>
             ))}
