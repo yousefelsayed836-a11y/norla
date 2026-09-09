@@ -46,10 +46,16 @@ export default function AdminOrderEditor({
   const [editProduct, setEditProduct] = useState<ProductHit | null>(null);
   const [editVariantId, setEditVariantId] = useState<string>("");
   const [editQty, setEditQty] = useState(1);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [saving, setSaving] = useState(false);
 
-  async function searchProducts(q: string, setQ: (v: string) => void, setR: (v: ProductHit[]) => void, setS: (v: boolean) => void) {
+  async function searchProducts(
+    q: string,
+    setQ: (v: string) => void,
+    setR: (v: ProductHit[]) => void,
+    setS: (v: boolean) => void
+  ) {
     setQ(q);
     if (!q.trim()) { setR([]); return; }
     setS(true);
@@ -61,6 +67,38 @@ export default function AdminOrderEditor({
       setR([]);
     } finally {
       setS(false);
+    }
+  }
+
+  async function startEdit(item: OrderItem) {
+    setEditingItemId(item.id);
+    setEditQuery("");
+    setEditResults([]);
+    setEditProduct(null);
+    setEditVariantId(item.variantId ?? "");
+    setEditQty(item.quantity);
+    setLoadingEdit(true);
+    try {
+      const res = await fetch(`/api/products/${item.productId}`);
+      const data = await res.json();
+      if (data.product) {
+        const p: ProductHit = {
+          id: data.product.id,
+          title: data.product.title,
+          price: Number(data.product.price),
+          variants: (data.product.variants ?? []).map((v: { id: string; label: string; price: string | number | null }) => ({
+            id: v.id,
+            label: v.label,
+            price: v.price != null ? Number(v.price) : null,
+          })),
+        };
+        setEditProduct(p);
+        setEditQuery(p.title);
+      }
+    } catch {
+      // fall back to manual search
+    } finally {
+      setLoadingEdit(false);
     }
   }
 
@@ -88,15 +126,6 @@ export default function AdminOrderEditor({
     } finally {
       setSaving(false);
     }
-  }
-
-  function startEdit(item: OrderItem) {
-    setEditingItemId(item.id);
-    setEditQuery("");
-    setEditResults([]);
-    setEditProduct(null);
-    setEditVariantId("");
-    setEditQty(item.quantity);
   }
 
   async function replaceItem(itemId: string) {
@@ -194,7 +223,9 @@ export default function AdminOrderEditor({
                 {formatEGP(Number(item.price) * item.quantity)}
               </span>
               <button
-                onClick={() => editingItemId === item.id ? setEditingItemId(null) : startEdit(item)}
+                onClick={() =>
+                  editingItemId === item.id ? setEditingItemId(null) : startEdit(item)
+                }
                 disabled={saving}
                 className="text-blue-500 hover:text-blue-700 text-xs shrink-0 disabled:opacity-40"
               >
@@ -211,72 +242,105 @@ export default function AdminOrderEditor({
 
             {/* Inline edit panel */}
             {editingItemId === item.id && (
-              <div className="mt-2 ml-0 p-3 bg-brand-light/20 rounded-xl border border-brand-light space-y-2">
-                <p className="text-xs text-foreground/50 font-medium uppercase tracking-wide">Replace with:</p>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search product..."
-                    className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
-                    value={editQuery}
-                    onChange={(e) => searchProducts(e.target.value, setEditQuery, setEditResults, setEditSearching)}
-                    autoComplete="off"
-                  />
-                  {editResults.length > 0 && (
-                    <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-brand-light rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
-                      {editResults.map((p) => (
-                        <button
-                          key={p.id}
-                          onClick={() => {
-                            setEditProduct(p);
-                            setEditVariantId(p.variants[0]?.id ?? "");
-                            setEditQuery(p.title);
-                            setEditResults([]);
+              <div className="mt-2 p-3 bg-brand-light/20 rounded-xl border border-brand-light space-y-3">
+                {loadingEdit ? (
+                  <p className="text-xs text-foreground/40 text-center py-2">Loading product...</p>
+                ) : (
+                  <>
+                    {/* Product search — pre-filled with current product */}
+                    <div>
+                      <p className="text-xs text-foreground/50 font-medium uppercase tracking-wide mb-1.5">
+                        Product
+                      </p>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search product..."
+                          className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm"
+                          value={editQuery}
+                          onChange={(e) => {
+                            setEditProduct(null);
+                            searchProducts(e.target.value, setEditQuery, setEditResults, setEditSearching);
                           }}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-brand-light/30 border-b border-brand-light/40 last:border-0"
-                        >
-                          <span className="font-medium">{p.title}</span>
-                          <span className="text-foreground/50 ml-2">{formatEGP(p.price)}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {editSearching && (
-                    <p className="text-xs text-foreground/40 mt-1 px-1">Searching...</p>
-                  )}
-                </div>
-
-                {editProduct && (
-                  <div className="space-y-2">
-                    {editProduct.variants.length > 0 && (
-                      <select
-                        className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm bg-white"
-                        value={editVariantId}
-                        onChange={(e) => setEditVariantId(e.target.value)}
-                      >
-                        <option value="">— No variant —</option>
-                        {editProduct.variants.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.label}{v.price ? ` — ${formatEGP(v.price)}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center border border-brand-light rounded-full">
-                        <button className="w-8 h-8 flex items-center justify-center" onClick={() => setEditQty((q) => Math.max(1, q - 1))}>−</button>
-                        <span className="w-6 text-center text-sm">{editQty}</span>
-                        <button className="w-8 h-8 flex items-center justify-center" onClick={() => setEditQty((q) => q + 1)}>+</button>
+                          autoComplete="off"
+                        />
+                        {editResults.length > 0 && (
+                          <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-brand-light rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                            {editResults.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  setEditProduct(p);
+                                  setEditVariantId(p.variants[0]?.id ?? "");
+                                  setEditQuery(p.title);
+                                  setEditResults([]);
+                                }}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-brand-light/30 border-b border-brand-light/40 last:border-0"
+                              >
+                                <span className="font-medium">{p.title}</span>
+                                <span className="text-foreground/50 ml-2">{formatEGP(p.price)}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {editSearching && (
+                          <p className="text-xs text-foreground/40 mt-1 px-1">Searching...</p>
+                        )}
                       </div>
-                      <button
-                        onClick={() => replaceItem(item.id)}
-                        disabled={saving}
-                        className="flex-1 bg-brand-dark text-white py-2 rounded-full text-sm font-medium hover:opacity-90 disabled:opacity-50"
-                      >
-                        {saving ? "Saving..." : "Replace Item"}
-                      </button>
                     </div>
-                  </div>
+
+                    {editProduct && (
+                      <div className="space-y-2">
+                        {/* Variant selector */}
+                        {editProduct.variants.length > 0 && (
+                          <div>
+                            <p className="text-xs text-foreground/50 font-medium uppercase tracking-wide mb-1.5">
+                              Variant
+                            </p>
+                            <select
+                              className="w-full border border-brand-light rounded-xl px-3 py-2 text-sm bg-white"
+                              value={editVariantId}
+                              onChange={(e) => setEditVariantId(e.target.value)}
+                            >
+                              <option value="">— No variant —</option>
+                              {editProduct.variants.map((v) => (
+                                <option key={v.id} value={v.id}>
+                                  {v.label}
+                                  {v.price != null ? ` — ${formatEGP(v.price)}` : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Quantity + save */}
+                        <div className="flex items-center gap-2 pt-1">
+                          <div className="flex items-center border border-brand-light rounded-full">
+                            <button
+                              className="w-8 h-8 flex items-center justify-center"
+                              onClick={() => setEditQty((q) => Math.max(1, q - 1))}
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center text-sm">{editQty}</span>
+                            <button
+                              className="w-8 h-8 flex items-center justify-center"
+                              onClick={() => setEditQty((q) => q + 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => replaceItem(item.id)}
+                            disabled={saving}
+                            className="flex-1 bg-brand-dark text-white py-2 rounded-full text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                          >
+                            {saving ? "Saving..." : "Save Changes"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
