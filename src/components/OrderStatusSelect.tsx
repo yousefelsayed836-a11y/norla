@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as const;
 
 export default function OrderStatusSelect({
   orderId,
@@ -14,7 +14,7 @@ export default function OrderStatusSelect({
 }) {
   const router = useRouter();
   const [value, setValue] = useState(status);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);\n  const [error, setError] = useState<string | null>(null);
 
   async function handleChange(newStatus: string) {
     setValue(newStatus);
