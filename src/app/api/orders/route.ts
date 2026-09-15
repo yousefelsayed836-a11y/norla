@@ -29,7 +29,8 @@ const orderSchema = z.object({
     )
     .min(1),
   paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
-  serviceFee: z.number().min(0).default(0),\n  depositAmount: z.number().positive().optional(),
+  serviceFee: z.number().min(0).default(0),
+  depositAmount: z.number().positive().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -119,7 +120,10 @@ export async function POST(req: NextRequest) {
       : 0;
   const resolvedServiceFee = serviceFee === expectedServiceFee ? serviceFee : expectedServiceFee;
   const total = baseTotal + resolvedServiceFee;
-  const minimumDeposit = (total * depositPercent) / 100;\n  const depositAmount = requestedDeposit == null\n    ? minimumDeposit\n    : Math.min(total, Math.max(minimumDeposit, requestedDeposit));
+  const minimumDeposit = (total * depositPercent) / 100;
+  const depositAmount = requestedDeposit == null
+    ? minimumDeposit
+    : Math.min(total, Math.max(minimumDeposit, requestedDeposit));
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
