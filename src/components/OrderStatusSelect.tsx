@@ -23,11 +23,12 @@ export default function OrderStatusSelect({
     setValue(newStatus);
     setSaving(true);
     try {
-      await fetch(`/api/orders/${orderId}`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
-    });
+      });
+      if (!response.ok) throw new Error("Status update failed");
     } catch {
       setValue(previousValue);
     } finally {
