@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
-  const [depositPercent, setDepositPercent] = useState(50);
+  const [depositPercent, setDepositPercent] = useState(50);\n  const [depositInput, setDepositInput] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
         : Math.floor(baseTotal / 1000) * 10
       : 0;
   const grandTotal = baseTotal + vodafoneFee;
-  const deposit = (grandTotal * depositPercent) / 100;
+  const minimumDeposit = (grandTotal * depositPercent) / 100;\n  const requestedDeposit = Number(depositInput);\n  const deposit = depositInput && Number.isFinite(requestedDeposit)\n    ? Math.min(grandTotal, Math.max(minimumDeposit, requestedDeposit))\n    : minimumDeposit;
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
   const selectedCityDisplay = form.city
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee }),
+        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee, depositAmount: deposit }),
       });
       if (!res.ok) throw new Error("Failed to place order");
       const data = await res.json();
