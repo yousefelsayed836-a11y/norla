@@ -18,15 +18,22 @@ export default function OrderStatusSelect({
   const [saving, setSaving] = useState(false);
 
   async function handleChange(newStatus: string) {
+    if (newStatus === value || saving) return;
+    const previousValue = value;
     setValue(newStatus);
     setSaving(true);
-    await fetch(`/api/orders/${orderId}`, {
+    try {
+      await fetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
-    setSaving(false);
-    router.refresh();
+    } catch {
+      setValue(previousValue);
+    } finally {
+      setSaving(false);
+      router.refresh();
+    }
   }
 
   const cfg = STATUS_CONFIG[value] ?? { selectBg: "#f3f4f6" };
