@@ -34,7 +34,8 @@ export default function CheckoutPage() {
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
-  const [depositPercent, setDepositPercent] = useState(50);\n  const [depositInput, setDepositInput] = useState("");
+  const [depositPercent, setDepositPercent] = useState(50);
+  const [depositInput, setDepositInput] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
@@ -74,7 +75,11 @@ export default function CheckoutPage() {
         : Math.floor(baseTotal / 1000) * 10
       : 0;
   const grandTotal = baseTotal + vodafoneFee;
-  const minimumDeposit = (grandTotal * depositPercent) / 100;\n  const requestedDeposit = Number(depositInput);\n  const deposit = depositInput && Number.isFinite(requestedDeposit)\n    ? Math.min(grandTotal, Math.max(minimumDeposit, requestedDeposit))\n    : minimumDeposit;
+  const minimumDeposit = (grandTotal * depositPercent) / 100;
+  const requestedDeposit = Number(depositInput);
+  const deposit = depositInput && Number.isFinite(requestedDeposit)
+    ? Math.min(grandTotal, Math.max(minimumDeposit, requestedDeposit))
+    : minimumDeposit;
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
   const selectedCityDisplay = form.city
