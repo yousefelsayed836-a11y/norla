@@ -193,8 +193,8 @@ export default function CheckoutPage() {
             {paymentMethod && (
               <div className="mt-3 bg-brand-light/40 rounded-xl px-4 py-3 space-y-2">
                 <div className="flex justify-between text-sm font-semibold text-brand-dark">
-                  <span>{t("checkout.depositAmountLabel")}</span>
-                  <span>{formatEGP(deposit)}</span>
+                  <label htmlFor="depositAmount">{t("checkout.depositAmountLabel")}</label>
+                  <input id="depositAmount" type="number" min={Math.ceil(minimumDeposit)} max={Math.floor(grandTotal)} step="1" value={depositInput} placeholder={String(Math.ceil(minimumDeposit))} onChange={(e) => setDepositInput(e.target.value)} className="w-36 rounded-lg border border-brand-light bg-white px-2 py-1 text-right" />
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/70">{t("checkout.transferTo")}</span>
