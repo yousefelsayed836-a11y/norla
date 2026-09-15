@@ -10,7 +10,7 @@ export async function GET() {
     prisma.product.count(),
     prisma.order.count(),
     prisma.customer.count(),
-    prisma.order.findMany({ select: { total: true, status: true, createdAt: true } }),
+    prisma.order.findMany({ select: { subtotal: true, status: true, createdAt: true } }),
     prisma.product.count({ where: { stockStatus: { in: ["outofstock", "onbackorder"] } } }),
   ]);
 
