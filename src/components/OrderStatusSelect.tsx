@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as const;\nconst STATUS_COLORS: Record<string, string> = {\n  PENDING: "bg-amber-100 text-amber-700",\n  PROCESSING: "bg-blue-100 text-blue-700",\n  SHIPPED: "bg-purple-100 text-purple-700",\n  DELIVERED: "bg-green-100 text-green-700",\n  CANCELLED: "bg-red-100 text-red-700",\n};
+const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as const;
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "bg-amber-100 text-amber-700",
+  PROCESSING: "bg-blue-100 text-blue-700",
+  SHIPPED: "bg-purple-100 text-purple-700",
+  DELIVERED: "bg-green-100 text-green-700",
+  CANCELLED: "bg-red-100 text-red-700",
+};
 
 export default function OrderStatusSelect({ orderId, status }: { orderId: string; status: string }) {
   const router = useRouter();
