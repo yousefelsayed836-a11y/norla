@@ -29,7 +29,7 @@ const orderSchema = z.object({
     )
     .min(1),
   paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
-  serviceFee: z.number().min(0).default(0),
+  serviceFee: z.number().min(0).default(0),\n  depositAmount: z.number().positive().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
-  const { customer, items, paymentMethod, serviceFee } = parsed.data;
+  const { customer, items, paymentMethod, serviceFee, depositAmount: requestedDeposit } = parsed.data;
 
   const zone = await prisma.shippingZone.findUnique({
     where: { governorate: customer.governorate },
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
       : 0;
   const resolvedServiceFee = serviceFee === expectedServiceFee ? serviceFee : expectedServiceFee;
   const total = baseTotal + resolvedServiceFee;
-  const depositAmount = (total * depositPercent) / 100;
+  const minimumDeposit = (total * depositPercent) / 100;\n  const depositAmount = requestedDeposit == null\n    ? minimumDeposit\n    : Math.min(total, Math.max(minimumDeposit, requestedDeposit));
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
