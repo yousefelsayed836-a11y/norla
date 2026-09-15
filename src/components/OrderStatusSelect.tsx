@@ -18,22 +18,33 @@ export default function OrderStatusSelect({
   const [error, setError] = useState<string | null>(null);
 
   async function handleChange(newStatus: string) {
-    if (!STATUSES.includes(newStatus as (typeof STATUSES)[number]) || newStatus === value) return;
+    if (!STATUSES.includes(newStatus as (typeof STATUSES)[number]) || newStatus === value || saving) {
+      return;
+    }
+
     const previousValue = value;
     setValue(newStatus);
     setError(null);
     setSaving(true);
-    const response = await fetch(`/api/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    if (!response.ok) {
+
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Status update failed");
+      }
+
+      router.refresh();
+    } catch {
       setValue(previousValue);
-      setError("Could not update status");
+      setError("Could not update status. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    router.refresh();
   }
 
   return (
