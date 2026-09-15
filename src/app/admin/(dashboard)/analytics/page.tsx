@@ -72,7 +72,7 @@ export default async function AnalyticsPage() {
     }),
     prisma.order.findMany({
       where: { createdAt: { gte: thirtyDaysAgo } },
-      select: { total: true, status: true, createdAt: true },
+      select: { subtotal: true, status: true, createdAt: true },
       orderBy: { createdAt: "asc" },
     }),
     prisma.orderItem.groupBy({
@@ -88,19 +88,19 @@ export default async function AnalyticsPage() {
   // ─── Overall stats ───────────────────────────────────────────────────────
   const totalRevenue = allOrders
     .filter((o) => o.status !== "CANCELLED")
-    .reduce((s, o) => s + Number(o.total), 0);
+    .reduce((s, o) => s + Number(o.subtotal), 0);
 
   const thisMonthRevenue = allOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= startOfMonth)
-    .reduce((s, o) => s + Number(o.total), 0);
+    .reduce((s, o) => s + Number(o.subtotal), 0);
 
   const lastMonthRevenue = allOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= startOfLastMonth && o.createdAt <= endOfLastMonth)
-    .reduce((s, o) => s + Number(o.total), 0);
+    .reduce((s, o) => s + Number(o.subtotal), 0);
 
   const last7Revenue = allOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= sevenDaysAgo)
-    .reduce((s, o) => s + Number(o.total), 0);
+    .reduce((s, o) => s + Number(o.subtotal), 0);
 
   const totalOrders = allOrders.length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / Math.max(1, allOrders.filter((o) => o.status !== "CANCELLED").length) : 0;
@@ -120,7 +120,7 @@ export default async function AnalyticsPage() {
   for (const o of recentOrders) {
     if (o.status === "CANCELLED") continue;
     const key = o.createdAt.toISOString().slice(0, 10);
-    if (key in dailyMap) dailyMap[key] = (dailyMap[key] ?? 0) + Number(o.total);
+    if (key in dailyMap) dailyMap[key] = (dailyMap[key] ?? 0) + Number(o.subtotal);
   }
   const dailyData = Object.entries(dailyMap).map(([date, value]) => ({
     label: new Date(date).getDate().toString(),
@@ -147,7 +147,7 @@ export default async function AnalyticsPage() {
   for (const o of allOrders) {
     if (o.status === "CANCELLED") continue;
     const key = `${o.createdAt.getFullYear()}-${String(o.createdAt.getMonth() + 1).padStart(2, "0")}`;
-    if (key in monthlyMap) monthlyMap[key] = (monthlyMap[key] ?? 0) + Number(o.total);
+    if (key in monthlyMap) monthlyMap[key] = (monthlyMap[key] ?? 0) + Number(o.subtotal);
   }
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthlyData = Object.entries(monthlyMap).map(([key, value]) => ({
