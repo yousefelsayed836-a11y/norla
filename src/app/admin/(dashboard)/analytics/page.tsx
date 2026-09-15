@@ -67,7 +67,7 @@ export default async function AnalyticsPage() {
 
   const [allOrders, recentOrders, topItemsRaw, customerCount, productCount] = await Promise.all([
     prisma.order.findMany({
-      select: { total: true, status: true, createdAt: true, customer: { select: { governorate: true } } },
+      select: { subtotal: true, status: true, createdAt: true, customer: { select: { governorate: true } } },
       orderBy: { createdAt: "asc" },
     }),
     prisma.order.findMany({
