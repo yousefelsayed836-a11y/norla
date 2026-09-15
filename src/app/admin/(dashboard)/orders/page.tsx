@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
-import OrderStatusBadge, { STATUS_CONFIG } from "@/components/OrderStatusBadge";
+import { STATUS_CONFIG } from "@/components/OrderStatusBadge";
 
 const ALL_STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"] as const;
 type AppStatus = (typeof ALL_STATUSES)[number];
@@ -19,7 +19,7 @@ export default async function AdminOrdersPage({
       : undefined;
 
   const [allOrders, filteredOrders] = await Promise.all([
-    prisma.order.findMany({ select: { status: true, total: true } }),
+    prisma.order.findMany({ select: { status: true, subtotal: true } }),
     prisma.order.findMany({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       where: filterStatus ? { status: filterStatus as any } : undefined,
@@ -33,7 +33,7 @@ export default async function AdminOrdersPage({
   let totalRevenue = 0;
   for (const o of allOrders) {
     counts[o.status] = (counts[o.status] ?? 0) + 1;
-    if (o.status !== "CANCELLED") totalRevenue += Number(o.total);
+    if (o.status !== "CANCELLED") totalRevenue += Number(o.subtotal);
   }
 
   return (
@@ -158,7 +158,6 @@ export default async function AdminOrdersPage({
                   <p className="text-xs text-foreground/40">{o.customer?.phone}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <OrderStatusBadge status={o.status} />
                   <span className="text-xs text-foreground/40">
                     {new Date(o.createdAt).toLocaleDateString("ar-EG")}
                   </span>
