@@ -75,15 +75,23 @@ export default async function AnalyticsPage() {
       select: { subtotal: true, status: true, createdAt: true },
       orderBy: { createdAt: "asc" },
     }),
-    prisma.orderItem.groupBy({
-      by: ["title"],
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 10,
+    prisma.orderItem.findMany({
+      where: { order: { status: { not: "CANCELLED" } } },
+      select: { title: true, quantity: true },
     }),
     prisma.customer.count(),
     prisma.product.count(),
   ]);
+
+  const productSales = new Map<string, number>();
+  for (const item of topItemsRaw) {
+    productSales.set(item.title, (productSales.get(item.title) ?? 0) + item.quantity);
+  }
+  const topProducts = Array.from(productSales.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([title, quantity]) => ({ title, _sum: { quantity } }));
+  const totalUnitsSold = Array.from(productSales.values()).reduce((sum, quantity) => sum + quantity, 0);
 
   // ─── Overall stats ───────────────────────────────────────────────────────
   const totalRevenue = allOrders
@@ -264,12 +272,12 @@ export default async function AnalyticsPage() {
       {/* Top products */}
       <div className="bg-white rounded-2xl p-6 shadow-sm">
         <h2 className="font-medium text-sm text-foreground/50 uppercase tracking-wide mb-4">
-          Top Products by Units Ordered
+          Units Sold by Product
         </h2>
         <div className="space-y-2">
-          {topItemsRaw.map((item, i) => {
+          {topProducts.map((item, i) => {
             const qty = item._sum.quantity ?? 0;
-            const maxQty = topItemsRaw[0]?._sum.quantity ?? 1;
+            const maxQty = topProducts[0]?._sum.quantity ?? 1;
             return (
               <div key={item.title} className="flex items-center gap-3">
                 <span className="text-xs text-foreground/30 w-5 text-right shrink-0">{i + 1}</span>
@@ -279,7 +287,7 @@ export default async function AnalyticsPage() {
               </div>
             );
           })}
-          {topItemsRaw.length === 0 && (
+          {topProducts.length === 0 && (
             <p className="text-sm text-foreground/40">No orders yet.</p>
           )}
         </div>
@@ -289,6 +297,7 @@ export default async function AnalyticsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total Products", value: productCount },
+          { label: "Total Units Sold", value: totalUnitsSold },
           { label: "Total Customers", value: customerCount },
           { label: "Delivered Orders", value: deliveredCount },
           { label: "Cancelled Orders", value: cancelledCount },
