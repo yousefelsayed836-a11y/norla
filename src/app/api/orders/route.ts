@@ -12,8 +12,8 @@ import { z } from "zod";
 const orderSchema = z.object({
   customer: z.object({
     name: z.string().min(1),
-    phone: z.string().min(1),
-    whatsappNumber: z.string().optional(),
+    phone: z.string().regex(/^[0-9]{11}$/, "Phone must be exactly 11 English digits"),
+    whatsappNumber: z.string().regex(/^[0-9]{11}$/, "WhatsApp must be exactly 11 English digits"),
     email: z.string().optional(),
     address: z.string().min(1),
     governorate: z.string().min(1),
