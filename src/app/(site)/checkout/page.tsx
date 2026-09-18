@@ -102,6 +102,10 @@ export default function CheckoutPage() {
       setError(t("checkout.fillRequired"));
       return;
     }
+    if (!/^[0-9]{11}$/.test(form.phone) || !/^[0-9]{11}$/.test(form.whatsappNumber)) {
+      setError("Phone and WhatsApp must be exactly 11 English digits");
+      return;
+    }
     if (!paymentMethod) {
       setError(t("checkout.selectPaymentMethod"));
       return;
@@ -145,12 +149,18 @@ export default function CheckoutPage() {
           />
           <input
             placeholder={t("checkout.phone")}
+            inputMode="numeric"
+            pattern="[0-9]{11}"
+            maxLength={11}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
           <input
             placeholder={t("checkout.whatsapp")}
+            inputMode="numeric"
+            pattern="[0-9]{11}"
+            maxLength={11}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.whatsappNumber}
             onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
