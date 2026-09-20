@@ -80,7 +80,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     }),
     prisma.orderItem.findMany({
       where: { order: { status: { not: "CANCELLED" } } },
-      select: { title: true, quantity: true },
+      select: { title: true, quantity: true, order: { select: { status: true } } },
     }),
     prisma.customer.count(),
     prisma.product.count(),
@@ -88,6 +88,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
   const productSales = new Map<string, number>();
   for (const item of topItemsRaw) {
+    if (activeStatus !== "ALL" && item.order.status !== activeStatus) continue;
     productSales.set(item.title, (productSales.get(item.title) ?? 0) + item.quantity);
   }
   const topProducts = Array.from(productSales.entries())
