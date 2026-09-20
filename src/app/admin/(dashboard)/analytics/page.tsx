@@ -196,12 +196,13 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         <div className="flex items-center gap-3">
           <label htmlFor="analytics-status" className="text-sm text-foreground/60">Order status</label>
           <form method="get">
-            <select id="analytics-status" name="status" defaultValue={activeStatus} onChange={(e) => { window.location.href = e.currentTarget.form?.action + "?status=" + encodeURIComponent(e.target.value) || "?status=" + e.target.value; }} className="border border-brand-light rounded-lg bg-white px-3 py-2 text-sm">
+            <select id="analytics-status" name="status" defaultValue={activeStatus} className="border border-brand-light rounded-lg bg-white px-3 py-2 text-sm">
               <option value="ALL">All statuses</option>
               {statusOptions.map((status) => (
                 <option key={status} value={status}>{STATUS_CONFIG[status]?.label ?? status}</option>
               ))}
             </select>
+            <button type="submit" className="ml-2 rounded-lg bg-brand-dark px-3 py-2 text-sm text-white">View</button>
           </form>
           <Link href="/admin/orders" className="text-sm text-brand-dark font-medium hover:opacity-80">
             ← Orders
