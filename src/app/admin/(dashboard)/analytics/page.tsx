@@ -51,7 +51,10 @@ function MiniBar({ value, max, color }: { value: number; max: number; color: str
   );
 }
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { status: selectedStatus } = await searchParams;
+  const statusOptions = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"] as const;
+  const activeStatus = statusOptions.includes(selectedStatus as (typeof statusOptions)[number]) ? selectedStatus : "ALL";
   const now = new Date();
   const thirtyDaysAgo = new Date(now);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
@@ -93,34 +96,41 @@ export default async function AnalyticsPage() {
     .map(([title, quantity]) => ({ title, _sum: { quantity } }));
   const totalUnitsSold = Array.from(productSales.values()).reduce((sum, quantity) => sum + quantity, 0);
 
+  const visibleOrders = activeStatus === "ALL"
+    ? allOrders
+    : allOrders.filter((o) => o.status === activeStatus);
+  const visibleRecentOrders = activeStatus === "ALL"
+    ? recentOrders
+    : recentOrders.filter((o) => o.status === activeStatus);
+
   // ─── Overall stats ───────────────────────────────────────────────────────
   const confirmedStatuses = new Set(["PROCESSING", "SHIPPED", "DELIVERED", "EXPRESS"]);
-  const confirmedRevenue = allOrders
+  const confirmedRevenue = visibleOrders
     .filter((o) => confirmedStatuses.has(o.status))
     .reduce((s, o) => s + Number(o.subtotal), 0);
-  const pendingRevenue = allOrders
+  const pendingRevenue = visibleOrders
     .filter((o) => o.status === "PENDING")
     .reduce((s, o) => s + Number(o.subtotal), 0);
   const totalRevenue = confirmedRevenue + pendingRevenue;
 
-  const thisMonthRevenue = allOrders
+  const thisMonthRevenue = visibleOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= startOfMonth)
     .reduce((s, o) => s + Number(o.subtotal), 0);
 
-  const lastMonthRevenue = allOrders
+  const lastMonthRevenue = visibleOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= startOfLastMonth && o.createdAt <= endOfLastMonth)
     .reduce((s, o) => s + Number(o.subtotal), 0);
 
-  const last7Revenue = allOrders
+  const last7Revenue = visibleOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= sevenDaysAgo)
     .reduce((s, o) => s + Number(o.subtotal), 0);
 
-  const totalOrders = allOrders.length;
-  const avgOrderValue = totalOrders > 0 ? totalRevenue / Math.max(1, allOrders.filter((o) => o.status !== "CANCELLED").length) : 0;
+  const totalOrders = visibleOrders.length;
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / Math.max(1, visibleOrders.filter((o) => o.status !== "CANCELLED").length) : 0;
 
   // ─── Status breakdown ────────────────────────────────────────────────────
   const statusCounts: Record<string, number> = {};
-  for (const o of allOrders) statusCounts[o.status] = (statusCounts[o.status] ?? 0) + 1;
+  for (const o of visibleOrders) statusCounts[o.status] = (statusCounts[o.status] ?? 0) + 1;
   const maxStatusCount = Math.max(...Object.values(statusCounts), 1);
 
   // ─── Daily revenue chart (last 30 days) ──────────────────────────────────
@@ -130,7 +140,7 @@ export default async function AnalyticsPage() {
     d.setDate(d.getDate() + i);
     dailyMap[d.toISOString().slice(0, 10)] = 0;
   }
-  for (const o of recentOrders) {
+  for (const o of visibleRecentOrders) {
     if (o.status === "CANCELLED") continue;
     const key = o.createdAt.toISOString().slice(0, 10);
     if (key in dailyMap) dailyMap[key] = (dailyMap[key] ?? 0) + Number(o.subtotal);
@@ -142,7 +152,7 @@ export default async function AnalyticsPage() {
 
   // ─── Governorate breakdown ───────────────────────────────────────────────
   const govMap: Record<string, number> = {};
-  for (const o of allOrders) {
+  for (const o of visibleOrders) {
     const gov = o.customer?.governorate || "Unknown";
     govMap[gov] = (govMap[gov] ?? 0) + 1;
   }
@@ -157,7 +167,7 @@ export default async function AnalyticsPage() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     monthlyMap[`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`] = 0;
   }
-  for (const o of allOrders) {
+  for (const o of visibleOrders) {
     if (o.status === "CANCELLED") continue;
     const key = `${o.createdAt.getFullYear()}-${String(o.createdAt.getMonth() + 1).padStart(2, "0")}`;
     if (key in monthlyMap) monthlyMap[key] = (monthlyMap[key] ?? 0) + Number(o.subtotal);
@@ -181,11 +191,22 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="max-w-5xl space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h1 className="font-display text-3xl">Analytics</h1>
-        <Link href="/admin/orders" className="text-sm text-brand-dark font-medium hover:opacity-80">
-          ← Orders
-        </Link>
+        <div className="flex items-center gap-3">
+          <label htmlFor="analytics-status" className="text-sm text-foreground/60">Order status</label>
+          <form method="get">
+            <select id="analytics-status" name="status" defaultValue={activeStatus} onChange={(e) => { window.location.href = e.currentTarget.form?.action + "?status=" + encodeURIComponent(e.target.value) || "?status=" + e.target.value; }} className="border border-brand-light rounded-lg bg-white px-3 py-2 text-sm">
+              <option value="ALL">All statuses</option>
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>{STATUS_CONFIG[status]?.label ?? status}</option>
+              ))}
+            </select>
+          </form>
+          <Link href="/admin/orders" className="text-sm text-brand-dark font-medium hover:opacity-80">
+            ← Orders
+          </Link>
+        </div>
       </div>
 
       {/* KPI cards */}
