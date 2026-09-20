@@ -94,9 +94,14 @@ export default async function AnalyticsPage() {
   const totalUnitsSold = Array.from(productSales.values()).reduce((sum, quantity) => sum + quantity, 0);
 
   // ─── Overall stats ───────────────────────────────────────────────────────
-  const totalRevenue = allOrders
-    .filter((o) => o.status !== "CANCELLED")
+  const confirmedStatuses = new Set(["PROCESSING", "SHIPPED", "DELIVERED", "EXPRESS"]);
+  const confirmedRevenue = allOrders
+    .filter((o) => confirmedStatuses.has(o.status))
     .reduce((s, o) => s + Number(o.subtotal), 0);
+  const pendingRevenue = allOrders
+    .filter((o) => o.status === "PENDING")
+    .reduce((s, o) => s + Number(o.subtotal), 0);
+  const totalRevenue = confirmedRevenue + pendingRevenue;
 
   const thisMonthRevenue = allOrders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= startOfMonth)
@@ -186,7 +191,9 @@ export default async function AnalyticsPage() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Revenue", value: formatEGP(totalRevenue), sub: "excl. cancelled" },
+          { label: "Confirmed Products", value: formatEGP(confirmedRevenue), sub: "excl. shipping & cancelled" },
+          { label: "Pending Products", value: formatEGP(pendingRevenue), sub: "excl. shipping" },
+          { label: "Total Products", value: formatEGP(totalRevenue), sub: "confirmed + pending" },
           { label: "This Month", value: formatEGP(thisMonthRevenue), sub: lastMonthRevenue > 0 ? `Last month: ${formatEGP(lastMonthRevenue)}` : undefined },
           { label: "Last 7 Days", value: formatEGP(last7Revenue), sub: `${totalOrders} total orders` },
           { label: "Avg Order Value", value: formatEGP(Math.round(avgOrderValue)), sub: `${customerCount} customers` },
