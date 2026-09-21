@@ -26,7 +26,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const order = await prisma.$transaction(async (tx) => {
     const existing = await tx.order.findUniqueOrThrow({ where: { id }, include: { items: true } });
-    const updated = await tx.order.update({ where: { id }, data: { status: body.status } });
+    const updated = await tx.order.update({
+      where: { id },
+      data: {
+        ...(body.status ? { status: body.status } : {}),
+        ...(body.customer ? {
+          customer: {
+            update: {
+              name: String(body.customer.name ?? ""),
+              phone: String(body.customer.phone ?? ""),
+              whatsappNumber: String(body.customer.whatsappNumber ?? ""),
+              address: String(body.customer.address ?? ""),
+              city: String(body.customer.city ?? ""),
+              governorate: String(body.customer.governorate ?? ""),
+            },
+          },
+        } : {}),
+      },
+    });
 
     const wasCancelled = existing.status === "CANCELLED";
     const isCancelled = body.status === "CANCELLED";
