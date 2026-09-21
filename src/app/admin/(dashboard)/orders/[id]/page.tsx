@@ -5,6 +5,7 @@ import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import SendToTurboButton from "@/components/SendToTurboButton";
 import AdminOrderEditor from "@/components/AdminOrderEditor";
+import AdminCustomerEditor from "@/components/AdminCustomerEditor";
 import { TURBO_GOVERNMENT_MAP, TURBO_GOVERNMENT_ID } from "@/lib/turbo";
 
 export default async function OrderDetailPage({
@@ -138,6 +139,18 @@ export default async function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      <AdminCustomerEditor
+        orderId={order.id}
+        initialCustomer={{
+          name: order.customer?.name ?? "",
+          phone: order.customer?.phone ?? "",
+          whatsappNumber: order.customer?.whatsappNumber ?? "",
+          address: order.customer?.address ?? "",
+          city: order.customer?.city ?? "",
+          governorate: order.customer?.governorate ?? "",
+        }}
+      />
 
       <AdminOrderEditor
         orderId={order.id}
