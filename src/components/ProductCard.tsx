@@ -39,6 +39,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           fill
           className="object-cover transition-transform duration-500 md:group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
+          loading="eager"
         />
         {secondary && (
           <Image
