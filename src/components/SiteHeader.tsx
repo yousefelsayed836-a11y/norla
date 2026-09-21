@@ -55,15 +55,19 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
     setSearchOpen(false);
   }
 
-  const solid = true;
+  const solid = scrolled || navOpen || searchOpen;
 
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white text-foreground shadow-sm pt-[env(safe-area-inset-top)] min-h-[80px]"
+        className={`fixed top-9 md:top-12 left-0 right-0 z-50 transition-all duration-300 ${
+          solid ? "bg-white shadow-sm" : "bg-transparent"
+        }`}
       >
         <div
-          className="mx-auto max-w-6xl px-5 flex items-center justify-between h-20"
+          className={`mx-auto max-w-6xl px-5 flex items-center justify-between h-20 ${
+            solid ? "text-foreground" : "text-white"
+          }`}
         >
           <div className="flex items-center flex-1">
             <button
@@ -89,7 +93,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
 
           <Link href="/" className="shrink-0">
             <Image
-              src="/brand/logo-dark.webp"
+              src={solid ? "/brand/logo-dark.webp" : "/brand/logo-light.webp"}
               alt="Norla Designs"
               width={155}
               height={26}
