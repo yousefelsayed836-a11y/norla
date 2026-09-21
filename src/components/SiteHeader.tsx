@@ -60,7 +60,7 @@ export default function SiteHeader({ categories }: { categories: CategoryItem[] 
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white text-foreground shadow-sm pt-[env(safe-area-inset-top)]"
+        className="fixed top-0 left-0 right-0 z-50 bg-white text-foreground shadow-sm pt-[env(safe-area-inset-top)] min-h-[80px]"
       >
         <div
           className="mx-auto max-w-6xl px-5 flex items-center justify-between h-20"
