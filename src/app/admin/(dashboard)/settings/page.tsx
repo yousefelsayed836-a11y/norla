@@ -30,6 +30,11 @@ export default async function AdminSettingsPage() {
         initialDepositPercent={settings.depositPercent}
         initialFreeShippingEnabled={settings.freeShippingEnabled}
         initialFreeShippingThreshold={String(settings.freeShippingThreshold)}
+        initialDiscountEnabled={settings.discountEnabled}
+        initialDiscountType={settings.discountType}
+        initialDiscountValue={String(settings.discountValue)}
+        initialDiscountBuyQuantity={settings.discountBuyQuantity}
+        initialDiscountGetQuantity={settings.discountGetQuantity}
       />
     </div>
   );
