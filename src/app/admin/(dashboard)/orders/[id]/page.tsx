@@ -107,6 +107,12 @@ export default async function OrderDetailPage({
             <span>Subtotal</span>
             <span>{formatEGP(Number(order.subtotal))}</span>
           </div>
+          {Number(order.discountAmount) > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>Discount</span>
+              <span>−{formatEGP(Number(order.discountAmount))}</span>
+            </div>
+          )}
           <div className="flex justify-between text-foreground/60">
             <span>Shipping</span>
             <span>{formatEGP(Number(order.shippingFee))}</span>
