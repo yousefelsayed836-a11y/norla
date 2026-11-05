@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
   const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1 });
+  const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,6 +78,8 @@ export default function CheckoutPage() {
   discountAmount = Math.min(total, Math.max(0, Math.round(discountAmount * 100) / 100));
   const grandTotal = total - discountAmount + shippingFee;
   const deposit = (grandTotal * depositPercent) / 100;
+  const minimumDeposit = Math.ceil(deposit);
+  const depositValue = depositInput === "" ? minimumDeposit : Math.min(Math.floor(grandTotal), Math.max(minimumDeposit, Number(depositInput) || minimumDeposit));
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
 
@@ -96,7 +99,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, items, paymentMethod }),
+        body: JSON.stringify({ customer: form, items, paymentMethod, depositAmount: depositValue }),
       });
       if (!res.ok) throw new Error("Failed to place order");
       clear();
@@ -302,7 +305,7 @@ export default function CheckoutPage() {
             <span>
               {t("checkout.depositDueNow")} ({depositPercent}%)
             </span>
-            <span>{formatEGP(deposit)}</span>
+            <span>{formatEGP(depositValue)}</span>
           </div>
           <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
         </div>
