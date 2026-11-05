@@ -65,8 +65,13 @@ export default function CheckoutPage() {
     else if (discount.type === "buy_get") {
       const units = items.reduce((sum, item) => sum + item.quantity, 0);
       const freeUnits = Math.floor(units / (Math.max(1, discount.buy) + Math.max(1, discount.get))) * Math.max(1, discount.get);
-      const prices = items.flatMap((item) => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
-      discountAmount = prices.slice(0, freeUnits).reduce((sum, price) => sum + price, 0);
+      let remainingFreeUnits = freeUnits;
+      for (const item of [...items].sort((a, b) => a.price - b.price)) {
+        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
+        discountAmount += freeFromItem * item.price;
+        remainingFreeUnits -= freeFromItem;
+        if (remainingFreeUnits === 0) break;
+      }
     }
   }
   discountAmount = Math.min(total, Math.max(0, Math.round(discountAmount * 100) / 100));
