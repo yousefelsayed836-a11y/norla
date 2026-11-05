@@ -36,6 +36,11 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
+    discountEnabled,
+    discountType,
+    discountValue,
+    discountBuyQuantity,
+    discountGetQuantity,
     checkoutPaymentNote,
     checkoutPaymentNoteAr,
     whatsappMessageTemplate,
@@ -43,6 +48,9 @@ export async function PUT(req: NextRequest) {
     checkoutAccountName,
     checkoutDeliveryNote,
   } = await req.json();
+  const normalizedDiscountType = ["none", "percent", "fixed", "buy_get"].includes(discountType)
+    ? discountType
+    : "none";
   const data = {
     announcementText,
     announcementTextAr: announcementTextAr || null,
@@ -60,9 +68,14 @@ export async function PUT(req: NextRequest) {
     careInstructionsText,
     careInstructionsTextAr: careInstructionsTextAr || null,
     shippingFee,
-    depositPercent,
+    depositPercent: Math.min(100, Math.max(0, Math.floor(Number(depositPercent) || 0))),
     freeShippingEnabled,
     freeShippingThreshold,
+    discountEnabled: !!discountEnabled,
+    discountType: normalizedDiscountType,
+    discountValue: Math.min(normalizedDiscountType === "percent" ? 100 : 99_999_999.99, Math.max(0, Number(discountValue) || 0)),
+    discountBuyQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountBuyQuantity) || 1))),
+    discountGetQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountGetQuantity) || 1))),
     checkoutPaymentNote: checkoutPaymentNote || "",
     checkoutPaymentNoteAr: checkoutPaymentNoteAr || "",
     whatsappMessageTemplate: whatsappMessageTemplate || "",

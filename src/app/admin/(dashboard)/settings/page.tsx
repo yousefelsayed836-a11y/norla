@@ -38,6 +38,11 @@ export default async function AdminSettingsPage() {
         initialCheckoutTransferPhone={s.checkoutTransferPhone ?? "01027096110"}
         initialCheckoutAccountName={s.checkoutAccountName ?? ""}
         initialCheckoutDeliveryNote={s.checkoutDeliveryNote ?? "مدة تنفيذ الاوردر من 4 ل 7 ايام"}
+        initialDiscountEnabled={settings.discountEnabled}
+        initialDiscountType={settings.discountType}
+        initialDiscountValue={String(settings.discountValue)}
+        initialDiscountBuyQuantity={settings.discountBuyQuantity}
+        initialDiscountGetQuantity={settings.discountGetQuantity}
       />
     </div>
   );
