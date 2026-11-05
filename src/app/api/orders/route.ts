@@ -195,6 +195,7 @@ export async function POST(req: NextRequest) {
         imageUrl: i.imageUrl,
       })),
       subtotal,
+      discountAmount,
       shippingFee,
       total,
       depositPercent: settings.depositPercent,
