@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest) {
     careInstructionsText,
     careInstructionsTextAr,
     shippingFee,
-    depositPercent,
+    depositPercent: Math.min(100, Math.max(0, Math.floor(Number(depositPercent) || 0))),
     freeShippingEnabled,
     freeShippingThreshold,
     discountEnabled,
@@ -64,9 +64,9 @@ export async function PUT(req: NextRequest) {
     freeShippingThreshold,
     discountEnabled: !!discountEnabled,
     discountType: ["none", "percent", "fixed", "buy_get"].includes(discountType) ? discountType : "none",
-    discountValue: Math.max(0, Number(discountValue) || 0),
-    discountBuyQuantity: Math.max(1, Math.floor(Number(discountBuyQuantity) || 1)),
-    discountGetQuantity: Math.max(1, Math.floor(Number(discountGetQuantity) || 1)),
+    discountValue: Math.min(99_999_999.99, Math.max(0, Math.min(Number(discountType) === 0 ? 100 : 99_999_999.99, Number(discountValue) || 0))),
+    discountBuyQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountBuyQuantity) || 1))),
+    discountGetQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountGetQuantity) || 1))),
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },
