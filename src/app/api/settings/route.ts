@@ -36,6 +36,11 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
+    discountEnabled,
+    discountType,
+    discountValue,
+    discountBuyQuantity,
+    discountGetQuantity,
   } = await req.json();
   const data = {
     announcementText,
@@ -57,6 +62,11 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
+    discountEnabled: !!discountEnabled,
+    discountType: ["none", "percent", "fixed", "buy_get"].includes(discountType) ? discountType : "none",
+    discountValue: Math.max(0, Number(discountValue) || 0),
+    discountBuyQuantity: Math.max(1, Math.floor(Number(discountBuyQuantity) || 1)),
+    discountGetQuantity: Math.max(1, Math.floor(Number(discountGetQuantity) || 1)),
   };
   const settings = await prisma.siteSetting.upsert({
     where: { id: "singleton" },
