@@ -29,6 +29,7 @@ const orderSchema = z.object({
     )
     .min(1),
   paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
+  depositAmount: z.number().finite().nonnegative().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
-  const { customer, items, paymentMethod } = parsed.data;
+  const { customer, items, paymentMethod, depositAmount: requestedDepositAmount } = parsed.data;
 
   const zone = await prisma.shippingZone.findUnique({
     where: { governorate: customer.governorate },
@@ -127,7 +128,14 @@ export async function POST(req: NextRequest) {
     subtotal >= Number(settings.freeShippingThreshold);
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
   const total = subtotal - discountAmount + shippingFee;
-  const depositAmount = (total * settings.depositPercent) / 100;
+  const minimumDeposit = (total * settings.depositPercent) / 100;
+  if (requestedDepositAmount !== undefined && requestedDepositAmount + 0.001 < minimumDeposit) {
+    return NextResponse.json({ error: "Deposit amount is below the required minimum" }, { status: 400 });
+  }
+  if (requestedDepositAmount !== undefined && requestedDepositAmount > total) {
+    return NextResponse.json({ error: "Deposit amount cannot exceed the order total" }, { status: 400 });
+  }
+  const depositAmount = requestedDepositAmount ?? minimumDeposit;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -203,7 +211,7 @@ export async function POST(req: NextRequest) {
       discountAmount,
       shippingFee,
       total,
-      depositPercent: settings.depositPercent,
+      depositPercent: total > 0 ? Math.round((depositAmount / total) * 100) : 0,
       depositAmount,
       paymentMethod: order.paymentMethod,
       address: orderCustomer.address ?? "",
