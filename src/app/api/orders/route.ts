@@ -111,8 +111,13 @@ export async function POST(req: NextRequest) {
       const getQty = Math.max(1, settings.discountGetQuantity);
       const quantity = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
       const freeUnits = Math.floor(quantity / (buyQty + getQty)) * getQty;
-      const unitPrices = resolvedItems.flatMap((item) => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
-      discountAmount = unitPrices.slice(0, freeUnits).reduce((sum, price) => sum + price, 0);
+      let remainingFreeUnits = freeUnits;
+      for (const item of [...resolvedItems].sort((a, b) => a.price - b.price)) {
+        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
+        discountAmount += freeFromItem * item.price;
+        remainingFreeUnits -= freeFromItem;
+        if (remainingFreeUnits === 0) break;
+      }
     }
   }
   discountAmount = Math.min(subtotal, Math.max(0, Math.round(discountAmount * 100) / 100));
