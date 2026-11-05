@@ -24,10 +24,11 @@ const orderSchema = z.object({
       z.object({
         productId: z.string(),
         variantId: z.string().optional(),
-        quantity: z.number().int().min(1),
+        quantity: z.number().int().min(1).max(1000),
       })
     )
-    .min(1),
+    .min(1)
+    .max(100),
   paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
   depositAmount: z.number().finite().nonnegative().optional(),
 });
@@ -38,7 +39,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many orders. Please try again later." }, { status: 429 });
   }
 
-  const parsed = orderSchema.safeParse(await req.json());
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const parsed = orderSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
