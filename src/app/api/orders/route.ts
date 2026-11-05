@@ -100,18 +100,35 @@ export async function POST(req: NextRequest) {
   });
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  let discountAmount = 0;
+  if (settings.discountEnabled) {
+    if (settings.discountType === "percent") {
+      discountAmount = subtotal * Math.min(100, Math.max(0, Number(settings.discountValue))) / 100;
+    } else if (settings.discountType === "fixed") {
+      discountAmount = Math.min(subtotal, Math.max(0, Number(settings.discountValue)));
+    } else if (settings.discountType === "buy_get") {
+      const buyQty = Math.max(1, settings.discountBuyQuantity);
+      const getQty = Math.max(1, settings.discountGetQuantity);
+      const quantity = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
+      const freeUnits = Math.floor(quantity / (buyQty + getQty)) * getQty;
+      const unitPrices = resolvedItems.flatMap((item) => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
+      discountAmount = unitPrices.slice(0, freeUnits).reduce((sum, price) => sum + price, 0);
+    }
+  }
+  discountAmount = Math.min(subtotal, Math.max(0, Math.round(discountAmount * 100) / 100));
   const qualifiesFreeShipping =
     settings.freeShippingEnabled &&
     Number(settings.freeShippingThreshold) > 0 &&
     subtotal >= Number(settings.freeShippingThreshold);
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
-  const total = subtotal + shippingFee;
+  const total = subtotal - discountAmount + shippingFee;
   const depositAmount = (total * settings.depositPercent) / 100;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         subtotal,
+        discountAmount,
         shippingFee,
         total,
         depositAmount,
