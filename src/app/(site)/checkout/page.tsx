@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
+  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +46,7 @@ export default function CheckoutPage() {
         setFreeShippingEnabled(!!d.settings.freeShippingEnabled);
         setFreeShippingThreshold(Number(d.settings.freeShippingThreshold) || 0);
         setDepositPercent(d.settings.depositPercent ?? 50);
+        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1 });
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -56,7 +58,19 @@ export default function CheckoutPage() {
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
   const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
   const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  const grandTotal = total + shippingFee;
+  let discountAmount = 0;
+  if (discount.enabled) {
+    if (discount.type === "percent") discountAmount = total * Math.min(100, Math.max(0, discount.value)) / 100;
+    else if (discount.type === "fixed") discountAmount = Math.min(total, Math.max(0, discount.value));
+    else if (discount.type === "buy_get") {
+      const units = items.reduce((sum, item) => sum + item.quantity, 0);
+      const freeUnits = Math.floor(units / (Math.max(1, discount.buy) + Math.max(1, discount.get))) * Math.max(1, discount.get);
+      const prices = items.flatMap((item) => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
+      discountAmount = prices.slice(0, freeUnits).reduce((sum, price) => sum + price, 0);
+    }
+  }
+  discountAmount = Math.min(total, Math.max(0, Math.round(discountAmount * 100) / 100));
+  const grandTotal = total - discountAmount + shippingFee;
   const deposit = (grandTotal * depositPercent) / 100;
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
@@ -256,6 +270,12 @@ export default function CheckoutPage() {
             <span>{t("checkout.subtotal")}</span>
             <span>{formatEGP(total)}</span>
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>{t("checkout.discount")}</span>
+              <span>−{formatEGP(discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-foreground/70">
             <span>
               {t("checkout.shipping")}
