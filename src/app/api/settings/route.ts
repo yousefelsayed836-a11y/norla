@@ -9,7 +9,11 @@ export async function GET() {
     update: {},
     create: { id: "singleton" },
   });
-  return NextResponse.json({ settings });
+  const discountDetails = await prisma.$queryRaw<{ discountProductIds: string; discountGiftMode: string; discountGiftProductIds: string }[]>`
+    SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds"
+    FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
+  `.then((rows) => rows[0] ?? null);
+  return NextResponse.json({ settings: { ...settings, ...discountDetails } });
 }
 
 export async function PUT(req: NextRequest) {
@@ -60,7 +64,7 @@ export async function PUT(req: NextRequest) {
     careInstructionsText,
     careInstructionsTextAr: careInstructionsTextAr || null,
     shippingFee,
-    depositPercent,
+    depositPercent: Math.min(100, Math.max(0, Math.floor(Number(depositPercent) || 0))),
     freeShippingEnabled,
     freeShippingThreshold,
     checkoutPaymentNote: checkoutPaymentNote || "",
@@ -68,7 +72,7 @@ export async function PUT(req: NextRequest) {
     whatsappMessageTemplate: whatsappMessageTemplate || "",
     checkoutTransferPhone: checkoutTransferPhone || "01027096110",
     checkoutAccountName: checkoutAccountName || "",
-    checkoutDeliveryNote: checkoutDeliveryNote ?? "مدة تنفيذ الاوردر من 4 ل 7 ايام",
+    checkoutDeliveryNote: checkoutDeliveryNote ?? "",
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings = await (prisma.siteSetting.upsert as any)({
@@ -79,3 +83,4 @@ export async function PUT(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ settings });
 }
+

@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
 import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
+import { calculateDiscount, parseProductIds } from "@/lib/discounts";
 
 type ShippingCity = { id: string; name: string; nameAr: string | null };
 type ShippingZone = {
@@ -35,11 +36,12 @@ export default function CheckoutPage() {
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
-  const [depositInput, setDepositInput] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
-  const [deliveryNote, setDeliveryNote] = useState("مدة تنفيذ الاوردر من 4 ل 7 ايام");
+  const [deliveryNote, setDeliveryNote] = useState("");
+  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[] });
+  const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cityQuery, setCityQuery] = useState("");
@@ -55,7 +57,8 @@ export default function CheckoutPage() {
         setPaymentNote(d.settings.checkoutPaymentNote || "");
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
-        setDeliveryNote(d.settings.checkoutDeliveryNote || "مدة تنفيذ الاوردر من 4 ل 7 ايام");
+        setDeliveryNote(d.settings.checkoutDeliveryNote || "");
+        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds) });
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -67,19 +70,20 @@ export default function CheckoutPage() {
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
   const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
   const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  const baseTotal = total + shippingFee;
-  const vodafoneFee =
-    paymentMethod === "vodafone_cash"
-      ? baseTotal < 1000
-        ? 5
-        : Math.floor(baseTotal / 1000) * 10
-      : 0;
+  const { amount: discountAmount } = calculateDiscount(items, {
+    enabled: discount.enabled, type: discount.type, value: discount.value,
+    buyQuantity: discount.buy, getQuantity: discount.get, productIds: discount.productIds,
+    giftMode: discount.giftMode, giftProductIds: discount.giftProductIds,
+  });
+  const discountedSubtotal = total - discountAmount;
+  const baseTotal = discountedSubtotal + shippingFee;
+  const vodafoneFee = paymentMethod === "vodafone_cash"
+    ? baseTotal < 1000 ? 5 : Math.floor(baseTotal / 1000) * 10
+    : 0;
   const grandTotal = baseTotal + vodafoneFee;
-  const minimumDeposit = (grandTotal * depositPercent) / 100;
-  const requestedDeposit = Number(depositInput);
-  const deposit = depositInput && Number.isFinite(requestedDeposit)
-    ? Math.min(grandTotal, Math.max(minimumDeposit, requestedDeposit))
-    : minimumDeposit;
+  const deposit = (grandTotal * depositPercent) / 100;
+  const minimumDeposit = Math.ceil(deposit);
+  const depositValue = depositInput === "" ? minimumDeposit : Math.min(Math.floor(grandTotal), Math.max(minimumDeposit, Number(depositInput) || minimumDeposit));
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
   const selectedCityDisplay = form.city
@@ -115,7 +119,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee, depositAmount: deposit }),
+        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee, depositAmount: depositValue }),
       });
       if (!res.ok) throw new Error("Failed to place order");
       const data = await res.json();
@@ -270,17 +274,7 @@ export default function CheckoutPage() {
               <div className="mt-3 bg-brand-light/40 rounded-xl px-4 py-3 space-y-2">
                 <div className="flex justify-between text-sm font-semibold text-brand-dark">
                   <label htmlFor="depositAmount">{t("checkout.depositAmountLabel")}</label>
-                  <input
-                    id="depositAmount"
-                    type="number"
-                    min={Math.ceil(minimumDeposit)}
-                    max={Math.floor(grandTotal)}
-                    step="1"
-                    value={depositInput}
-                    placeholder={String(Math.ceil(minimumDeposit))}
-                    onChange={(e) => setDepositInput(e.target.value)}
-                    className="w-36 rounded-lg border border-brand-light bg-white px-2 py-1 text-right"
-                  />
+                  <input id="depositAmount" type="number" min={Math.ceil(minimumDeposit)} max={Math.floor(grandTotal)} step="1" value={depositInput} placeholder={String(Math.ceil(minimumDeposit))} onChange={(e) => setDepositInput(e.target.value)} className="w-36 rounded-lg border border-brand-light bg-white px-2 py-1 text-right" />
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/70">{t("checkout.transferTo")}</span>
@@ -333,6 +327,12 @@ export default function CheckoutPage() {
             <span>{t("checkout.subtotal")}</span>
             <span>{formatEGP(total)}</span>
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>{t("checkout.discount")}</span>
+              <span>−{formatEGP(discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-foreground/70">
             <span>
               {t("checkout.shipping")}
@@ -360,7 +360,7 @@ export default function CheckoutPage() {
             <span>
               {t("checkout.depositDueNow")} ({depositPercent}%)
             </span>
-            <span>{formatEGP(deposit)}</span>
+            <span>{formatEGP(depositValue)}</span>
           </div>
           {deliveryNote && (
             <p className="text-xs text-foreground/60 text-center pt-2 mt-1" dir="rtl">
@@ -372,3 +372,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

@@ -82,6 +82,7 @@ export async function sendCustomerOrderConfirmation(params: {
   customerName: string;
   items: { title: string; price: number; quantity: number; imageUrl?: string }[];
   subtotal: number;
+  discountAmount?: number;
   shippingFee: number;
   total: number;
   depositPercent: number;
@@ -147,6 +148,7 @@ export async function sendCustomerOrderConfirmation(params: {
               <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Subtotal</td>
               <td style="padding:4px 0;text-align:right;color:#333;font-family:${PRICE_FONT}">${formatEGP(params.subtotal)}</td>
             </tr>
+            ${params.discountAmount && params.discountAmount > 0 ? `<tr><td style="padding:4px 0;color:#28834a;font-family:${EMAIL_FONT}">Discount</td><td style="padding:4px 0;text-align:right;color:#28834a;font-family:${PRICE_FONT}">−${formatEGP(params.discountAmount)}</td></tr>` : ""}
             <tr>
               <td style="padding:4px 0;color:#777;font-family:${EMAIL_FONT}">Shipping</td>
               <td style="padding:4px 0;text-align:right;color:#333;font-family:${PRICE_FONT}">${params.shippingFee === 0 ? "Free" : formatEGP(params.shippingFee)}</td>
@@ -221,3 +223,4 @@ export async function sendContactMessage(params: { name: string; email: string; 
     console.error("Failed to send contact message", err);
   }
 }
+

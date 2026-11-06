@@ -399,7 +399,6 @@ export default function SettingsForm({
         <textarea
           rows={2}
           dir="rtl"
-          placeholder="مدة تنفيذ الاوردر من 4 ل 7 ايام"
           className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
           value={checkoutDeliveryNote}
           onChange={(e) => setCheckoutDeliveryNote(e.target.value)}
@@ -415,3 +414,4 @@ export default function SettingsForm({
     </form>
   );
 }
+

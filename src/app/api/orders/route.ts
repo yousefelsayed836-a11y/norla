@@ -7,6 +7,7 @@ import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib
 import { sendPushToAdmins } from "@/lib/push";
 import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
+import { calculateDiscount, parseProductIds } from "@/lib/discounts";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -24,13 +25,13 @@ const orderSchema = z.object({
       z.object({
         productId: z.string(),
         variantId: z.string().optional(),
-        quantity: z.number().int().min(1),
+        quantity: z.number().int().min(1).max(1000),
       })
     )
-    .min(1),
+    .min(1)
+    .max(100),
   paymentMethod: z.enum(["instapay", "vodafone_cash"]).optional(),
-  serviceFee: z.number().min(0).default(0),
-  depositAmount: z.number().positive().optional(),
+  depositAmount: z.number().finite().nonnegative().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,11 +40,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many orders. Please try again later." }, { status: 429 });
   }
 
-  const parsed = orderSchema.safeParse(await req.json());
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const parsed = orderSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
   }
-  const { customer, items, paymentMethod, serviceFee, depositAmount: requestedDeposit } = parsed.data;
+  const { customer, items, paymentMethod, depositAmount: requestedDepositAmount } = parsed.data;
 
   const zone = await prisma.shippingZone.findUnique({
     where: { governorate: customer.governorate },
@@ -97,7 +104,9 @@ export async function POST(req: NextRequest) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings: any = await prisma.$queryRaw`
-    SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold"
+    SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold",
+      "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity",
+      "discountProductIds", "discountGiftMode", "discountGiftProductIds"
     FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
   `.then((rows: any) => rows[0] ?? {}).catch(() => ({}));
 
@@ -106,29 +115,44 @@ export async function POST(req: NextRequest) {
   const freeShippingThreshold = Number(settings.freeShippingThreshold ?? 0);
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const calculatedDiscount = calculateDiscount(resolvedItems, {
+    enabled: !!settings.discountEnabled,
+    type: settings.discountType ?? "none",
+    value: Number(settings.discountValue) || 0,
+    buyQuantity: Number(settings.discountBuyQuantity) || 2,
+    getQuantity: Number(settings.discountGetQuantity) || 1,
+    productIds: parseProductIds(settings.discountProductIds),
+    giftMode: settings.discountGiftMode ?? "same_product",
+    giftProductIds: parseProductIds(settings.discountGiftProductIds),
+  });
+  const discountAmount = Math.min(subtotal, calculatedDiscount.amount);
+  const appliedDiscountType = discountAmount > 0 ? settings.discountType ?? "none" : "none";
+  discountAmount = Math.min(subtotal, Math.max(0, Math.round(discountAmount * 100) / 100));
   const qualifiesFreeShipping =
     freeShippingEnabled &&
     freeShippingThreshold > 0 &&
     subtotal >= freeShippingThreshold;
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
-  const baseTotal = subtotal + shippingFee;
-  const expectedServiceFee =
-    paymentMethod === "vodafone_cash"
-      ? baseTotal < 1000
-        ? 5
-        : Math.floor(baseTotal / 1000) * 10
-      : 0;
-  const resolvedServiceFee = serviceFee === expectedServiceFee ? serviceFee : expectedServiceFee;
-  const total = baseTotal + resolvedServiceFee;
+  const discountedBase = subtotal - discountAmount + shippingFee;
+  const expectedServiceFee = paymentMethod === "vodafone_cash"
+    ? discountedBase < 1000 ? 5 : Math.floor(discountedBase / 1000) * 10
+    : 0;
+  const resolvedServiceFee = expectedServiceFee;
+  const total = discountedBase + resolvedServiceFee;
   const minimumDeposit = (total * depositPercent) / 100;
-  const depositAmount = requestedDeposit == null
-    ? minimumDeposit
-    : Math.min(total, Math.max(minimumDeposit, requestedDeposit));
+  if (requestedDepositAmount !== undefined && requestedDepositAmount + 0.001 < minimumDeposit) {
+    return NextResponse.json({ error: "Deposit amount is below the required minimum" }, { status: 400 });
+  }
+  if (requestedDepositAmount !== undefined && requestedDepositAmount > total) {
+    return NextResponse.json({ error: "Deposit amount cannot exceed the order total" }, { status: 400 });
+  }
+  const depositAmount = requestedDepositAmount ?? minimumDeposit;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         subtotal,
+        discountAmount,
         shippingFee,
         total,
         depositAmount,
@@ -157,6 +181,9 @@ export async function POST(req: NextRequest) {
       },
       include: { items: true, customer: true },
     });
+    await tx.$executeRaw`UPDATE "Order" SET "discountType" = ${appliedDiscountType},
+      "discountGiftQuantity" = ${appliedDiscountType === "buy_get" ? calculatedDiscount.giftQuantity : 0}
+      WHERE id = ${created.id}`;
     await adjustStock(tx, resolvedItems, -1);
     return created;
   });
@@ -196,9 +223,10 @@ export async function POST(req: NextRequest) {
         imageUrl: i.imageUrl,
       })),
       subtotal,
+      discountAmount,
       shippingFee,
       total,
-      depositPercent: depositPercent,
+      depositPercent: total > 0 ? Math.round((depositAmount / total) * 100) : 0,
       depositAmount,
       paymentMethod: order.paymentMethod,
       address: orderCustomer.address ?? "",
@@ -220,3 +248,4 @@ export async function GET() {
   });
   return NextResponse.json({ orders });
 }
+

@@ -50,7 +50,7 @@ const translations = {
     "product.sale": "Sale",
     "product.color": "Color",
     "product.size": "Size",
-    "product.inStockReady": "In stock, ready to ship",
+    "product.inStockReady": "Ready to order",
     "product.outOfStockLabel": "Out of stock",
     "product.addToCart": "Add to Cart",
     "product.buyItNow": "Buy It Now",
@@ -78,10 +78,11 @@ const translations = {
     "checkout.title": "Checkout",
     "checkout.orderSummary": "Order Summary",
     "checkout.subtotal": "Subtotal",
+    "checkout.discount": "Discount",
     "checkout.shipping": "Shipping",
     "checkout.total": "Total",
     "checkout.depositDueNow": "Deposit due now",
-    "checkout.placeOrder": "Place Order",
+    "checkout.placeOrder": "Complete Order",
     "checkout.placingOrder": "Placing order...",
     "checkout.fullName": "Full name",
     "checkout.phone": "Phone number",
@@ -189,7 +190,7 @@ const translations = {
     "product.sale": "خصم",
     "product.color": "اللون",
     "product.size": "المقاس",
-    "product.inStockReady": "متوفر، جاهز للشحن",
+    "product.inStockReady": "جاهز للطلب",
     "product.outOfStockLabel": "غير متوفر",
     "product.addToCart": "أضف إلى السلة",
     "product.buyItNow": "اشترِ الآن",
@@ -217,10 +218,11 @@ const translations = {
     "checkout.title": "إتمام الشراء",
     "checkout.orderSummary": "ملخص الطلب",
     "checkout.subtotal": "المجموع الفرعي",
+    "checkout.discount": "الخصم",
     "checkout.shipping": "الشحن",
     "checkout.total": "الإجمالي",
     "checkout.depositDueNow": "العربون المطلوب الآن",
-    "checkout.placeOrder": "تأكيد الطلب",
+    "checkout.placeOrder": "إتمام الطلب",
     "checkout.placingOrder": "جاري تأكيد الطلب...",
     "checkout.fullName": "الاسم بالكامل",
     "checkout.phone": "رقم الهاتف",
@@ -334,3 +336,4 @@ export function useLanguage() {
   if (!ctx) throw new Error("useLanguage must be used within a LanguageProvider");
   return ctx;
 }
+
