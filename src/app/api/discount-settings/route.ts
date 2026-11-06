@@ -10,6 +10,9 @@ const discountSettingsSchema = z.object({
   value: z.number().finite().min(0).max(99_999_999.99),
   buyQuantity: z.number().int().min(1).max(1_000_000),
   getQuantity: z.number().int().min(1).max(1_000_000),
+  productIds: z.array(z.string().min(1)).max(500),
+  giftMode: z.enum(["same_product", "any_product", "specific_products"]),
+  giftProductIds: z.array(z.string().min(1)).max(500),
 });
 
 export async function PUT(req: NextRequest) {
@@ -30,9 +33,17 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid discount settings" }, { status: 400 });
   }
 
-  const { enabled, type, value, buyQuantity, getQuantity } = parsed.data;
+  const { enabled, type, value, buyQuantity, getQuantity, productIds, giftMode, giftProductIds } = parsed.data;
   if (type === "percent" && value > 100) {
     return NextResponse.json({ error: "Percentage discount cannot exceed 100%" }, { status: 400 });
+  }
+
+  if ((productIds.length || giftProductIds.length) &&
+      await prisma.product.count({ where: { id: { in: [...new Set([...productIds, ...giftProductIds])] } } }) !== new Set([...productIds, ...giftProductIds]).size) {
+    return NextResponse.json({ error: "One or more selected products do not exist" }, { status: 400 });
+  }
+  if (type === "buy_get" && giftMode === "specific_products" && giftProductIds.length === 0) {
+    return NextResponse.json({ error: "Select at least one gift product" }, { status: 400 });
   }
 
   const data = {
@@ -48,6 +59,11 @@ export async function PUT(req: NextRequest) {
     update: data,
     create: { id: "singleton", ...data },
   });
+  await prisma.$executeRaw`
+    UPDATE "SiteSetting" SET "discountProductIds" = ${JSON.stringify(productIds)},
+      "discountGiftMode" = ${giftMode}, "discountGiftProductIds" = ${JSON.stringify(giftProductIds)}
+    WHERE id = 'singleton'
+  `;
 
   revalidateStorefront();
   return NextResponse.json({ settings });
