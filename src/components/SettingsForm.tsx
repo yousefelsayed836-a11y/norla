@@ -29,11 +29,6 @@ export default function SettingsForm({
   initialCheckoutTransferPhone,
   initialCheckoutAccountName,
   initialCheckoutDeliveryNote,
-  initialDiscountEnabled,
-  initialDiscountType,
-  initialDiscountValue,
-  initialDiscountBuyQuantity,
-  initialDiscountGetQuantity,
 }: {
   initialText: string;
   initialTextAr: string;
@@ -59,11 +54,6 @@ export default function SettingsForm({
   initialCheckoutTransferPhone: string;
   initialCheckoutAccountName: string;
   initialCheckoutDeliveryNote: string;
-  initialDiscountEnabled: boolean;
-  initialDiscountType: string;
-  initialDiscountValue: string;
-  initialDiscountBuyQuantity: number;
-  initialDiscountGetQuantity: number;
 }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
@@ -89,11 +79,6 @@ export default function SettingsForm({
   const [checkoutTransferPhone, setCheckoutTransferPhone] = useState(initialCheckoutTransferPhone);
   const [checkoutAccountName, setCheckoutAccountName] = useState(initialCheckoutAccountName);
   const [checkoutDeliveryNote, setCheckoutDeliveryNote] = useState(initialCheckoutDeliveryNote);
-  const [discountEnabled, setDiscountEnabled] = useState(initialDiscountEnabled);
-  const [discountType, setDiscountType] = useState(initialDiscountType);
-  const [discountValue, setDiscountValue] = useState(initialDiscountValue);
-  const [discountBuyQuantity, setDiscountBuyQuantity] = useState(String(initialDiscountBuyQuantity));
-  const [discountGetQuantity, setDiscountGetQuantity] = useState(String(initialDiscountGetQuantity));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -123,11 +108,6 @@ export default function SettingsForm({
         depositPercent: parseInt(depositPercent) || 0,
         freeShippingEnabled,
         freeShippingThreshold: parseFloat(freeShippingThreshold) || 0,
-        discountEnabled,
-        discountType,
-        discountValue: parseFloat(discountValue) || 0,
-        discountBuyQuantity: parseInt(discountBuyQuantity) || 1,
-        discountGetQuantity: parseInt(discountGetQuantity) || 1,
         checkoutPaymentNote,
         checkoutPaymentNoteAr,
         whatsappMessageTemplate,
@@ -190,40 +170,6 @@ export default function SettingsForm({
               onChange={(e) => setFreeShippingThreshold(e.target.value)}
             />
           </div>
-        )}
-      </div>
-
-      <div className="border border-brand-light rounded-xl p-4 space-y-3">
-        <p className="text-sm font-medium">Automatic Discount</p>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={discountEnabled} onChange={(e) => setDiscountEnabled(e.target.checked)} className="accent-brand-dark w-4 h-4" />
-          <span className="text-sm">Enable an automatic offer on the cart</span>
-        </label>
-        {discountEnabled && (
-          <>
-            <div>
-              <label className="text-xs text-foreground/50 block mb-1">Offer type</label>
-              <select className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
-                <option value="percent">Percentage off</option>
-                <option value="fixed">Fixed amount off (LE)</option>
-                <option value="buy_get">Buy X, get Y free</option>
-              </select>
-            </div>
-            {discountType === "buy_get" ? (
-              <div className="grid grid-cols-2 gap-3">
-                <label className="text-xs text-foreground/50">Buy quantity
-                  <input type="number" min={1} className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={discountBuyQuantity} onChange={(e) => setDiscountBuyQuantity(e.target.value)} />
-                </label>
-                <label className="text-xs text-foreground/50">Free quantity
-                  <input type="number" min={1} className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={discountGetQuantity} onChange={(e) => setDiscountGetQuantity(e.target.value)} />
-                </label>
-              </div>
-            ) : (
-              <label className="text-xs text-foreground/50 block">Discount {discountType === "percent" ? "(%)" : "(LE)"}
-                <input type="number" min={0} max={discountType === "percent" ? 100 : undefined} step="0.01" className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} />
-              </label>
-            )}
-          </>
         )}
       </div>
 
@@ -453,7 +399,6 @@ export default function SettingsForm({
         <textarea
           rows={2}
           dir="rtl"
-          placeholder="مدة تنفيذ الاوردر من 4 ل 7 ايام"
           className="w-full border border-brand-light rounded-xl px-4 py-2.5 text-sm"
           value={checkoutDeliveryNote}
           onChange={(e) => setCheckoutDeliveryNote(e.target.value)}
@@ -469,3 +414,4 @@ export default function SettingsForm({
     </form>
   );
 }
+

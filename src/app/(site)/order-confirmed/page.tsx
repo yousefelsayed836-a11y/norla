@@ -42,7 +42,7 @@ function OrderConfirmedContent() {
   const orderId = searchParams.get("id");
   const { t } = useLanguage();
   const [order, setOrder] = useState<OrderDetails | null>(null);
-  const [deliveryNote, setDeliveryNote] = useState("مدة تنفيذ الاوردر من 4 ل 7 ايام");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
 
@@ -55,7 +55,7 @@ function OrderConfirmedContent() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => {
-        if (d.settings.checkoutDeliveryNote) setDeliveryNote(d.settings.checkoutDeliveryNote);
+        setDeliveryNote(d.settings.checkoutDeliveryNote || "");
         if (d.settings.checkoutTransferPhone) setTransferPhone(d.settings.checkoutTransferPhone);
         if (d.settings.checkoutAccountName) setAccountName(d.settings.checkoutAccountName);
       })
@@ -223,3 +223,4 @@ export default function OrderConfirmedPage() {
     </Suspense>
   );
 }
+

@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   const [paymentNote, setPaymentNote] = useState("");
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
-  const [deliveryNote, setDeliveryNote] = useState("مدة تنفيذ الاوردر من 4 ل 7 ايام");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1 });
   const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ export default function CheckoutPage() {
         setPaymentNote(d.settings.checkoutPaymentNote || "");
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
-        setDeliveryNote(d.settings.checkoutDeliveryNote || "مدة تنفيذ الاوردر من 4 ل 7 ايام");
+        setDeliveryNote(d.settings.checkoutDeliveryNote || "");
         setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1 });
       })
       .catch(() => {});
@@ -383,3 +383,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
