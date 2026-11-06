@@ -8,6 +8,7 @@ import { sendPushToAdmins } from "@/lib/push";
 import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
+import { calculateDiscount, parseProductIds } from "@/lib/discounts";
 
 const orderSchema = z.object({
   customer: z.object({
@@ -104,7 +105,8 @@ export async function POST(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings: any = await prisma.$queryRaw`
     SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold",
-      "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity"
+      "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity",
+      "discountProductIds", "discountGiftMode", "discountGiftProductIds"
     FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
   `.then((rows: any) => rows[0] ?? {}).catch(() => ({}));
 
@@ -113,27 +115,17 @@ export async function POST(req: NextRequest) {
   const freeShippingThreshold = Number(settings.freeShippingThreshold ?? 0);
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  let discountAmount = 0;
-  if (settings.discountEnabled) {
-    if (settings.discountType === "percent") {
-      discountAmount = subtotal * Math.min(100, Math.max(0, Number(settings.discountValue))) / 100;
-    } else if (settings.discountType === "fixed") {
-      discountAmount = Math.min(subtotal, Math.max(0, Number(settings.discountValue)));
-    } else if (settings.discountType === "buy_get") {
-      const buyQty = Math.max(1, Number(settings.discountBuyQuantity) || 2);
-      const getQty = Math.max(1, Number(settings.discountGetQuantity) || 1);
-      const quantity = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
-      const freeUnits = Math.floor(quantity / (buyQty + getQty)) * getQty;
-      let remainingFreeUnits = freeUnits;
-      for (const item of [...resolvedItems].sort((a, b) => a.price - b.price)) {
-        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
-        discountAmount += freeFromItem * item.price;
-        remainingFreeUnits -= freeFromItem;
-        if (remainingFreeUnits === 0) break;
-      }
-    }
-  }
-  discountAmount = Math.min(subtotal, Math.max(0, Math.round(discountAmount * 100) / 100));
+  const calculatedDiscount = calculateDiscount(resolvedItems, {
+    enabled: !!settings.discountEnabled, type: settings.discountType ?? "none",
+    value: Number(settings.discountValue) || 0,
+    buyQuantity: Number(settings.discountBuyQuantity) || 2,
+    getQuantity: Number(settings.discountGetQuantity) || 1,
+    productIds: parseProductIds(settings.discountProductIds),
+    giftMode: settings.discountGiftMode ?? "same_product",
+    giftProductIds: parseProductIds(settings.discountGiftProductIds),
+  });
+  const discountAmount = Math.min(subtotal, calculatedDiscount.amount);
+  const appliedDiscountType = discountAmount > 0 ? settings.discountType ?? "none" : "none";
   const qualifiesFreeShipping =
     freeShippingEnabled &&
     freeShippingThreshold > 0 &&
@@ -187,6 +179,9 @@ export async function POST(req: NextRequest) {
       },
       include: { items: true, customer: true },
     });
+    await tx.$executeRaw`UPDATE "Order" SET "discountType" = ${appliedDiscountType},
+      "discountGiftQuantity" = ${appliedDiscountType === "buy_get" ? calculatedDiscount.giftQuantity : 0}
+      WHERE id = ${created.id}`;
     await adjustStock(tx, resolvedItems, -1);
     return created;
   });
