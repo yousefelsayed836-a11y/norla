@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --font-display: "Jost", "Avenir Next", Avenir, "Segoe UI", Arial, sans-serif;
+  --font-sans: "Jost", "Avenir Next", Avenir, "Segoe UI", Arial, sans-serif;
+  --font-jost: "Jost", "Avenir Next", Avenir, "Segoe UI", Arial, sans-serif;
   --background: #ffffff;
   --foreground: #2b2226;
   --brand: #ec6a9c;
