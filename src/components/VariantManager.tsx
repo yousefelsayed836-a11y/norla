@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { maybeConvertHeic } from "@/lib/heic";
@@ -20,6 +20,31 @@ export type Variant = {
 
 type ColorOption = { name: string; hex: string; imageUrl: string | null };
 type CellState = { checked: boolean; stockQty: string; price: string; regularPrice: string; variantId?: string };
+
+const QUICK_COLORS = [
+  "#111111", "#FFFFFF", "#8A1C35", "#C94F7C", "#E9B8C5", "#E9C46A",
+  "#B49A84", "#78665A", "#71839B", "#23395B", "#6B8E73", "#4B7F7A",
+  "#D96C4A", "#F28C28", "#9B7BB5", "#C2C7CC", "#5D5D5D", "#D8CDBF",
+];
+
+function ColorField({ value, onChange, label }: { value: string; onChange: (hex: string) => void; label: string }) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const valid = /^#[\da-f]{6}$/i.test(draft);
+  return (
+    <div className="inline-flex items-center gap-2 rounded-xl border border-brand-light bg-white p-1.5 shadow-sm">
+      <label className="relative grid h-9 w-10 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg border border-black/10" title="Choose any color">
+        <span className="absolute inset-0" style={{ backgroundColor: valid ? draft : "#000000" }} />
+        <span className="relative text-[10px] font-semibold text-white drop-shadow">Pick</span>
+        <input aria-label={`${label} color picker`} type="color" value={valid ? draft : "#000000"}
+          onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+      </label>
+      <input aria-label={`${label} hex code`} type="text" value={draft} maxLength={7} spellCheck={false}
+        onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} placeholder="#RRGGBB"
+        className="w-[5.5rem] bg-transparent px-1 font-mono text-xs uppercase outline-none" />
+    </div>
+  );
+}
 
 function buildInitialSizes(variants: Variant[]): string[] {
   const seen = new Set<string>();
@@ -115,8 +140,28 @@ export default function VariantManager({
   function addColor() {
     const name = colorNameInput.trim();
     if (!name || colors.some((c) => c.name === name)) return;
+    if (!/^#[\da-f]{6}$/i.test(colorHexInput)) {
+      setUploadError("Enter a valid 6-digit HEX color or choose a color from the picker.");
+      return;
+    }
     setColors((prev) => [...prev, { name, hex: colorHexInput, imageUrl: null }]);
     setColorNameInput("");
+    setUploadError(null);
+  }
+
+  function updateColorHex(name: string, hex: string) {
+    setColors((prev) => prev.map((color) => color.name === name && /^#[\da-f]{6}$/i.test(hex)
+      ? { ...color, hex }
+      : color));
+  }
+
+  function setNewColorHex(hex: string) {
+    setColorHexInput(hex);
+    if (!/^#[\da-f]{6}$/i.test(hex)) {
+      setUploadError(null);
+      return;
+    }
+    setUploadError(null);
   }
 
   function moveColor(index: number, dir: -1 | 1) {
@@ -326,10 +371,7 @@ export default function VariantManager({
                 <button type="button" disabled={ci === 0} onClick={() => moveColor(ci, -1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▲</button>
                 <button type="button" disabled={ci === colors.length - 1} onClick={() => moveColor(ci, 1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▼</button>
               </div>
-              <span
-                className="w-6 h-6 rounded-full border border-black/10 shrink-0"
-                style={{ backgroundColor: c.hex }}
-              />
+              <ColorField value={c.hex} onChange={(hex) => updateColorHex(c.name, hex)} label={c.name} />
               {c.imageUrl && (
                 <div className="relative w-8 h-9 overflow-hidden bg-brand-light shrink-0">
                   <Image src={c.imageUrl} alt="" fill className="object-cover" sizes="32px" />
@@ -403,27 +445,30 @@ export default function VariantManager({
           {colors.length === 0 && <p className="text-sm text-foreground/40">No colors yet.</p>}
         </ul>
         {uploadError && <p className="text-red-600 text-xs mb-2">{uploadError}</p>}
-        <div className="flex gap-2 items-center">
-          <input
-            type="color"
-            className="w-9 h-9 rounded border border-brand-light cursor-pointer shrink-0"
-            value={colorHexInput}
-            onChange={(e) => setColorHexInput(e.target.value)}
-          />
-          <input
-            placeholder="e.g. Beige, Red"
-            className="flex-1 border border-brand-light rounded-xl px-3 py-2 text-sm"
-            value={colorNameInput}
-            onChange={(e) => setColorNameInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addColor())}
-          />
-          <button
-            type="button"
-            onClick={addColor}
-            className="border border-brand-light rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-light/50"
-          >
-            Add
-          </button>
+        <div className="rounded-2xl border border-brand-light bg-white p-4 shadow-sm space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <ColorField value={colorHexInput} onChange={setNewColorHex} label="New color" />
+            <input
+              placeholder="Color name, e.g. Beige"
+              className="min-w-40 flex-1 rounded-xl border border-brand-light px-3 py-2.5 text-sm"
+              value={colorNameInput}
+              onChange={(e) => setColorNameInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addColor())}
+            />
+            <button type="button" onClick={addColor}
+              className="rounded-xl bg-brand-dark px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
+              Add color
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2" aria-label="Quick color palette">
+            {QUICK_COLORS.map((hex) => (
+              <button key={hex} type="button" aria-label={`Choose ${hex}`} title={hex}
+                onClick={() => setNewColorHex(hex)}
+                className={`h-7 w-7 rounded-full border transition hover:scale-110 ${colorHexInput.toLowerCase() === hex.toLowerCase() ? "border-brand-dark ring-2 ring-brand-dark/20 ring-offset-1" : "border-black/10"}`}
+                style={{ backgroundColor: hex }} />
+            ))}
+          </div>
+          <p className="text-xs text-foreground/50">Choose any shade from the picker, enter its HEX code, or use a quick swatch.</p>
         </div>
       </div>
 
@@ -549,3 +594,4 @@ export default function VariantManager({
     </div>
   );
 }
+
