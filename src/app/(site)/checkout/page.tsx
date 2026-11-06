@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
 import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
+import { calculateDiscount, parseProductIds } from "@/lib/discounts";
 
 type ShippingCity = { id: string; name: string; nameAr: string | null };
 type ShippingZone = {
@@ -39,7 +40,7 @@ export default function CheckoutPage() {
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
-  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1 });
+  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[] });
   const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export default function CheckoutPage() {
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
         setDeliveryNote(d.settings.checkoutDeliveryNote || "");
-        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1 });
+        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds) });
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -69,23 +70,11 @@ export default function CheckoutPage() {
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
   const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
   const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  let discountAmount = 0;
-  if (discount.enabled) {
-    if (discount.type === "percent") discountAmount = total * Math.min(100, Math.max(0, discount.value)) / 100;
-    else if (discount.type === "fixed") discountAmount = Math.min(total, Math.max(0, discount.value));
-    else if (discount.type === "buy_get") {
-      const units = items.reduce((sum, item) => sum + item.quantity, 0);
-      const freeUnits = Math.floor(units / (Math.max(1, discount.buy) + Math.max(1, discount.get))) * Math.max(1, discount.get);
-      let remainingFreeUnits = freeUnits;
-      for (const item of [...items].sort((a, b) => a.price - b.price)) {
-        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
-        discountAmount += freeFromItem * item.price;
-        remainingFreeUnits -= freeFromItem;
-        if (remainingFreeUnits === 0) break;
-      }
-    }
-  }
-  discountAmount = Math.min(total, Math.max(0, Math.round(discountAmount * 100) / 100));
+  const { amount: discountAmount } = calculateDiscount(items, {
+    enabled: discount.enabled, type: discount.type, value: discount.value,
+    buyQuantity: discount.buy, getQuantity: discount.get, productIds: discount.productIds,
+    giftMode: discount.giftMode, giftProductIds: discount.giftProductIds,
+  });
   const discountedSubtotal = total - discountAmount;
   const baseTotal = discountedSubtotal + shippingFee;
   const vodafoneFee = paymentMethod === "vodafone_cash"
