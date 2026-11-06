@@ -9,7 +9,11 @@ export async function GET() {
     update: {},
     create: { id: "singleton" },
   });
-  return NextResponse.json({ settings });
+  const discountDetails = await prisma.$queryRaw<{ discountProductIds: string; discountGiftMode: string; discountGiftProductIds: string }[]>`
+    SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds"
+    FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
+  `.then((rows) => rows[0] ?? null);
+  return NextResponse.json({ settings: { ...settings, ...discountDetails } });
 }
 
 export async function PUT(req: NextRequest) {
