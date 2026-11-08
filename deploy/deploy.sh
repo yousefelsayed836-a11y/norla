@@ -1,43 +1,35 @@
-#!/bin/bash
-# Norla — deploy / redeploy script
-# Run from the server as root or the norla user: bash deploy.sh
+#!/usr/bin/env bash
+# Deploy Norla to the active DigitalOcean PM2 instance.
+# Run as the same Unix account that owns the `norladesigns` PM2 process.
 
-set -e
+set -euo pipefail
 
-APP_DIR="/var/www/norla"
-APP_USER="norla"
-REPO="https://github.com/yousefelsayed836-a11y/norla.git"
-BRANCH="main"
+APP_DIR="${NORLA_APP_DIR:-/var/www/norladesigns}"
+BRANCH="${NORLA_DEPLOY_BRANCH:-claude/website-dashboard-review-7lpxjj}"
+PM2_APP="${NORLA_PM2_APP:-norladesigns}"
 
-echo "==> Pulling latest code"
-if [ -d "$APP_DIR/.git" ]; then
-  cd "$APP_DIR"
-  sudo -u "$APP_USER" git fetch origin "$BRANCH"
-  sudo -u "$APP_USER" git reset --hard "origin/$BRANCH"
-else
-  sudo -u "$APP_USER" git clone -b "$BRANCH" "$REPO" "$APP_DIR"
-  cd "$APP_DIR"
-fi
-
-echo "==> Installing dependencies"
 cd "$APP_DIR"
-sudo -u "$APP_USER" npm ci --omit=dev
 
-echo "==> Generating Prisma client"
-sudo -u "$APP_USER" npx prisma generate
+echo "==> Fetching $BRANCH"
+git fetch origin "$BRANCH"
+git pull --ff-only origin "$BRANCH"
 
-echo "==> Running database migrations"
-sudo -u "$APP_USER" npx prisma migrate deploy
+echo "==> Installing locked dependencies"
+npm ci
 
-echo "==> Building Next.js"
-sudo -u "$APP_USER" npm run build
+echo "==> Applying database migrations"
+npx prisma migrate deploy
 
-echo "==> Ensuring uploads directory exists"
-mkdir -p "$APP_DIR/public/uploads"
-chown -R "$APP_USER":"$APP_USER" "$APP_DIR/public/uploads"
+echo "==> Building the new application (a failed build stops the script before PM2 restart)"
+npm run build
 
-echo "==> Restarting app service"
-systemctl restart norla
+echo "==> Copying public and Next static assets into standalone output"
+mkdir -p .next/standalone/public .next/standalone/.next/static public/uploads
+cp -a public/. .next/standalone/public/
+cp -a .next/static/. .next/standalone/.next/static/
 
-echo "==> Done! App is live."
-systemctl status norla --no-pager
+echo "==> Restarting PM2 app"
+pm2 restart "$PM2_APP" --update-env
+pm2 status "$PM2_APP"
+echo "==> Deploy complete"
+
