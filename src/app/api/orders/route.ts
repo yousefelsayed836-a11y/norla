@@ -7,7 +7,7 @@ import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib
 import { sendPushToAdmins } from "@/lib/push";
 import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
-import { calculateDiscount, parseProductIds } from "@/lib/discounts";
+import { calculateDiscount, calculateDiscountOffers, parseDiscountRules, parseProductIds } from "@/lib/discounts";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings: any = await prisma.$queryRaw`
     SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold",
+      "discountRulesJson",
       "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity",
       "discountProductIds", "discountGiftMode", "discountGiftProductIds",
       "discountGiftDiscountType", "discountGiftDiscountValue"
@@ -118,7 +119,9 @@ export async function POST(req: NextRequest) {
   const freeShippingThreshold = Number(settings.freeShippingThreshold ?? 0);
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  const calculatedDiscount = calculateDiscount(resolvedItems, {
+  const offerRules = parseDiscountRules(settings.discountRulesJson);
+  const calculatedOffers = calculateDiscountOffers(resolvedItems, offerRules);
+  const legacyDiscount = calculateDiscount(resolvedItems, {
     enabled: !!settings.discountEnabled,
     type: settings.discountType ?? "none",
     value: Number(settings.discountValue) || 0,
@@ -130,12 +133,14 @@ export async function POST(req: NextRequest) {
     giftDiscountType: settings.discountGiftDiscountType ?? "free",
     giftDiscountValue: Number(settings.discountGiftDiscountValue) || 100,
   });
-  const discountAmount = Math.min(subtotal, Math.max(0, Math.round(calculatedDiscount.amount * 100) / 100));
-  const appliedDiscountType = discountAmount > 0 ? settings.discountType ?? "none" : "none";
+  const discountAmount = Math.min(subtotal, Math.max(0, Math.round((offerRules.length ? calculatedOffers.amount : legacyDiscount.amount) * 100) / 100));
+  const activePriceRules = offerRules.filter((rule) => rule.enabled && rule.type !== "free_shipping");
+  const appliedDiscountType = discountAmount > 0
+    ? activePriceRules.length > 1 ? "multiple" : activePriceRules[0]?.type ?? settings.discountType ?? "none"
+    : "none";
   const qualifiesFreeShipping =
-    freeShippingEnabled &&
-    freeShippingThreshold > 0 &&
-    subtotal >= freeShippingThreshold;
+    (freeShippingEnabled && freeShippingThreshold > 0 && subtotal >= freeShippingThreshold) ||
+    (offerRules.length > 0 && calculatedOffers.freeShipping);
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
   const discountedBase = subtotal - discountAmount + shippingFee;
   const expectedServiceFee = paymentMethod === "vodafone_cash"
@@ -197,7 +202,7 @@ export async function POST(req: NextRequest) {
       include: { items: true, customer: true },
     });
     await tx.$executeRaw`UPDATE "Order" SET "discountType" = ${appliedDiscountType},
-      "discountGiftQuantity" = ${appliedDiscountType === "buy_get" ? calculatedDiscount.giftQuantity : 0}
+      "discountGiftQuantity" = ${offerRules.length ? calculatedOffers.giftQuantity : legacyDiscount.giftQuantity}
       WHERE id = ${created.id}`;
     await adjustStock(tx, resolvedItems, -1);
     return created;
@@ -269,4 +274,3 @@ export async function GET() {
   });
   return NextResponse.json({ orders });
 }
-

@@ -35,6 +35,7 @@ export default function ProductPurchase({
   descriptionAr,
   careInstructions,
   careInstructionsAr,
+  offers = [],
 }: {
   productId: string;
   title: string;
@@ -51,6 +52,7 @@ export default function ProductPurchase({
   descriptionAr?: string | null;
   careInstructions: string;
   careInstructionsAr?: string | null;
+  offers?: { en: string; ar: string }[];
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
   const { t, pick } = useLanguage();
@@ -70,6 +72,12 @@ export default function ProductPurchase({
           </p>
         )}
         <h1 className="font-jost text-3xl md:text-4xl mb-4 text-black text-center">{displayTitle}</h1>
+
+        {offers.length > 0 && <div className="mb-4 space-y-2" aria-label="Available offers">
+          {offers.map((offer, index) => <p key={`${offer.en}-${index}`} className="rounded-xl bg-brand-light/60 border border-brand-light px-4 py-3 text-sm text-brand-dark text-center font-medium">
+            {pick(offer.en, offer.ar)}
+          </p>)}
+        </div>}
 
         <AddToCartPanel
           productId={productId}
@@ -102,4 +110,3 @@ export default function ProductPurchase({
     </div>
   );
 }
-

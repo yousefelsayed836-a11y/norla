@@ -57,4 +57,3 @@ export async function POST(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ product });
 }
-

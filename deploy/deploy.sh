@@ -38,4 +38,3 @@ echo "==> Restarting PM2 app"
 pm2 restart "$PM2_APP" --update-env
 pm2 status "$PM2_APP"
 echo "==> Deploy complete"
-

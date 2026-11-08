@@ -2,4 +2,3 @@ export function hasAvailableStock(stockQty: number | null, stockStatus: string, 
   return Number.isInteger(requested) && requested > 0 && stockStatus !== "outofstock" &&
     (stockQty == null || stockQty >= requested);
 }
-

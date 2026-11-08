@@ -84,4 +84,3 @@ export async function PUT(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ settings });
 }
-

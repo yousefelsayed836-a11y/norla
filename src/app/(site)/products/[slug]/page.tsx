@@ -4,6 +4,7 @@ import { getSiteSettings } from "@/lib/settings";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
+import { discountOfferCopy, parseDiscountRules } from "@/lib/discounts";
 
 export default async function ProductDetailPage({
   params,
@@ -17,6 +18,9 @@ export default async function ProductDetailPage({
     getProducts(),
   ]);
   if (!product) notFound();
+  const productOffers = parseDiscountRules(settings.discountRulesJson)
+    .filter((rule) => rule.enabled && (!rule.productIds.length || rule.productIds.includes(product.id)))
+    .map((rule) => discountOfferCopy(rule));
 
   const related = allProducts
     .filter((p) => p.id !== product.id)
@@ -53,6 +57,7 @@ export default async function ProductDetailPage({
         descriptionAr={product.descriptionAr}
         careInstructions={settings.careInstructionsText}
         careInstructionsAr={settings.careInstructionsTextAr}
+        offers={productOffers}
       />
 
       {fallbackRelated.length > 0 && (
@@ -70,4 +75,3 @@ export default async function ProductDetailPage({
     </div>
   );
 }
-

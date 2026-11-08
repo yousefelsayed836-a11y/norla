@@ -38,4 +38,3 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   revalidateStorefront();
   return NextResponse.json({ ok: true });
 }
-

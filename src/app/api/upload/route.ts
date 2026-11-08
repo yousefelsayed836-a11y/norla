@@ -55,4 +55,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ url: `/api/files/${filename}` });
 }
-

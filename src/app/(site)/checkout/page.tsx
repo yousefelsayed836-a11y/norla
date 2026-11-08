@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
 import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
-import { calculateDiscount, parseProductIds } from "@/lib/discounts";
+import { calculateDiscount, calculateDiscountOffers, discountOfferCopy, parseDiscountRules, parseProductIds, type DiscountOfferRule } from "@/lib/discounts";
 
 type ShippingCity = { id: string; name: string; nameAr: string | null };
 type ShippingZone = {
@@ -21,7 +21,7 @@ type ShippingZone = {
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -41,6 +41,7 @@ export default function CheckoutPage() {
   const [accountName, setAccountName] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
   const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[], giftDiscountType: "free" as "free" | "percent" | "fixed", giftDiscountValue: 100 });
+  const [offerRules, setOfferRules] = useState<DiscountOfferRule[]>([]);
   const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +59,7 @@ export default function CheckoutPage() {
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
         setDeliveryNote(d.settings.checkoutDeliveryNote || "");
+        setOfferRules(parseDiscountRules(d.settings.discountRulesJson));
         setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds), giftDiscountType: d.settings.discountGiftDiscountType ?? "free", giftDiscountValue: Number(d.settings.discountGiftDiscountValue) || 100 });
       })
       .catch(() => {});
@@ -68,14 +70,16 @@ export default function CheckoutPage() {
   }, []);
 
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
-  const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
-  const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  const { amount: discountAmount } = calculateDiscount(items, {
+  const offerCalculation = calculateDiscountOffers(items, offerRules);
+  const legacyCalculation = calculateDiscount(items, {
     enabled: discount.enabled, type: discount.type, value: discount.value,
     buyQuantity: discount.buy, getQuantity: discount.get, productIds: discount.productIds,
     giftMode: discount.giftMode, giftProductIds: discount.giftProductIds,
     giftDiscountType: discount.giftDiscountType, giftDiscountValue: discount.giftDiscountValue,
   });
+  const discountAmount = Math.min(total, offerRules.length ? offerCalculation.amount : legacyCalculation.amount);
+  const qualifiesFreeShipping = (freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0) || offerCalculation.freeShipping;
+  const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
   const discountedSubtotal = total - discountAmount;
   const baseTotal = discountedSubtotal + shippingFee;
   const vodafoneFee = paymentMethod === "vodafone_cash"
@@ -308,6 +312,23 @@ export default function CheckoutPage() {
 
       <div>
         <h2 className="font-display text-2xl mb-4">{t("checkout.orderSummary")}</h2>
+        {(offerCalculation.pendingOffers.length > 0 || offerCalculation.appliedRuleIds.length > 0) && <div className="mb-4 rounded-xl border border-brand-light bg-brand-light/30 p-4 space-y-2" aria-live="polite">
+          {offerCalculation.pendingOffers.map((rule) => {
+            const copy = discountOfferCopy(rule);
+            const eligibleCount = items.filter((item) => !rule.productIds.length || rule.productIds.includes(item.productId)).reduce((sum, item) => sum + item.quantity, 0);
+              if (rule.type === "buy_get" && rule.giftMode !== "same_product" && eligibleCount >= rule.buyQuantity) {
+                return <p key={rule.id} className="text-sm text-brand-dark">{pick(`${copy.en}. Add an eligible reward item to your cart to receive the offer.`, `${copy.ar}. أضيفي قطعة هدية مؤهلة إلى السلة لتطبيق العرض.`)}</p>;
+              }
+              const target = rule.type === "free_shipping" ? rule.buyQuantity : rule.type === "buy_get" ? rule.buyQuantity + rule.getQuantity : rule.shippingQuantity;
+              const missing = Math.max(1, target - eligibleCount);
+              return <p key={rule.id} className="text-sm text-brand-dark">{pick(`${copy.en}. Add ${missing} more eligible item${missing === 1 ? "" : "s"} to unlock it.`, `${copy.ar}. أضيفي ${missing} قطعة إضافية من المنتجات المشمولة لتفعيل العرض.`)}</p>;
+          })}
+          {offerCalculation.appliedRuleIds.map((id) => {
+            const rule = offerRules.find((item) => item.id === id);
+              const copy = rule ? discountOfferCopy(rule) : null;
+              return copy ? <p key={id} className="text-sm text-green-800">{pick(`Offer applied: ${copy.en}`, `تم تطبيق العرض: ${copy.ar}`)}</p> : null;
+          })}
+        </div>}
         <div className="space-y-3">
           {items.map((item) => (
             <div
@@ -373,4 +394,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

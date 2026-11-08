@@ -28,4 +28,3 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   revalidateStorefront();
   return NextResponse.json({ variant });
 }
-
