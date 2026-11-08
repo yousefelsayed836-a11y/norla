@@ -46,7 +46,7 @@ export async function adjustStock(
               ELSE "stockStatus"
             END
         WHERE id = ${item.variantId}
-          AND productId = ${item.productId}
+          AND "productId" = ${item.productId}
           AND "stockQty" IS NOT NULL
           AND (${direction} = 1 OR ("stockStatus" <> 'outofstock' AND "stockQty" >= ${item.quantity}))
           AND (${direction} = -1 OR "stockQty" + ${item.quantity} >= 0)
@@ -81,3 +81,4 @@ export async function adjustStock(
     }
   }
 }
+
