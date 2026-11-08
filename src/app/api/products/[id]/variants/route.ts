@@ -21,10 +21,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       position: body.position ?? 0,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
-      stockStatus: body.stockStatus || "instock",
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus || "instock",
       stockQty: body.stockQty ?? null,
     },
   });
   revalidateStorefront();
   return NextResponse.json({ variant });
 }
+
