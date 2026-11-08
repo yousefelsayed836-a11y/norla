@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   const [transferPhone, setTransferPhone] = useState("01027096110");
   const [accountName, setAccountName] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
-  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[] });
+  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[], giftDiscountType: "free" as "free" | "percent" | "fixed", giftDiscountValue: 100 });
   const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export default function CheckoutPage() {
         setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
         setAccountName(d.settings.checkoutAccountName || "");
         setDeliveryNote(d.settings.checkoutDeliveryNote || "");
-        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds) });
+        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds), giftDiscountType: d.settings.discountGiftDiscountType ?? "free", giftDiscountValue: Number(d.settings.discountGiftDiscountValue) || 100 });
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -74,6 +74,7 @@ export default function CheckoutPage() {
     enabled: discount.enabled, type: discount.type, value: discount.value,
     buyQuantity: discount.buy, getQuantity: discount.get, productIds: discount.productIds,
     giftMode: discount.giftMode, giftProductIds: discount.giftProductIds,
+    giftDiscountType: discount.giftDiscountType, giftDiscountValue: discount.giftDiscountValue,
   });
   const discountedSubtotal = total - discountAmount;
   const baseTotal = discountedSubtotal + shippingFee;
