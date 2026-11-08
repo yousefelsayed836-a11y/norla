@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       price: body.price,
       regularPrice: body.regularPrice || null,
       sku: body.sku || null,
-      stockStatus: body.stockStatus || "instock",
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus || "instock",
       stockQty: body.stockQty ?? null,
       categoryId: body.categoryId || null,
       images: body.images
@@ -57,3 +57,4 @@ export async function POST(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ product });
 }
+
