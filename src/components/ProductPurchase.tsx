@@ -16,6 +16,7 @@ type Variant = {
   price: number | null;
   regularPrice: number | null;
   stockStatus: string;
+  stockQty: number | null;
 };
 
 export default function ProductPurchase({
@@ -101,3 +102,4 @@ export default function ProductPurchase({
     </div>
   );
 }
+
