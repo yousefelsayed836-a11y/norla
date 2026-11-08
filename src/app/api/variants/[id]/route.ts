@@ -21,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       position: body.position ?? 0,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
-      stockStatus: body.stockStatus,
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus,
       stockQty: body.stockQty ?? null,
     },
   });
@@ -38,3 +38,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   revalidateStorefront();
   return NextResponse.json({ ok: true });
 }
+
