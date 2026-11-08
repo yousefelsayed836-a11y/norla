@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import sharp from "sharp";
 import fs from "node:fs/promises";
+import path from "node:path";
 import crypto from "node:crypto";
 import { getPrimaryUploadDirectory } from "@/lib/upload-storage";
 
