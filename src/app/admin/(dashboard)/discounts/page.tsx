@@ -15,11 +15,11 @@ export default async function AdminDiscountsPage() {
       FROM "Order" WHERE "status" <> 'CANCELLED' AND "discountAmount" > 0
       GROUP BY "discountType" ORDER BY "discountType"
     `.catch(() => []),
-    prisma.$queryRaw<{ discountProductIds: string; discountGiftMode: string; discountGiftProductIds: string }[]>`
-      SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds"
+    prisma.$queryRaw<{ discountProductIds: string; discountGiftMode: string; discountGiftProductIds: string; discountGiftDiscountType: string; discountGiftDiscountValue: unknown }[]>`
+      SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds", "discountGiftDiscountType", "discountGiftDiscountValue"
       FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
-    `.then((rows) => rows[0] ?? { discountProductIds: "[]", discountGiftMode: "same_product", discountGiftProductIds: "[]" })
-      .catch(() => ({ discountProductIds: "[]", discountGiftMode: "same_product", discountGiftProductIds: "[]" })),
+    `.then((rows) => rows[0] ?? { discountProductIds: "[]", discountGiftMode: "same_product", discountGiftProductIds: "[]", discountGiftDiscountType: "free", discountGiftDiscountValue: 100 })
+      .catch(() => ({ discountProductIds: "[]", discountGiftMode: "same_product", discountGiftProductIds: "[]", discountGiftDiscountType: "free", discountGiftDiscountValue: 100 })),
   ]);
 
   return (
@@ -34,6 +34,8 @@ export default async function AdminDiscountsPage() {
           initialProductIds={parseProductIds(reportConfig.discountProductIds)}
           initialGiftMode={reportConfig.discountGiftMode}
           initialGiftProductIds={parseProductIds(reportConfig.discountGiftProductIds)}
+          initialGiftDiscountType={reportConfig.discountGiftDiscountType}
+          initialGiftDiscountValue={Number(reportConfig.discountGiftDiscountValue) || 100}
         />
       </section>
       <section className="max-w-3xl">
@@ -41,7 +43,7 @@ export default async function AdminDiscountsPage() {
         <p className="text-sm text-foreground/60 mb-4">Non-cancelled orders with a discount applied.</p>
         <div className="overflow-x-auto bg-white rounded-2xl shadow-sm">
           <table className="w-full text-sm text-left">
-            <thead><tr className="border-b border-brand-light text-foreground/60"><th className="p-4">Offer type</th><th className="p-4">Orders</th><th className="p-4">Discount value</th><th className="p-4">Gift units</th></tr></thead>
+            <thead><tr className="border-b border-brand-light text-foreground/60"><th className="p-4">Offer type</th><th className="p-4">Orders</th><th className="p-4">Discount value</th><th className="p-4">Reward units</th></tr></thead>
             <tbody>
               {report.length ? report.map((row) => <tr key={row.discountType} className="border-b last:border-0 border-brand-light/70">
                 <td className="p-4">{row.discountType === "buy_get" ? "Buy X, get Y" : row.discountType === "percent" ? "Percentage" : row.discountType === "fixed" ? "Fixed amount" : row.discountType}</td>
