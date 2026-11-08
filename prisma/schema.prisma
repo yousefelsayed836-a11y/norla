@@ -49,6 +49,8 @@ model SiteSetting {
   discountProductIds    String  @default("[]")
   discountGiftMode      String  @default("same_product")
   discountGiftProductIds String @default("[]")
+  discountGiftDiscountType String @default("free")
+  discountGiftDiscountValue Decimal @default(100) @db.Decimal(10, 2)
 }
 
 model HeroImage {
