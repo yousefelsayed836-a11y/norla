@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import { hasAvailableStock } from "@/lib/stock-rules";
 
 export type ProductCardData = {
   slug: string;
@@ -14,7 +15,8 @@ export type ProductCardData = {
   images: { url: string }[];
   category?: { name: string } | null;
   stockStatus?: string;
-  variants?: { stockStatus: string }[];
+  stockQty?: number | null;
+  variants?: { stockStatus: string; stockQty: number | null }[];
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
@@ -24,8 +26,8 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   const secondary = product.images[1]?.url;
   const onSale = product.regularPrice && product.regularPrice > product.price;
   const outOfStock = product.variants?.length
-    ? product.variants.every((v) => v.stockStatus === "outofstock")
-    : product.stockStatus === "outofstock";
+    ? product.variants.every((v) => !hasAvailableStock(v.stockQty, v.stockStatus))
+    : !hasAvailableStock(product.stockQty ?? null, product.stockStatus ?? "instock");
 
   return (
     <Link
@@ -79,3 +81,4 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
     </Link>
   );
 }
+
