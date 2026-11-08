@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import { hasAvailableStock } from "@/lib/stock-rules";
 
 type Variant = {
   id: string;
@@ -15,7 +16,12 @@ type Variant = {
   price: number | null;
   regularPrice: number | null;
   stockStatus: string;
+  stockQty: number | null;
 };
+
+function variantAvailable(variant: Variant) {
+  return hasAvailableStock(variant.stockQty, variant.stockStatus);
+}
 
 export default function AddToCartPanel({
   productId,
@@ -45,7 +51,7 @@ export default function AddToCartPanel({
     new Set(
       variants
         .filter((v) => (selectedColor ? v.color === selectedColor : true))
-        .filter((v) => v.stockStatus !== "outofstock")
+        .filter(variantAvailable)
         .map((v) => v.size)
         .filter(Boolean)
     )
@@ -57,7 +63,7 @@ export default function AddToCartPanel({
       new Set(
         variants
           .filter((v) => (selectedColor ? v.color === selectedColor : true))
-          .filter((v) => v.stockStatus !== "outofstock")
+          .filter(variantAvailable)
           .map((v) => v.size)
           .filter(Boolean)
       )
@@ -79,14 +85,21 @@ export default function AddToCartPanel({
     variants[0];
 
   const price = selected?.price ?? basePrice;
+  const maxQuantity = selected?.stockQty ?? Number.POSITIVE_INFINITY;
   const regularPrice = selected?.regularPrice ?? (selected?.price ? null : baseRegularPrice);
   const showOldPrice = regularPrice != null && regularPrice > price;
   const outOfStock = selected
-    ? selected.stockStatus === "outofstock"
-    : variants.length > 0 && variants.every((v) => v.stockStatus === "outofstock");
+    ? !variantAvailable(selected)
+    : variants.length > 0 && variants.every((v) => !variantAvailable(v));
   const hasSwatches = variants.some((v) => v.colorHex);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep selected variant quantity within live stock
+    setQty((current) => Math.max(1, Math.min(current, maxQuantity)));
+  }, [selected?.id, maxQuantity]);
+
   function handleAdd() {
+    if (outOfStock || qty > maxQuantity) return;
     const label = [selectedColor, selectedSize].filter(Boolean).join(", ");
     addItem({
       productId,
@@ -119,7 +132,7 @@ export default function AddToCartPanel({
             <div className="flex flex-wrap justify-center gap-2">
               {colors.map((color) => {
                 const v = variants.find((vv) => vv.color === color);
-                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => vv.stockStatus === "outofstock");
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => !variantAvailable(vv));
                 return (
                   <button
                     key={color}
@@ -147,7 +160,7 @@ export default function AddToCartPanel({
           ) : (
             <div className="flex flex-wrap justify-center gap-2">
               {colors.map((color) => {
-                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => vv.stockStatus === "outofstock");
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => !variantAvailable(vv));
                 return (
                   <button
                     key={color}
@@ -183,7 +196,7 @@ export default function AddToCartPanel({
             {sizesForColor
               .filter((size) => {
                 const v = variants.find((vv) => vv.color === selectedColor && vv.size === size);
-                return !v || v.stockStatus !== "outofstock";
+                return !v || variantAvailable(v);
               })
               .map((size) => (
                 <button
@@ -217,8 +230,10 @@ export default function AddToCartPanel({
           </button>
           <span className="w-8 text-center">{qty}</span>
           <button
-            className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-brand-light rounded-full"
-            onClick={() => setQty((q) => q + 1)}
+            onClick={() => setQty((q) => Math.min(maxQuantity, q + 1))}
+            disabled={qty >= maxQuantity}
+            aria-label="Increase quantity"
+            className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-brand-light rounded-full disabled:opacity-40"
           >
             +
           </button>
@@ -247,3 +262,4 @@ export default function AddToCartPanel({
     </div>
   );
 }
+
