@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import CartOfferNotice from "@/components/CartOfferNotice";
 
 export default function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { items, removeItem, updateQuantity, total } = useCart();
@@ -110,6 +111,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
             </div>
 
             <div className="px-5 py-4 border-t border-brand-light">
+              <CartOfferNotice items={items} total={total} />
               <div className="flex justify-between font-semibold mb-3">
                 <span>{t("cart.total")}</span>
                 <span className="text-brand-dark">{formatEGP(total)}</span>
@@ -128,3 +130,4 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
     </div>
   );
 }
+

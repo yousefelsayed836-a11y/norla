@@ -211,7 +211,12 @@ export async function POST(req: NextRequest) {
     if (error instanceof StockUnavailableError) {
       return NextResponse.json({ error: error.message }, { status: 409 });
     }
-    throw error;
+    const errorId = crypto.randomUUID();
+    console.error(`[checkout:${errorId}] Failed to create order`, error);
+    return NextResponse.json(
+      { error: "We couldn't place your order right now. Please try again.", errorId },
+      { status: 500 }
+    );
   }
 
   revalidateStorefront();
@@ -274,3 +279,4 @@ export async function GET() {
   });
   return NextResponse.json({ orders });
 }
+

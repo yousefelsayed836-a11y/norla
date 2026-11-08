@@ -9,7 +9,13 @@ export async function GET() {
     update: {},
     create: { id: "singleton" },
   });
-  const discountDetails = await prisma.$queryRaw<{ discountProductIds: string; discountGiftMode: string; discountGiftProductIds: string }[]>`
+  const discountDetails = await prisma.$queryRaw<{
+    discountProductIds: string;
+    discountGiftMode: string;
+    discountGiftProductIds: string;
+    discountGiftDiscountType: string;
+    discountGiftDiscountValue: unknown;
+  }[]>`
     SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds",
       "discountGiftDiscountType", "discountGiftDiscountValue"
     FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
@@ -84,3 +90,4 @@ export async function PUT(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ settings });
 }
+

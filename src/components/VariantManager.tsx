@@ -20,6 +20,7 @@ export type Variant = {
 
 type ColorOption = { name: string; hex: string; imageUrl: string | null };
 type CellState = { checked: boolean; stockQty: string; price: string; regularPrice: string; variantId?: string };
+type EyeDropperWindow = Window & { EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> } };
 
 const QUICK_COLORS = [
   "#111111", "#FFFFFF", "#8A1C35", "#C94F7C", "#E9B8C5", "#E9C46A",
@@ -27,22 +28,101 @@ const QUICK_COLORS = [
   "#D96C4A", "#F28C28", "#9B7BB5", "#C2C7CC", "#5D5D5D", "#D8CDBF",
 ];
 
-function ColorField({ value, onChange, label }: { value: string; onChange: (hex: string) => void; label: string }) {
+function sampleImageColor(event: React.MouseEvent<HTMLButtonElement>) {
+  const image = event.currentTarget.querySelector("img");
+  if (!image || !image.complete || !image.naturalWidth) return null;
+  const rect = image.getBoundingClientRect();
+  const scale = Math.min(rect.width / image.naturalWidth, rect.height / image.naturalHeight);
+  const renderedWidth = image.naturalWidth * scale;
+  const renderedHeight = image.naturalHeight * scale;
+  const offsetX = (rect.width - renderedWidth) / 2;
+  const offsetY = (rect.height - renderedHeight) / 2;
+  const x = (event.clientX - rect.left - offsetX) / scale;
+  const y = (event.clientY - rect.top - offsetY) / scale;
+  if (x < 0 || y < 0 || x >= image.naturalWidth || y >= image.naturalHeight) return null;
+
+  const downscale = Math.min(1, 800 / image.naturalWidth, 800 / image.naturalHeight);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * downscale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * downscale));
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return null;
+  try {
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const pixel = context.getImageData(Math.floor(x * downscale), Math.floor(y * downscale), 1, 1).data;
+    return `#${[pixel[0], pixel[1], pixel[2]].map((channel) => channel.toString(16).padStart(2, "0")).join("")}`.toUpperCase();
+  } catch {
+    return null;
+  }
+}
+
+function ColorField({ value, onChange, label, images = [] }: {
+  value: string;
+  onChange: (hex: string) => void;
+  label: string;
+  images?: string[];
+}) {
   const [draft, setDraft] = useState(value);
+  const [showSampler, setShowSampler] = useState(false);
+  const [sampleError, setSampleError] = useState("");
   useEffect(() => setDraft(value), [value]);
   const valid = /^#[\da-f]{6}$/i.test(draft);
+
+  async function openEyedropper() {
+    const EyeDropper = (window as EyeDropperWindow).EyeDropper;
+    if (EyeDropper && window.isSecureContext) {
+      try {
+        const result = await new EyeDropper().open();
+        setDraft(result.sRGBHex.toUpperCase());
+        onChange(result.sRGBHex.toUpperCase());
+        return;
+      } catch {
+        return;
+      }
+    }
+    setSampleError("");
+    setShowSampler(true);
+  }
+
   return (
-    <div className="inline-flex items-center gap-2 rounded-xl border border-brand-light bg-white p-1.5 shadow-sm">
-      <label className="relative grid h-9 w-10 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg border border-black/10" title="Choose any color">
-        <span className="absolute inset-0" style={{ backgroundColor: valid ? draft : "#000000" }} />
-        <span className="relative text-[10px] font-semibold text-white drop-shadow">Pick</span>
-        <input aria-label={`${label} color picker`} type="color" value={valid ? draft : "#000000"}
-          onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
-      </label>
-      <input aria-label={`${label} hex code`} type="text" value={draft} maxLength={7} spellCheck={false}
-        onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} placeholder="#RRGGBB"
-        className="w-[5.5rem] bg-transparent px-1 font-mono text-xs uppercase outline-none" />
-    </div>
+    <>
+      <div className="inline-flex items-center gap-2 rounded-xl border border-brand-light bg-white p-1.5 shadow-sm">
+        <label className="relative grid h-9 w-10 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg border border-black/10" title="Choose any color">
+          <span className="absolute inset-0" style={{ backgroundColor: valid ? draft : "#000000" }} />
+          <span className="relative text-[10px] font-semibold text-white drop-shadow">Pick</span>
+          <input aria-label={`${label} color picker`} type="color" value={valid ? draft : "#000000"}
+            onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+        </label>
+        <input aria-label={`${label} hex code`} type="text" value={draft} maxLength={7} spellCheck={false}
+          onChange={(event) => { setDraft(event.target.value); onChange(event.target.value); }} placeholder="#RRGGBB"
+          className="w-[5.5rem] bg-transparent px-1 font-mono text-xs uppercase outline-none" />
+        <button type="button" onClick={openEyedropper} aria-label="Use eyedropper to sample a color" title="Sample a color"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-brand-light text-brand-dark active:bg-brand-light/50">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m14 6 4 4M4 20l4.2-1 9.9-9.9a2.8 2.8 0 0 0-4-4L4.2 15 4 20Z" />
+            <path d="m11 9 4 4" />
+          </svg>
+        </button>
+      </div>
+      {showSampler && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-label="Sample a color from a product photo">
+        <div className="max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div><h3 className="font-medium">Tap the exact color in a photo</h3><p className="mt-1 text-xs text-foreground/60">On Android, tap a product photo to sample its color.</p></div>
+            <button type="button" onClick={() => setShowSampler(false)} className="rounded-lg px-3 py-2 text-xl" aria-label="Close color sampler">×</button>
+          </div>
+          {images.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {images.map((src) => <button key={src} type="button" onClick={(event) => {
+              const color = sampleImageColor(event);
+              if (!color) { setSampleError("Couldn't read this photo. Try another photo or enter the HEX code."); return; }
+              setDraft(color); onChange(color); setShowSampler(false);
+            }} className="relative aspect-[2/3] touch-none overflow-hidden rounded-xl border border-brand-light bg-brand-light">
+              <Image src={src} alt="Tap to sample a color" fill className="object-contain" sizes="(max-width: 640px) 45vw, 200px" />
+            </button>)}
+          </div> : <p className="rounded-xl bg-brand-light/30 p-4 text-sm text-foreground/60">Upload a product photo first to sample a color on Android.</p>}
+          {sampleError && <p role="alert" className="mt-3 text-sm text-red-600">{sampleError}</p>}
+        </div>
+      </div>}
+    </>
   );
 }
 
@@ -371,7 +451,7 @@ export default function VariantManager({
                 <button type="button" disabled={ci === 0} onClick={() => moveColor(ci, -1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▲</button>
                 <button type="button" disabled={ci === colors.length - 1} onClick={() => moveColor(ci, 1)} className="w-5 h-5 rounded border border-brand-light flex items-center justify-center hover:bg-brand-light/50 disabled:opacity-20 text-[10px]">▼</button>
               </div>
-              <ColorField value={c.hex} onChange={(hex) => updateColorHex(c.name, hex)} label={c.name} />
+              <ColorField value={c.hex} onChange={(hex) => updateColorHex(c.name, hex)} label={c.name} images={productImages} />
               {c.imageUrl && (
                 <div className="relative w-8 h-9 overflow-hidden bg-brand-light shrink-0">
                   <Image src={c.imageUrl} alt="" fill className="object-cover" sizes="32px" />
@@ -447,7 +527,7 @@ export default function VariantManager({
         {uploadError && <p className="text-red-600 text-xs mb-2">{uploadError}</p>}
         <div className="rounded-2xl border border-brand-light bg-white p-4 shadow-sm space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <ColorField value={colorHexInput} onChange={setNewColorHex} label="New color" />
+            <ColorField value={colorHexInput} onChange={setNewColorHex} label="New color" images={productImages} />
             <input
               placeholder="Color name, e.g. Beige"
               className="min-w-40 flex-1 rounded-xl border border-brand-light px-3 py-2.5 text-sm"
@@ -594,3 +674,4 @@ export default function VariantManager({
     </div>
   );
 }
+

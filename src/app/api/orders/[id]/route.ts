@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { adjustStock } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
+import { z } from "zod";
+
+const orderStatusSchema = z.enum(["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "EXPRESS", "PROBLEM"]);
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -22,40 +25,62 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid order update" }, { status: 400 });
+  }
+  const data = body as Record<string, unknown>;
+  const parsedStatus = data.status === undefined ? undefined : orderStatusSchema.safeParse(data.status);
+  if (parsedStatus && !parsedStatus.success) {
+    return NextResponse.json({ error: "Invalid order status" }, { status: 400 });
+  }
+  if (data.customer !== undefined && (!data.customer || typeof data.customer !== "object" || Array.isArray(data.customer))) {
+    return NextResponse.json({ error: "Invalid customer details" }, { status: 400 });
+  }
 
-  const order = await prisma.$transaction(async (tx) => {
-    const existing = await tx.order.findUniqueOrThrow({ where: { id }, include: { items: true } });
-    const updated = await tx.order.update({
-      where: { id },
-      data: {
-        ...(body.status ? { status: body.status } : {}),
-        ...(body.customer ? {
-          customer: {
-            update: {
-              name: String(body.customer.name ?? ""),
-              phone: String(body.customer.phone ?? ""),
-              whatsappNumber: String(body.customer.whatsappNumber ?? ""),
-              address: String(body.customer.address ?? ""),
-              city: String(body.customer.city ?? ""),
-              governorate: String(body.customer.governorate ?? ""),
+  try {
+    const order = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({ where: { id }, include: { items: true } });
+      if (!existing) return null;
+      const customer = data.customer as Record<string, unknown> | undefined;
+      const nextStatus = parsedStatus?.success ? parsedStatus.data : undefined;
+      const updated = await tx.order.update({
+        where: { id },
+        data: {
+          ...(nextStatus ? { status: nextStatus } : {}),
+          ...(customer ? {
+            customer: {
+              update: {
+                name: String(customer.name ?? ""),
+                phone: String(customer.phone ?? ""),
+                whatsappNumber: String(customer.whatsappNumber ?? ""),
+                address: String(customer.address ?? ""),
+                city: String(customer.city ?? ""),
+                governorate: String(customer.governorate ?? ""),
+              },
             },
-          },
-        } : {}),
-      },
+          } : {}),
+        },
+      });
+
+      const wasCancelled = existing.status === "CANCELLED";
+      const isCancelled = nextStatus === "CANCELLED";
+      if (!wasCancelled && isCancelled) await adjustStock(tx, existing.items, 1);
+      else if (wasCancelled && nextStatus && !isCancelled) await adjustStock(tx, existing.items, -1);
+      return updated;
     });
-
-    const wasCancelled = existing.status === "CANCELLED";
-    const isCancelled = body.status === "CANCELLED";
-    if (!wasCancelled && isCancelled) {
-      await adjustStock(tx, existing.items, 1);
-    } else if (wasCancelled && !isCancelled) {
-      await adjustStock(tx, existing.items, -1);
-    }
-
-    return updated;
-  });
-
-  revalidateStorefront();
-  return NextResponse.json({ order });
+    if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    revalidateStorefront();
+    return NextResponse.json({ order });
+  } catch (error) {
+    const errorId = crypto.randomUUID();
+    console.error(`[order-update:${errorId}] Failed to update order ${id}`, error);
+    return NextResponse.json({ error: "Could not update order. Please refresh and try again.", errorId }, { status: 500 });
+  }
 }
+

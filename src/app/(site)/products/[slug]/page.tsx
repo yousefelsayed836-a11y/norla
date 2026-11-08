@@ -4,7 +4,7 @@ import { getSiteSettings } from "@/lib/settings";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
-import { discountOfferCopy, parseDiscountRules } from "@/lib/discounts";
+import { discountOffersForProduct, getDiscountRulesFromSettings } from "@/lib/discounts";
 
 export default async function ProductDetailPage({
   params,
@@ -18,9 +18,8 @@ export default async function ProductDetailPage({
     getProducts(),
   ]);
   if (!product) notFound();
-  const productOffers = parseDiscountRules(settings.discountRulesJson)
-    .filter((rule) => rule.enabled && (!rule.productIds.length || rule.productIds.includes(product.id)))
-    .map((rule) => discountOfferCopy(rule));
+  const discountRules = getDiscountRulesFromSettings(settings);
+  const productOffers = discountOffersForProduct(product.id, discountRules);
 
   const related = allProducts
     .filter((p) => p.id !== product.id)
@@ -67,7 +66,7 @@ export default async function ProductDetailPage({
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-8 text-left">
             {fallbackRelated.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={{ ...p, offers: discountOffersForProduct(p.id, discountRules) }} />
             ))}
           </div>
         </section>
@@ -75,3 +74,4 @@ export default async function ProductDetailPage({
     </div>
   );
 }
+

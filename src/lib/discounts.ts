@@ -118,6 +118,53 @@ export function parseDiscountRules(value: unknown): DiscountOfferRule[] {
   }));
 }
 
+export function getDiscountRulesFromSettings(settings: {
+  discountRulesJson?: unknown;
+  discountEnabled?: unknown;
+  discountType?: unknown;
+  discountValue?: unknown;
+  discountBuyQuantity?: unknown;
+  discountGetQuantity?: unknown;
+  discountProductIds?: unknown;
+  discountGiftMode?: unknown;
+  discountGiftProductIds?: unknown;
+  discountGiftDiscountType?: unknown;
+  discountGiftDiscountValue?: unknown;
+}): DiscountOfferRule[] {
+  const savedRules = parseDiscountRules(settings.discountRulesJson);
+  if (savedRules.length) return savedRules;
+  if (!settings.discountEnabled || !["percent", "fixed", "buy_get"].includes(String(settings.discountType))) return [];
+
+  const giftMode = ["same_product", "any_product", "specific_products"].includes(String(settings.discountGiftMode))
+    ? settings.discountGiftMode as DiscountOfferRule["giftMode"]
+    : "same_product";
+  const giftDiscountType = ["free", "percent", "fixed"].includes(String(settings.discountGiftDiscountType))
+    ? settings.discountGiftDiscountType as DiscountOfferRule["giftDiscountType"]
+    : "free";
+  return [{
+    id: "legacy-main-offer",
+    name: "",
+    nameAr: "",
+    enabled: true,
+    type: String(settings.discountType),
+    value: Number(settings.discountValue) || 0,
+    buyQuantity: Math.max(1, Number(settings.discountBuyQuantity) || 2),
+    getQuantity: Math.max(1, Number(settings.discountGetQuantity) || 1),
+    productIds: parseProductIds(settings.discountProductIds),
+    giftMode,
+    giftProductIds: parseProductIds(settings.discountGiftProductIds),
+    giftDiscountType,
+    giftDiscountValue: Number(settings.discountGiftDiscountValue) || 100,
+    shippingQuantity: 0,
+  }];
+}
+
+export function discountOffersForProduct(productId: string, rules: DiscountOfferRule[]) {
+  return rules
+    .filter((rule) => rule.enabled && (!rule.productIds.length || rule.productIds.includes(productId)))
+    .map(discountOfferCopy);
+}
+
 export function calculateDiscountOffers(lines: DiscountLine[], rules: DiscountOfferRule[]) {
   let amount = 0;
   let giftQuantity = 0;
@@ -181,6 +228,48 @@ export function discountOfferCopy(rule: DiscountOfferRule) {
     : { en: `${rule.value} LE off selected items`, ar: `خصم ${rule.value} جنيه على المنتجات المحددة` };
 }
 
+export function discountProgressCopy(rule: DiscountOfferRule, eligibleUnits: number) {
+  const offer = discountOfferCopy(rule);
+  if (rule.type === "buy_get") {
+    if (rule.giftMode !== "same_product" && eligibleUnits >= rule.buyQuantity) {
+      return {
+        en: `${offer.en}. Add an eligible reward item to your cart to receive the offer.`,
+        ar: `${offer.ar}. أضيفي قطعة هدية مؤهلة إلى السلة لتطبيق العرض.`,
+      };
+    }
+    const missing = Math.max(1, (eligibleUnits < rule.buyQuantity ? rule.buyQuantity : rule.buyQuantity + rule.getQuantity) - eligibleUnits);
+    const reward = rule.giftDiscountType === "free"
+      ? { en: "free", ar: "مجانًا" }
+      : rule.giftDiscountType === "percent"
+        ? { en: `${rule.giftDiscountValue}% off`, ar: `بخصم ${rule.giftDiscountValue}%` }
+        : { en: `${rule.giftDiscountValue} LE off`, ar: `بخصم ${rule.giftDiscountValue} جنيه` };
+    if (eligibleUnits < rule.buyQuantity) {
+      return {
+        en: `Add ${missing} more qualifying item${missing === 1 ? "" : "s"} to unlock: ${offer.en}. The reward item will be ${reward.en}.`,
+        ar: `أضيفي ${missing} قطعة أخرى من المنتجات المشمولة لتفعيل العرض: ${offer.ar}. والقطعة الإضافية ستكون ${reward.ar}.`,
+      };
+    }
+    return {
+      en: `You have ${eligibleUnits} qualifying items. Add ${missing} more to get ${rule.getQuantity} reward item${rule.getQuantity === 1 ? "" : "s"} ${reward.en}.`,
+      ar: `في السلة ${eligibleUnits} قطعة من العرض. أضيفي ${missing} قطعة إضافية لتحصلي على ${rule.getQuantity} قطعة ${reward.ar}.`,
+    };
+  }
+
+  const target = rule.type === "free_shipping" ? rule.buyQuantity : rule.shippingQuantity;
+  const missing = Math.max(1, target - eligibleUnits);
+  if (rule.type === "free_shipping") {
+    return {
+      en: `${offer.en}. Add ${missing} more qualifying item${missing === 1 ? "" : "s"} to unlock it.`,
+      ar: `${offer.ar}. أضيفي ${missing} قطعة مؤهلة أخرى للحصول على الشحن المجاني.`,
+    };
+  }
+
+  return {
+    en: `${offer.en}. Add ${missing} more eligible item${missing === 1 ? "" : "s"} to unlock it.`,
+    ar: `${offer.ar}. أضيفي ${missing} قطعة أخرى من المنتجات المشمولة لتفعيل العرض.`,
+  };
+}
+
 export function parseProductIds(value: unknown): string[] {
   if (Array.isArray(value)) return value.filter((id): id is string => typeof id === "string");
   if (typeof value !== "string") return [];
@@ -191,3 +280,4 @@ export function parseProductIds(value: unknown): string[] {
     return [];
   }
 }
+

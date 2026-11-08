@@ -17,6 +17,7 @@ export type ProductCardData = {
   stockStatus?: string;
   stockQty?: number | null;
   variants?: { stockStatus: string; stockQty: number | null }[];
+  offers?: { en: string; ar: string }[];
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
@@ -57,6 +58,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             {t("product.sale")}
           </span>
         )}
+        {product.offers?.[0] && !outOfStock && (
+          <span className="absolute bottom-3 left-2 right-2 z-10 rounded-lg bg-white/95 px-2 py-1.5 text-center text-[10px] font-semibold leading-tight text-brand-dark shadow-sm sm:text-xs">
+            {pick(product.offers[0].en, product.offers[0].ar)}
+          </span>
+        )}
         {outOfStock && (
           <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-full z-10">
             {t("product.outOfStock")}
@@ -77,7 +83,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             </span>
           )}
         </div>
+        {product.offers?.[0] && <p className="mx-auto mt-1 line-clamp-2 max-w-[22rem] text-[11px] leading-snug text-brand-dark sm:text-xs">
+          {pick(product.offers[0].en, product.offers[0].ar)}
+        </p>}
       </div>
     </Link>
   );
 }
+

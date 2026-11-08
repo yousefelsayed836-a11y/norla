@@ -33,11 +33,14 @@ export default function OrderStatusSelect({ orderId, status }: { orderId: string
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!response.ok) throw new Error("Status update failed");
+      if (!response.ok) {
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error || "Status update failed");
+      }
       router.refresh();
-    } catch {
+    } catch (updateError) {
       setValue(previousValue);
-      setError("Could not update status. Please try again.");
+      setError(updateError instanceof Error ? updateError.message : "Could not update status. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -54,3 +57,4 @@ export default function OrderStatusSelect({ orderId, status }: { orderId: string
     </div>
   );
 }
+
