@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { adjustStock } from "@/lib/inventory";
+import { adjustStock, StockUnavailableError } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
 import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib/email";
 import { sendPushToAdmins } from "@/lib/push";
 import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
-import { z } from "zod";
 import { calculateDiscount, parseProductIds } from "@/lib/discounts";
+import { z } from "zod";
 
 const orderSchema = z.object({
   customer: z.object({
@@ -74,19 +74,21 @@ export async function POST(req: NextRequest) {
   for (const item of items) {
     const product = await prisma.product.findUnique({
       where: { id: item.productId },
-      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+      include: { images: { orderBy: { position: "asc" }, take: 1 }, variants: { select: { id: true } } },
     });
-    if (!product) continue;
+    if (!product) return NextResponse.json({ error: "One or more products are no longer available" }, { status: 400 });
+    if (product.variants.length > 0 && !item.variantId) {
+      return NextResponse.json({ error: "Choose an available variant for each product" }, { status: 400 });
+    }
     let price = Number(product.price);
     let title = product.title;
     let imageUrl = product.images[0]?.url;
     if (item.variantId) {
-      const variant = await prisma.productVariant.findUnique({ where: { id: item.variantId } });
-      if (variant) {
-        if (variant.price) price = Number(variant.price);
-        title = `${product.title} (${variant.label})`;
-        if (variant.imageUrl) imageUrl = variant.imageUrl;
-      }
+      const variant = await prisma.productVariant.findFirst({ where: { id: item.variantId, productId: item.productId } });
+      if (!variant) return NextResponse.json({ error: "Selected product variant is invalid" }, { status: 400 });
+      if (variant.price) price = Number(variant.price);
+      title = `${product.title} (${variant.label})`;
+      if (variant.imageUrl) imageUrl = variant.imageUrl;
     }
     resolvedItems.push({
       productId: item.productId,
@@ -106,7 +108,8 @@ export async function POST(req: NextRequest) {
   const settings: any = await prisma.$queryRaw`
     SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold",
       "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity",
-      "discountProductIds", "discountGiftMode", "discountGiftProductIds"
+      "discountProductIds", "discountGiftMode", "discountGiftProductIds",
+      "discountGiftDiscountType", "discountGiftDiscountValue"
     FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
   `.then((rows: any) => rows[0] ?? {}).catch(() => ({}));
 
@@ -116,15 +119,18 @@ export async function POST(req: NextRequest) {
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const calculatedDiscount = calculateDiscount(resolvedItems, {
-    enabled: !!settings.discountEnabled, type: settings.discountType ?? "none",
+    enabled: !!settings.discountEnabled,
+    type: settings.discountType ?? "none",
     value: Number(settings.discountValue) || 0,
     buyQuantity: Number(settings.discountBuyQuantity) || 2,
     getQuantity: Number(settings.discountGetQuantity) || 1,
     productIds: parseProductIds(settings.discountProductIds),
     giftMode: settings.discountGiftMode ?? "same_product",
     giftProductIds: parseProductIds(settings.discountGiftProductIds),
+    giftDiscountType: settings.discountGiftDiscountType ?? "free",
+    giftDiscountValue: Number(settings.discountGiftDiscountValue) || 100,
   });
-  const discountAmount = Math.min(subtotal, calculatedDiscount.amount);
+  const discountAmount = Math.min(subtotal, Math.max(0, Math.round(calculatedDiscount.amount * 100) / 100));
   const appliedDiscountType = discountAmount > 0 ? settings.discountType ?? "none" : "none";
   const qualifiesFreeShipping =
     freeShippingEnabled &&
@@ -146,7 +152,18 @@ export async function POST(req: NextRequest) {
   }
   const depositAmount = requestedDepositAmount ?? minimumDeposit;
 
-  const order = await prisma.$transaction(async (tx) => {
+  type OrderCustomer = {
+    name: string;
+    phone: string | null;
+    whatsappNumber: string | null;
+    email: string | null;
+    address: string | null;
+    city: string | null;
+    governorate: string | null;
+  };
+  let order: { id: string; orderNo: number; paymentMethod: string | null; customer: OrderCustomer | null };
+  try {
+    order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         subtotal,
@@ -184,7 +201,13 @@ export async function POST(req: NextRequest) {
       WHERE id = ${created.id}`;
     await adjustStock(tx, resolvedItems, -1);
     return created;
-  });
+    });
+  } catch (error) {
+    if (error instanceof StockUnavailableError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    throw error;
+  }
 
   revalidateStorefront();
 
@@ -246,3 +269,4 @@ export async function GET() {
   });
   return NextResponse.json({ orders });
 }
+
