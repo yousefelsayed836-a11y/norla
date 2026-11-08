@@ -30,11 +30,12 @@ function ProductPicker({ label, products, selected, onChange }: {
 
 export default function DiscountSettingsForm({
   initialEnabled, initialType, initialValue, initialBuyQuantity, initialGetQuantity,
-  products, initialProductIds, initialGiftMode, initialGiftProductIds,
+  products, initialProductIds, initialGiftMode, initialGiftProductIds, initialGiftDiscountType, initialGiftDiscountValue,
 }: {
   initialEnabled: boolean; initialType: string; initialValue: string;
   initialBuyQuantity: number; initialGetQuantity: number; products: ProductOption[];
   initialProductIds: string[]; initialGiftMode: string; initialGiftProductIds: string[];
+  initialGiftDiscountType: string; initialGiftDiscountValue: number;
 }) {
   const router = useRouter();
   const [enabled, setEnabled] = useState(initialEnabled);
@@ -47,6 +48,10 @@ export default function DiscountSettingsForm({
     ["same_product", "any_product", "specific_products"].includes(initialGiftMode) ? initialGiftMode as "same_product" | "any_product" | "specific_products" : "same_product"
   );
   const [giftProductIds, setGiftProductIds] = useState(initialGiftProductIds);
+  const [giftDiscountType, setGiftDiscountType] = useState<"free" | "percent" | "fixed">(
+    ["free", "percent", "fixed"].includes(initialGiftDiscountType) ? initialGiftDiscountType as "free" | "percent" | "fixed" : "free"
+  );
+  const [giftDiscountValue, setGiftDiscountValue] = useState(String(initialGiftDiscountValue ?? 100));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -56,7 +61,7 @@ export default function DiscountSettingsForm({
       const response = await fetch("/api/discount-settings", {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled, type, value: Number(value) || 0, buyQuantity: Number(buyQuantity) || 1,
-          getQuantity: Number(getQuantity) || 1, productIds, giftMode, giftProductIds }),
+          getQuantity: Number(getQuantity) || 1, productIds, giftMode, giftProductIds, giftDiscountType, giftDiscountValue: Number(giftDiscountValue) || 0 }),
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Could not save discount settings.");
@@ -94,6 +99,15 @@ export default function DiscountSettingsForm({
             </select>
           </div>
           {giftMode === "specific_products" && <ProductPicker label="Products customers can receive as a gift (Y)" products={products} selected={giftProductIds} onChange={setGiftProductIds} />}
+          <div>
+            <label htmlFor="giftDiscountType" className="text-sm block mb-1">Discount on the reward item(s)</label>
+            <select id="giftDiscountType" className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={giftDiscountType} onChange={(event) => setGiftDiscountType(event.target.value as typeof giftDiscountType)}>
+              <option value="free">Free (100% off)</option><option value="percent">Percentage off each reward item</option><option value="fixed">Fixed amount off each reward item (LE)</option>
+            </select>
+          </div>
+          {giftDiscountType !== "free" && <label className="text-sm block">{giftDiscountType === "percent" ? "Reward discount (%)" : "Amount off per reward item (LE)"}
+            <input type="number" min={0} max={giftDiscountType === "percent" ? 100 : undefined} step="0.01" required className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={giftDiscountValue} onChange={(event) => setGiftDiscountValue(event.target.value)} />
+          </label>}
           <p className="text-xs text-foreground/55">For a different gift, the gift product must also be in the cart. The cheapest eligible gift units are discounted first.</p>
         </> : <>
           <label className="text-sm block">Discount {type === "percent" ? "(%)" : "(LE)"}<input type="number" min={0} max={type === "percent" ? 100 : undefined} step="0.01" required className="w-full border border-brand-light rounded-xl px-4 py-2.5" value={value} onChange={(event) => setValue(event.target.value)} /></label>
