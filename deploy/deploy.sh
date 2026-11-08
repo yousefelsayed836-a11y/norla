@@ -14,6 +14,12 @@ echo "==> Fetching $BRANCH"
 git fetch origin "$BRANCH"
 git pull --ff-only origin "$BRANCH"
 
+echo "==> Preserving uploads from previous standalone builds"
+mkdir -p public/uploads
+if [ -d .next/standalone/public/uploads ]; then
+  cp -an .next/standalone/public/uploads/. public/uploads/
+fi
+
 echo "==> Installing locked dependencies"
 npm ci
 
@@ -24,7 +30,7 @@ echo "==> Building the new application (a failed build stops the script before P
 npm run build
 
 echo "==> Copying public and Next static assets into standalone output"
-mkdir -p .next/standalone/public .next/standalone/.next/static public/uploads
+mkdir -p .next/standalone/public .next/standalone/.next/static
 cp -a public/. .next/standalone/public/
 cp -a .next/static/. .next/standalone/.next/static/
 
