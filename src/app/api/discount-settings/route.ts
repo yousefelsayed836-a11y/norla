@@ -13,6 +13,8 @@ const discountSettingsSchema = z.object({
   productIds: z.array(z.string().min(1)).max(500),
   giftMode: z.enum(["same_product", "any_product", "specific_products"]),
   giftProductIds: z.array(z.string().min(1)).max(500),
+  giftDiscountType: z.enum(["free", "percent", "fixed"]),
+  giftDiscountValue: z.number().finite().min(0).max(99_999_999.99),
 });
 
 export async function PUT(req: NextRequest) {
@@ -33,9 +35,12 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid discount settings" }, { status: 400 });
   }
 
-  const { enabled, type, value, buyQuantity, getQuantity, productIds, giftMode, giftProductIds } = parsed.data;
+  const { enabled, type, value, buyQuantity, getQuantity, productIds, giftMode, giftProductIds, giftDiscountType, giftDiscountValue } = parsed.data;
   if (type === "percent" && value > 100) {
     return NextResponse.json({ error: "Percentage discount cannot exceed 100%" }, { status: 400 });
+  }
+  if (type === "buy_get" && giftDiscountType === "percent" && giftDiscountValue > 100) {
+    return NextResponse.json({ error: "Reward discount cannot exceed 100%" }, { status: 400 });
   }
 
   if ((productIds.length || giftProductIds.length) &&
@@ -61,7 +66,8 @@ export async function PUT(req: NextRequest) {
   });
   await prisma.$executeRaw`
     UPDATE "SiteSetting" SET "discountProductIds" = ${JSON.stringify(productIds)},
-      "discountGiftMode" = ${giftMode}, "discountGiftProductIds" = ${JSON.stringify(giftProductIds)}
+      "discountGiftMode" = ${giftMode}, "discountGiftProductIds" = ${JSON.stringify(giftProductIds)},
+      "discountGiftDiscountType" = ${giftDiscountType}, "discountGiftDiscountValue" = ${giftDiscountValue}
     WHERE id = 'singleton'
   `;
 
