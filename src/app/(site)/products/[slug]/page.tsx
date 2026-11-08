@@ -45,6 +45,7 @@ export default async function ProductDetailPage({
           price: v.price,
           regularPrice: v.regularPrice,
           stockStatus: v.stockStatus,
+          stockQty: v.stockQty,
         }))}
         shortDescription={product.shortDescription}
         shortDescriptionAr={product.shortDescriptionAr}
@@ -69,3 +70,4 @@ export default async function ProductDetailPage({
     </div>
   );
 }
+
