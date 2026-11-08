@@ -37,7 +37,7 @@ export default async function EditProductPage({
           regularPrice: product.regularPrice ? String(product.regularPrice) : "",
           sku: product.sku ?? "",
           stockStatus: product.stockStatus,
-          stockQty: product.stockQty ? String(product.stockQty) : "",
+          stockQty: product.stockQty != null ? String(product.stockQty) : "",
           status: product.status,
           categoryId: product.categoryId ?? "",
           images: product.images.sort((a, b) => a.position - b.position).map((i) => i.url),
@@ -64,3 +64,4 @@ export default async function EditProductPage({
     </div>
   );
 }
+
