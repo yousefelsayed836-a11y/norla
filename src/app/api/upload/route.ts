@@ -4,6 +4,7 @@ import sharp from "sharp";
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import { getPrimaryUploadDirectory } from "@/lib/upload-storage";
 
 const MAX_SIZE = 15 * 1024 * 1024;
 
@@ -11,7 +12,12 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const formData = await req.formData();
+  let formData: FormData;
+  try {
+    formData = await req.formData();
+  } catch {
+    return NextResponse.json({ error: "Invalid upload request" }, { status: 400 });
+  }
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
@@ -38,9 +44,14 @@ export async function POST(req: NextRequest) {
   }
 
   const filename = `${crypto.randomUUID()}.webp`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
-  await fs.writeFile(path.join(uploadDir, filename), outputBuffer);
+  const uploadDir = getPrimaryUploadDirectory();
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+    await fs.writeFile(path.join(uploadDir, filename), outputBuffer, { flag: "wx" });
+  } catch (error) {
+    console.error("Image upload could not be persisted", error);
+    return NextResponse.json({ error: "Could not save the image. Check server upload storage and permissions." }, { status: 500 });
+  }
 
   return NextResponse.json({ url: `/api/files/${filename}` });
 }

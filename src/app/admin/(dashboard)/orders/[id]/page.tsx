@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
 import OrderStatusSelect from "@/components/OrderStatusSelect";
 import SendToTurboButton from "@/components/SendToTurboButton";
+import AdminOrderEditor from "@/components/AdminOrderEditor";
+import AdminCustomerEditor from "@/components/AdminCustomerEditor";
 import { TURBO_GOVERNMENT_MAP, TURBO_GOVERNMENT_ID } from "@/lib/turbo";
 
 export default async function OrderDetailPage({
@@ -12,20 +14,22 @@ export default async function OrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: { items: true, customer: true },
-  });
+  const [order, settings] = await Promise.all([
+    prisma.order.findUnique({ where: { id }, include: { items: true, customer: true } }),
+    prisma.siteSetting.upsert({ where: { id: "singleton" }, update: {}, create: { id: "singleton" } }),
+  ]);
   if (!order) notFound();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const s = settings as any;
+  const templateBase = s.whatsappMessageTemplate ||
+    `Hi {name}, thanks for your order from Norla Designs!\nOrder #{orderNo} — please transfer the deposit ({deposit} LE) to 01027096110 (Nourhan) and send the receipt screenshot here to confirm.\n\nمرحباً {name}، شكراً لطلبك من Norla Designs!\nطلب رقم #{orderNo} — برجاء تحويل العربون ({deposit} جنيه) على 01027096110 (نورهان) وإرسال صورة الإيصال هنا للتأكيد.`;
+
   const depositReminderText = order.customer
-    ? `Hi ${order.customer.name}, thanks for your order from Norla Designs! Order #${order.orderNo} — please transfer the deposit (${Number(
-        order.depositAmount
-      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} LE) to 01027096110 (Nourhan) and send the receipt screenshot here to confirm.\n\nمرحباً ${
-        order.customer.name
-      }، شكراً لطلبك من Norla Designs! طلب رقم #${order.orderNo} — برجاء تحويل العربون (${Number(
-        order.depositAmount
-      ).toLocaleString("en-US", { maximumFractionDigits: 0 })} جنيه) على 01027096110 (نورهان) وإرسال صورة الإيصال هنا للتأكيد.`
+    ? templateBase
+        .replace(/{name}/g, order.customer.name)
+        .replace(/{orderNo}/g, String(order.orderNo))
+        .replace(/{deposit}/g, Number(order.depositAmount).toLocaleString("en-US", { maximumFractionDigits: 0 }))
     : "";
 
   return (
@@ -117,6 +121,12 @@ export default async function OrderDetailPage({
             <span>Shipping</span>
             <span>{formatEGP(Number(order.shippingFee))}</span>
           </div>
+          {Number(order.serviceFee) > 0 && (
+            <div className="flex justify-between text-foreground/60">
+              <span>Vodafone Cash fee</span>
+              <span>{formatEGP(Number(order.serviceFee))}</span>
+            </div>
+          )}
           <div className="flex justify-between font-semibold text-base pt-1.5 border-t border-brand-light/60">
             <span>Total</span>
             <span className="text-brand-dark">{formatEGP(Number(order.total))}</span>
@@ -135,6 +145,30 @@ export default async function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      <AdminCustomerEditor
+        orderId={order.id}
+        initialCustomer={{
+          name: order.customer?.name ?? "",
+          phone: order.customer?.phone ?? "",
+          whatsappNumber: order.customer?.whatsappNumber ?? "",
+          address: order.customer?.address ?? "",
+          city: order.customer?.city ?? "",
+          governorate: order.customer?.governorate ?? "",
+        }}
+      />
+
+      <AdminOrderEditor
+        orderId={order.id}
+        initialItems={order.items.map((i) => ({
+          id: i.id,
+          title: i.title,
+          price: Number(i.price),
+          quantity: i.quantity,
+          productId: i.productId,
+          variantId: i.variantId ?? null,
+        }))}
+      />
 
       <div className="mt-6">
         <SendToTurboButton

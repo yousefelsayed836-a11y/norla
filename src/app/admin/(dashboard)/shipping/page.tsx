@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEGP } from "@/lib/format";
+import SyncTurboZonesButton from "@/components/SyncTurboZonesButton";
+import AddExtraCitiesButton from "@/components/AddExtraCitiesButton";
 
 export default async function AdminShippingPage() {
   const zones = await prisma.shippingZone.findMany({
@@ -11,10 +13,14 @@ export default async function AdminShippingPage() {
   return (
     <div>
       <h1 className="font-display text-3xl mb-2">Shipping Zones</h1>
-      <p className="text-sm text-foreground/50 mb-8">
+      <p className="text-sm text-foreground/50 mb-4">
         Set the delivery fee for each governorate, or switch one off if you&apos;re not shipping
         there right now. Free shipping (above a certain order value) is configured in Settings.
       </p>
+      <div className="mb-4 flex flex-wrap gap-3">
+        <SyncTurboZonesButton />
+        <AddExtraCitiesButton />
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <table className="w-full text-sm hidden md:table">

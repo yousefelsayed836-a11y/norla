@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import { hasAvailableStock } from "@/lib/stock-rules";
 
 export type ProductCardData = {
   slug: string;
@@ -14,7 +15,9 @@ export type ProductCardData = {
   images: { url: string }[];
   category?: { name: string } | null;
   stockStatus?: string;
-  variants?: { stockStatus: string }[];
+  stockQty?: number | null;
+  variants?: { stockStatus: string; stockQty: number | null }[];
+  offers?: { en: string; ar: string }[];
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
@@ -24,8 +27,8 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   const secondary = product.images[1]?.url;
   const onSale = product.regularPrice && product.regularPrice > product.price;
   const outOfStock = product.variants?.length
-    ? product.variants.every((v) => v.stockStatus === "outofstock")
-    : product.stockStatus === "outofstock";
+    ? product.variants.every((v) => !hasAvailableStock(v.stockQty, v.stockStatus))
+    : !hasAvailableStock(product.stockQty ?? null, product.stockStatus ?? "instock");
 
   return (
     <Link
@@ -39,6 +42,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           fill
           className="object-cover transition-transform duration-500 md:group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
+          loading="eager"
         />
         {secondary && (
           <Image
@@ -52,6 +56,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         {onSale && !outOfStock && (
           <span className="absolute top-3 left-3 bg-brand-dark text-white text-sm font-medium px-3 py-1.5 rounded-full z-10 uppercase">
             {t("product.sale")}
+          </span>
+        )}
+        {product.offers?.[0] && !outOfStock && (
+          <span className="absolute bottom-3 left-2 right-2 z-10 rounded-lg bg-white/95 px-2 py-1.5 text-center text-[10px] font-semibold leading-tight text-brand-dark shadow-sm sm:text-xs">
+            {pick(product.offers[0].en, product.offers[0].ar)}
           </span>
         )}
         {outOfStock && (
@@ -74,7 +83,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             </span>
           )}
         </div>
+        {product.offers?.[0] && <p className="mx-auto mt-1 line-clamp-2 max-w-[22rem] text-[11px] leading-snug text-brand-dark sm:text-xs">
+          {pick(product.offers[0].en, product.offers[0].ar)}
+        </p>}
       </div>
     </Link>
   );
 }
+

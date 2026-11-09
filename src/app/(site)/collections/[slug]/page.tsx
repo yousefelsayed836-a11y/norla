@@ -3,6 +3,8 @@ import { getHomeSectionBySlug } from "@/lib/home-sections";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
 import PickText from "@/components/PickText";
+import { getSiteSettings } from "@/lib/settings";
+import { discountOffersForProduct, getDiscountRulesFromSettings } from "@/lib/discounts";
 
 export default async function CollectionPage({
   params,
@@ -10,8 +12,9 @@ export default async function CollectionPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const section = await getHomeSectionBySlug(slug);
+  const [section, settings] = await Promise.all([getHomeSectionBySlug(slug), getSiteSettings()]);
   if (!section) notFound();
+  const discountRules = getDiscountRulesFromSettings(settings);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-[7.5rem] md:pt-[8.25rem] pb-16">
@@ -26,10 +29,11 @@ export default async function CollectionPage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-8">
           {section.products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={{ ...p, offers: discountOffersForProduct(p.id, discountRules) }} />
           ))}
         </div>
       )}
     </div>
   );
 }
+

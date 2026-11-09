@@ -14,7 +14,9 @@ type Variant = {
   size: string | null;
   imageUrl: string | null;
   price: number | null;
+  regularPrice: number | null;
   stockStatus: string;
+  stockQty: number | null;
 };
 
 export default function ProductPurchase({
@@ -24,6 +26,7 @@ export default function ProductPurchase({
   categoryName,
   categoryNameAr,
   basePrice,
+  baseRegularPrice,
   images,
   variants,
   shortDescription,
@@ -32,6 +35,7 @@ export default function ProductPurchase({
   descriptionAr,
   careInstructions,
   careInstructionsAr,
+  offers = [],
 }: {
   productId: string;
   title: string;
@@ -39,6 +43,7 @@ export default function ProductPurchase({
   categoryName?: string | null;
   categoryNameAr?: string | null;
   basePrice: number;
+  baseRegularPrice?: number | null;
   images: { url: string }[];
   variants: Variant[];
   shortDescription: string;
@@ -47,6 +52,7 @@ export default function ProductPurchase({
   descriptionAr?: string | null;
   careInstructions: string;
   careInstructionsAr?: string | null;
+  offers?: { en: string; ar: string }[];
 }) {
   const [focusUrl, setFocusUrl] = useState<string | null>(null);
   const { t, pick } = useLanguage();
@@ -67,10 +73,17 @@ export default function ProductPurchase({
         )}
         <h1 className="font-jost text-3xl md:text-4xl mb-4 text-black text-center">{displayTitle}</h1>
 
+        {offers.length > 0 && <div className="mb-4 space-y-2" aria-label="Available offers">
+          {offers.map((offer, index) => <p key={`${offer.en}-${index}`} className="rounded-xl bg-brand-light/60 border border-brand-light px-4 py-3 text-sm text-brand-dark text-center font-medium">
+            {pick(offer.en, offer.ar)}
+          </p>)}
+        </div>}
+
         <AddToCartPanel
           productId={productId}
           title={displayTitle}
           basePrice={basePrice}
+          baseRegularPrice={baseRegularPrice}
           image={images[0]?.url}
           variants={variants}
           onColorImage={setFocusUrl}

@@ -2,6 +2,8 @@ import { getCategories, getProducts } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
 import Pick from "@/components/Pick";
+import { getSiteSettings } from "@/lib/settings";
+import { discountOffersForProduct, getDiscountRulesFromSettings } from "@/lib/discounts";
 
 export default async function ProductsPage({
   searchParams,
@@ -9,10 +11,12 @@ export default async function ProductsPage({
   searchParams: Promise<{ category?: string; search?: string }>;
 }) {
   const { category, search } = await searchParams;
-  const [products, categories] = await Promise.all([
+  const [products, categories, settings] = await Promise.all([
     getProducts({ categorySlug: category, search }),
     category ? getCategories() : Promise.resolve([]),
+    getSiteSettings(),
   ]);
+  const discountRules = getDiscountRulesFromSettings(settings);
   const heading = categories.find((c) => c.slug === category);
 
   return (
@@ -28,10 +32,11 @@ export default async function ProductsPage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={{ ...p, offers: discountOffersForProduct(p.id, discountRules) }} />
           ))}
         </div>
       )}
     </div>
   );
 }
+

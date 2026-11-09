@@ -4,6 +4,7 @@ import { getSiteSettings } from "@/lib/settings";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductCard from "@/components/ProductCard";
 import T from "@/components/T";
+import { discountOffersForProduct, getDiscountRulesFromSettings } from "@/lib/discounts";
 
 export default async function ProductDetailPage({
   params,
@@ -17,6 +18,8 @@ export default async function ProductDetailPage({
     getProducts(),
   ]);
   if (!product) notFound();
+  const discountRules = getDiscountRulesFromSettings(settings);
+  const productOffers = discountOffersForProduct(product.id, discountRules);
 
   const related = allProducts
     .filter((p) => p.id !== product.id)
@@ -35,6 +38,7 @@ export default async function ProductDetailPage({
         categoryNameAr={product.category?.nameAr}
         basePrice={product.price}
         images={product.images}
+        baseRegularPrice={product.regularPrice}
         variants={product.variants.map((v) => ({
           id: v.id,
           color: v.color,
@@ -42,7 +46,9 @@ export default async function ProductDetailPage({
           size: v.size,
           imageUrl: v.imageUrl,
           price: v.price,
+          regularPrice: v.regularPrice,
           stockStatus: v.stockStatus,
+          stockQty: v.stockQty,
         }))}
         shortDescription={product.shortDescription}
         shortDescriptionAr={product.shortDescriptionAr}
@@ -50,6 +56,7 @@ export default async function ProductDetailPage({
         descriptionAr={product.descriptionAr}
         careInstructions={settings.careInstructionsText}
         careInstructionsAr={settings.careInstructionsTextAr}
+        offers={productOffers}
       />
 
       {fallbackRelated.length > 0 && (
@@ -59,7 +66,7 @@ export default async function ProductDetailPage({
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-8 text-left">
             {fallbackRelated.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={{ ...p, offers: discountOffersForProduct(p.id, discountRules) }} />
             ))}
           </div>
         </section>
@@ -67,3 +74,4 @@ export default async function ProductDetailPage({
     </div>
   );
 }
+

@@ -41,7 +41,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       price: body.price,
       regularPrice: body.regularPrice || null,
       sku: body.sku || null,
-      stockStatus: body.stockStatus,
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus,
       stockQty: body.stockQty ?? null,
       status: body.status,
       categoryId: body.categoryId || null,

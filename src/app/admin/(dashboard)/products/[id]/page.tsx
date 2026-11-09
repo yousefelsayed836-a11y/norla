@@ -13,7 +13,8 @@ export default async function EditProductPage({
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findUnique({
       where: { id },
-      include: { images: true, variants: { orderBy: { id: "asc" } } },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      include: { images: true, variants: { orderBy: [{ position: "asc" }, { id: "asc" }] as any } },
     }),
   ]);
   if (!product) notFound();
@@ -36,7 +37,7 @@ export default async function EditProductPage({
           regularPrice: product.regularPrice ? String(product.regularPrice) : "",
           sku: product.sku ?? "",
           stockStatus: product.stockStatus,
-          stockQty: product.stockQty ? String(product.stockQty) : "",
+          stockQty: product.stockQty != null ? String(product.stockQty) : "",
           status: product.status,
           categoryId: product.categoryId ?? "",
           images: product.images.sort((a, b) => a.position - b.position).map((i) => i.url),

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getUploadDirectories } from "@/lib/upload-storage";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +28,16 @@ export async function GET(
     return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
   }
 
-  const filePath = path.join(process.cwd(), "public", "uploads", filename);
-  let data: Buffer;
-  try {
-    data = await fs.readFile(filePath);
-  } catch {
+  let data: Buffer | null = null;
+  for (const directory of getUploadDirectories()) {
+    try {
+      data = await fs.readFile(path.join(directory, filename));
+      break;
+    } catch {
+      // Check the previous in-app location while existing uploads are migrated.
+    }
+  }
+  if (!data) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

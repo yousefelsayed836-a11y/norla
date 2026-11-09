@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
 import { InstaPayLogo, VodafoneCashLogo } from "@/components/PaymentLogos";
+import { calculateDiscount, calculateDiscountOffers, discountOfferCopy, discountProgressCopy, getDiscountRulesFromSettings, parseProductIds, type DiscountOfferRule } from "@/lib/discounts";
 
 type ShippingCity = { id: string; name: string; nameAr: string | null };
 type ShippingZone = {
@@ -20,7 +21,7 @@ type ShippingZone = {
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, pick } = useLanguage();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -35,10 +36,17 @@ export default function CheckoutPage() {
   const [freeShippingEnabled, setFreeShippingEnabled] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [depositPercent, setDepositPercent] = useState(50);
-  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1 });
+  const [paymentNote, setPaymentNote] = useState("");
+  const [transferPhone, setTransferPhone] = useState("01027096110");
+  const [accountName, setAccountName] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
+  const [discount, setDiscount] = useState({ enabled: false, type: "none", value: 0, buy: 2, get: 1, productIds: [] as string[], giftMode: "same_product" as "same_product" | "any_product" | "specific_products", giftProductIds: [] as string[], giftDiscountType: "free" as "free" | "percent" | "fixed", giftDiscountValue: 100 });
+  const [offerRules, setOfferRules] = useState<DiscountOfferRule[]>([]);
   const [depositInput, setDepositInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cityQuery, setCityQuery] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -47,7 +55,12 @@ export default function CheckoutPage() {
         setFreeShippingEnabled(!!d.settings.freeShippingEnabled);
         setFreeShippingThreshold(Number(d.settings.freeShippingThreshold) || 0);
         setDepositPercent(d.settings.depositPercent ?? 50);
-        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1 });
+        setPaymentNote(d.settings.checkoutPaymentNote || "");
+        setTransferPhone(d.settings.checkoutTransferPhone || "01027096110");
+        setAccountName(d.settings.checkoutAccountName || "");
+        setDeliveryNote(d.settings.checkoutDeliveryNote || "");
+        setOfferRules(getDiscountRulesFromSettings(d.settings));
+        setDiscount({ enabled: !!d.settings.discountEnabled, type: d.settings.discountType ?? "none", value: Number(d.settings.discountValue) || 0, buy: Number(d.settings.discountBuyQuantity) || 2, get: Number(d.settings.discountGetQuantity) || 1, productIds: parseProductIds(d.settings.discountProductIds), giftMode: d.settings.discountGiftMode ?? "same_product", giftProductIds: parseProductIds(d.settings.discountGiftProductIds), giftDiscountType: d.settings.discountGiftDiscountType ?? "free", giftDiscountValue: Number(d.settings.discountGiftDiscountValue) || 100 });
       })
       .catch(() => {});
     fetch("/api/shipping-zones")
@@ -57,37 +70,49 @@ export default function CheckoutPage() {
   }, []);
 
   const selectedZone = zones.find((z) => z.governorate === form.governorate);
-  const qualifiesFreeShipping = freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0;
+  const offerCalculation = calculateDiscountOffers(items, offerRules);
+  const legacyCalculation = calculateDiscount(items, {
+    enabled: discount.enabled, type: discount.type, value: discount.value,
+    buyQuantity: discount.buy, getQuantity: discount.get, productIds: discount.productIds,
+    giftMode: discount.giftMode, giftProductIds: discount.giftProductIds,
+    giftDiscountType: discount.giftDiscountType, giftDiscountValue: discount.giftDiscountValue,
+  });
+  const discountAmount = Math.min(total, offerRules.length ? offerCalculation.amount : legacyCalculation.amount);
+  const qualifiesFreeShipping = (freeShippingEnabled && total >= freeShippingThreshold && freeShippingThreshold > 0) || offerCalculation.freeShipping;
   const shippingFee = selectedZone ? (qualifiesFreeShipping ? 0 : Number(selectedZone.fee)) : 0;
-  let discountAmount = 0;
-  if (discount.enabled) {
-    if (discount.type === "percent") discountAmount = total * Math.min(100, Math.max(0, discount.value)) / 100;
-    else if (discount.type === "fixed") discountAmount = Math.min(total, Math.max(0, discount.value));
-    else if (discount.type === "buy_get") {
-      const units = items.reduce((sum, item) => sum + item.quantity, 0);
-      const freeUnits = Math.floor(units / (Math.max(1, discount.buy) + Math.max(1, discount.get))) * Math.max(1, discount.get);
-      let remainingFreeUnits = freeUnits;
-      for (const item of [...items].sort((a, b) => a.price - b.price)) {
-        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
-        discountAmount += freeFromItem * item.price;
-        remainingFreeUnits -= freeFromItem;
-        if (remainingFreeUnits === 0) break;
-      }
-    }
-  }
-  discountAmount = Math.min(total, Math.max(0, Math.round(discountAmount * 100) / 100));
-  const grandTotal = total - discountAmount + shippingFee;
+  const discountedSubtotal = total - discountAmount;
+  const baseTotal = discountedSubtotal + shippingFee;
+  const vodafoneFee = paymentMethod === "vodafone_cash"
+    ? baseTotal < 1000 ? 5 : Math.floor(baseTotal / 1000) * 10
+    : 0;
+  const grandTotal = baseTotal + vodafoneFee;
   const deposit = (grandTotal * depositPercent) / 100;
   const minimumDeposit = Math.ceil(deposit);
   const depositValue = depositInput === "" ? minimumDeposit : Math.min(Math.floor(grandTotal), Math.max(minimumDeposit, Number(depositInput) || minimumDeposit));
 
   const cities = useMemo(() => selectedZone?.cities ?? [], [selectedZone]);
+  const selectedCityDisplay = form.city
+    ? (cities.find((c) => c.name === form.city)?.nameAr || form.city)
+    : "";
+  const filteredCities = useMemo(() => {
+    const q = cityQuery.trim().toLowerCase();
+    if (!q) return cities;
+    return cities.filter(
+      (c) =>
+        (c.nameAr || "").toLowerCase().includes(q) ||
+        c.name.toLowerCase().includes(q)
+    );
+  }, [cities, cityQuery]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate || !form.city) {
+    if (!form.name || !form.phone || !form.whatsappNumber || !form.address || !form.governorate) {
       setError(t("checkout.fillRequired"));
+      return;
+    }
+    if (!/^[0-9]{11}$/.test(form.phone) || !/^[0-9]{11}$/.test(form.whatsappNumber)) {
+      setError("Phone and WhatsApp must be exactly 11 English digits");
       return;
     }
     if (!paymentMethod) {
@@ -99,13 +124,17 @@ export default function CheckoutPage() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, items, paymentMethod, depositAmount: depositValue }),
+        body: JSON.stringify({ customer: { ...form, city: form.city || cityQuery || "" }, items, paymentMethod, serviceFee: vodafoneFee, depositAmount: depositValue }),
       });
-      if (!res.ok) throw new Error("Failed to place order");
+      const data = await res.json();
+      if (!res.ok) {
+        const message = typeof data.error === "string" ? data.error : t("checkout.orderError");
+        throw new Error(message);
+      }
       clear();
-      router.push("/order-confirmed");
-    } catch {
-      setError(t("checkout.orderError"));
+      router.push(`/order-confirmed?id=${data.order.id}`);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : t("checkout.orderError"));
     } finally {
       setLoading(false);
     }
@@ -132,12 +161,18 @@ export default function CheckoutPage() {
           />
           <input
             placeholder={t("checkout.phone")}
+            inputMode="numeric"
+            pattern="[0-9]{11}"
+            maxLength={11}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
           <input
             placeholder={t("checkout.whatsapp")}
+            inputMode="numeric"
+            pattern="[0-9]{11}"
+            maxLength={11}
             className="w-full border border-brand-light rounded-xl px-4 py-3"
             value={form.whatsappNumber}
             onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
@@ -152,7 +187,7 @@ export default function CheckoutPage() {
             <select
               className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white"
               value={form.governorate}
-              onChange={(e) => setForm({ ...form, governorate: e.target.value, city: "" })}
+              onChange={(e) => { setForm({ ...form, governorate: e.target.value, city: "" }); setCityQuery(""); }}
             >
               <option value="">{t("checkout.governorate")}</option>
               {zones.map((z) => (
@@ -161,19 +196,50 @@ export default function CheckoutPage() {
                 </option>
               ))}
             </select>
-            <select
-              className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
-              value={form.city}
-              disabled={!selectedZone}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-            >
-              <option value="">{t("checkout.city")}</option>
-              {cities.map((c) => (
-                <option key={c.id} value={c.name}>
-                  {c.nameAr || c.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t("checkout.city")}
+                className="w-full border border-brand-light rounded-xl px-4 py-3 bg-white disabled:opacity-50"
+                disabled={!selectedZone}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                value={form.city ? selectedCityDisplay : cityQuery}
+                onChange={(e) => {
+                  setCityQuery(e.target.value);
+                  setForm({ ...form, city: "" });
+                  setCityOpen(true);
+                }}
+                onFocus={() => setCityOpen(true)}
+                onBlur={() => setTimeout(() => setCityOpen(false), 300)}
+              />
+              {cityOpen && filteredCities.length > 0 && (
+                <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-brand-light rounded-xl shadow-lg z-10 max-h-52 overflow-y-auto">
+                  {filteredCities.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className="w-full text-right px-4 py-2.5 text-sm hover:bg-brand-light/30 border-b border-brand-light/40 last:border-0"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setForm({ ...form, city: c.name });
+                        setCityQuery("");
+                        setCityOpen(false);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        setForm({ ...form, city: c.name });
+                        setCityQuery("");
+                        setCityOpen(false);
+                      }}
+                    >
+                      {c.nameAr || c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <textarea
             placeholder={t("checkout.address")}
@@ -221,25 +287,17 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/70">{t("checkout.transferTo")}</span>
                   <a
-                    href="https://wa.me/201027096110"
+                    href={`https://wa.me/${transferPhone.replace(/\D/g, "").replace(/^0/, "20")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-black underline hover:no-underline"
                   >
-                    01027096110
+                    {transferPhone}
                   </a>
                 </div>
-                <p className="text-xs text-foreground/50">{t("checkout.accountNameNote")}</p>
+                {accountName && <p className="text-xs text-foreground/50">{accountName}</p>}
                 <p className="text-xs text-foreground/60 leading-relaxed pt-1.5 border-t border-brand-dark/10">
-                  {t("checkout.sendScreenshotNote")}{" "}
-                  <a
-                    href="https://wa.me/201027096110"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand-dark underline hover:no-underline"
-                  >
-                    01027096110
-                  </a>
+                  {paymentNote || t("checkout.depositNote")}
                 </p>
               </div>
             )}
@@ -252,12 +310,25 @@ export default function CheckoutPage() {
           >
             {loading ? t("checkout.placingOrder") : `${t("checkout.placeOrder")} — ${formatEGP(grandTotal)}`}
           </button>
-          <p className="text-xs text-foreground/50 text-center">{t("checkout.depositNote")}</p>
         </form>
       </div>
 
       <div>
         <h2 className="font-display text-2xl mb-4">{t("checkout.orderSummary")}</h2>
+        {(offerCalculation.pendingOffers.length > 0 || offerCalculation.appliedRuleIds.length > 0) && <div className="mb-4 rounded-xl border border-brand-light bg-brand-light/30 p-4 space-y-2" aria-live="polite">
+          {offerCalculation.pendingOffers.map((rule) => {
+              const eligibleCount = items
+                .filter((item) => !rule.productIds.length || rule.productIds.includes(item.productId))
+                .reduce((sum, item) => sum + item.quantity, 0);
+              const progress = discountProgressCopy(rule, eligibleCount);
+              return <p key={rule.id} className="text-sm font-medium text-brand-dark">{pick(progress.en, progress.ar)}</p>;
+          })}
+          {offerCalculation.appliedRuleIds.map((id) => {
+            const rule = offerRules.find((item) => item.id === id);
+              const copy = rule ? discountOfferCopy(rule) : null;
+              return copy ? <p key={id} className="text-sm text-green-800">{pick(`Offer applied: ${copy.en}`, `تم تطبيق العرض: ${copy.ar}`)}</p> : null;
+          })}
+        </div>}
         <div className="space-y-3">
           {items.map((item) => (
             <div
@@ -297,6 +368,12 @@ export default function CheckoutPage() {
                   : formatEGP(shippingFee)}
             </span>
           </div>
+          {vodafoneFee > 0 && (
+            <div className="flex justify-between text-foreground/70">
+              <span>{t("checkout.vodafoneFee")}</span>
+              <span>{formatEGP(vodafoneFee)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-brand-light">
             <span>{t("checkout.total")}</span>
             <span className="text-brand-dark">{formatEGP(grandTotal)}</span>
@@ -307,9 +384,14 @@ export default function CheckoutPage() {
             </span>
             <span>{formatEGP(depositValue)}</span>
           </div>
-          <p className="text-xs text-foreground/50">{t("checkout.depositNote")}</p>
+          {deliveryNote && (
+            <p className="text-xs text-foreground/60 text-center pt-2 mt-1" dir="rtl">
+              {deliveryNote}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 }
+

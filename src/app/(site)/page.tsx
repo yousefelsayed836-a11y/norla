@@ -10,9 +10,11 @@ import WriteReviewForm from "@/components/WriteReviewForm";
 import T from "@/components/T";
 import Pick from "@/components/Pick";
 import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/settings";
+import { discountOffersForProduct, getDiscountRulesFromSettings } from "@/lib/discounts";
 
 export default async function HomePage() {
-  const [categories, products, sections, testimonials, heroImages, galleryImages, reviews] =
+  const [categories, products, sections, testimonials, heroImages, galleryImages, reviews, settings] =
     await Promise.all([
       getCategories(),
       getProducts(),
@@ -26,7 +28,9 @@ export default async function HomePage() {
         orderBy: { createdAt: "desc" },
         take: 12,
       }),
+      getSiteSettings(),
     ]);
+  const discountRules = getDiscountRulesFromSettings(settings);
 
   return (
     <div>
@@ -39,7 +43,10 @@ export default async function HomePage() {
             title={s.title}
             titleAr={s.titleAr}
             slug={s.slug}
-            products={s.products}
+            products={s.products.map((product) => ({
+              ...product,
+              offers: discountOffersForProduct(product.id, discountRules),
+            }))}
           />
         ))}
       </div>
@@ -102,3 +109,4 @@ export default async function HomePage() {
     </div>
   );
 }
+

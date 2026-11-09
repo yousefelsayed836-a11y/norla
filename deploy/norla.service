@@ -1,0 +1,20 @@
+[Unit]
+Description=Norla Designs — Next.js App
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=norla
+WorkingDirectory=/var/www/norla
+EnvironmentFile=/var/www/norla/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node /var/www/norla/.next/standalone/server.js
+Restart=always
+RestartSec=5
+
+# Keep uploaded files across deploys
+ReadWritePaths=/var/www/norla/public/uploads
+
+[Install]
+WantedBy=multi-user.target

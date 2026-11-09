@@ -4,6 +4,8 @@ import ChangePasswordForm from "@/components/ChangePasswordForm";
 
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const s = settings as any;
 
   return (
     <div>
@@ -30,11 +32,12 @@ export default async function AdminSettingsPage() {
         initialDepositPercent={settings.depositPercent}
         initialFreeShippingEnabled={settings.freeShippingEnabled}
         initialFreeShippingThreshold={String(settings.freeShippingThreshold)}
-        initialDiscountEnabled={settings.discountEnabled}
-        initialDiscountType={settings.discountType}
-        initialDiscountValue={String(settings.discountValue)}
-        initialDiscountBuyQuantity={settings.discountBuyQuantity}
-        initialDiscountGetQuantity={settings.discountGetQuantity}
+        initialCheckoutPaymentNote={s.checkoutPaymentNote ?? ""}
+        initialCheckoutPaymentNoteAr={s.checkoutPaymentNoteAr ?? ""}
+        initialWhatsappMessageTemplate={s.whatsappMessageTemplate ?? ""}
+        initialCheckoutTransferPhone={s.checkoutTransferPhone ?? "01027096110"}
+        initialCheckoutAccountName={s.checkoutAccountName ?? ""}
+        initialCheckoutDeliveryNote={s.checkoutDeliveryNote ?? ""}
       />
     </div>
   );

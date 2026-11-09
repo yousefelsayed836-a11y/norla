@@ -1,16 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
-const productWithRelations = {
-  include: {
-    images: { orderBy: { position: "asc" as const } },
-    category: true,
-    variants: true,
-    reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
-  },
-} satisfies Prisma.ProductDefaultArgs;
+const productInclude = {
+  images: { orderBy: { position: "asc" as const } },
+  category: true,
+  variants: { orderBy: { id: "asc" as const } },
+  reviews: { where: { approved: true }, orderBy: { createdAt: "desc" as const } },
+} satisfies Prisma.ProductInclude;
 
-type ProductWithRelations = Prisma.ProductGetPayload<typeof productWithRelations>;
+type ProductWithRelations = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
 export async function getCategories() {
   return prisma.category.findMany({ orderBy: { position: "asc" } });
@@ -24,16 +22,19 @@ export async function getProducts(opts?: { categorySlug?: string; search?: strin
       ...(opts?.categorySlug ? { category: { slug: opts.categorySlug } } : {}),
       ...(opts?.search ? { title: { contains: opts.search, mode: "insensitive" } } : {}),
     },
-    ...productWithRelations,
-    orderBy: { createdAt: "desc" },
+    include: productInclude,
+    orderBy: { createdAt: "desc" as const },
   });
+  // Sort by position field once it exists in the DB (after migration + prisma generate)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  products.sort((a, b) => ((a as any).position ?? 0) - ((b as any).position ?? 0));
   return products.map(serializeProduct);
 }
 
 export async function getProductBySlug(slug: string) {
   const product = await prisma.product.findUnique({
     where: { slug },
-    ...productWithRelations,
+    include: productInclude,
   });
   if (!product || !product.visible || product.status === "trash") return null;
   return serializeProduct(product);
@@ -47,13 +48,17 @@ export function serializeProduct(p: ProductWithRelations) {
       : p.rating;
   const reviewCount = approvedReviews.length > 0 ? approvedReviews.length : p.reviewCount;
 
+  // Sort variants by position if available (column added via migration)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variants = [...p.variants].sort((a, b) => ((a as any).position ?? 0) - ((b as any).position ?? 0));
+
   return {
     ...p,
     price: Number(p.price),
     regularPrice: p.regularPrice ? Number(p.regularPrice) : null,
     rating,
     reviewCount,
-    variants: p.variants.map((v) => ({
+    variants: variants.map((v) => ({
       ...v,
       price: v.price ? Number(v.price) : null,
       regularPrice: v.regularPrice ? Number(v.regularPrice) : null,

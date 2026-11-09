@@ -9,7 +9,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { id } = await params;
   const body = await req.json();
-  const variant = await prisma.productVariant.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variant = await (prisma.productVariant.create as any)({
     data: {
       productId: id,
       label: body.label,
@@ -17,9 +18,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       colorHex: body.colorHex || null,
       size: body.size || null,
       imageUrl: body.imageUrl || null,
+      position: body.position ?? 0,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
-      stockStatus: body.stockStatus || "instock",
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus || "instock",
       stockQty: body.stockQty ?? null,
     },
   });

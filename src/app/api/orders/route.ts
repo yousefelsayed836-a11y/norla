@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { adjustStock } from "@/lib/inventory";
+import { adjustStock, StockUnavailableError } from "@/lib/inventory";
 import { revalidateStorefront } from "@/lib/revalidate";
 import { sendAdminOrderNotification, sendCustomerOrderConfirmation } from "@/lib/email";
 import { sendPushToAdmins } from "@/lib/push";
 import { formatEGP } from "@/lib/format";
 import { rateLimit } from "@/lib/rate-limit";
+import { calculateDiscount, calculateDiscountOffers, parseDiscountRules, parseProductIds } from "@/lib/discounts";
 import { z } from "zod";
 
 const orderSchema = z.object({
   customer: z.object({
     name: z.string().min(1),
-    phone: z.string().min(1),
-    whatsappNumber: z.string().optional(),
+    phone: z.string().regex(/^[0-9]{11}$/, "Phone must be exactly 11 English digits"),
+    whatsappNumber: z.string().regex(/^[0-9]{11}$/, "WhatsApp must be exactly 11 English digits"),
     email: z.string().optional(),
     address: z.string().min(1),
     governorate: z.string().min(1),
-    city: z.string().min(1),
+    city: z.string().optional(),
   }),
   items: z
     .array(
@@ -73,19 +74,21 @@ export async function POST(req: NextRequest) {
   for (const item of items) {
     const product = await prisma.product.findUnique({
       where: { id: item.productId },
-      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+      include: { images: { orderBy: { position: "asc" }, take: 1 }, variants: { select: { id: true } } },
     });
-    if (!product) continue;
+    if (!product) return NextResponse.json({ error: "One or more products are no longer available" }, { status: 400 });
+    if (product.variants.length > 0 && !item.variantId) {
+      return NextResponse.json({ error: "Choose an available variant for each product" }, { status: 400 });
+    }
     let price = Number(product.price);
     let title = product.title;
     let imageUrl = product.images[0]?.url;
     if (item.variantId) {
-      const variant = await prisma.productVariant.findUnique({ where: { id: item.variantId } });
-      if (variant) {
-        if (variant.price) price = Number(variant.price);
-        title = `${product.title} (${variant.label})`;
-        if (variant.imageUrl) imageUrl = variant.imageUrl;
-      }
+      const variant = await prisma.productVariant.findFirst({ where: { id: item.variantId, productId: item.productId } });
+      if (!variant) return NextResponse.json({ error: "Selected product variant is invalid" }, { status: 400 });
+      if (variant.price) price = Number(variant.price);
+      title = `${product.title} (${variant.label})`;
+      if (variant.imageUrl) imageUrl = variant.imageUrl;
     }
     resolvedItems.push({
       productId: item.productId,
@@ -101,41 +104,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No valid items" }, { status: 400 });
   }
 
-  const settings = await prisma.siteSetting.upsert({
-    where: { id: "singleton" },
-    update: {},
-    create: { id: "singleton" },
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings: any = await prisma.$queryRaw`
+    SELECT "depositPercent", "freeShippingEnabled", "freeShippingThreshold",
+      "discountRulesJson",
+      "discountEnabled", "discountType", "discountValue", "discountBuyQuantity", "discountGetQuantity",
+      "discountProductIds", "discountGiftMode", "discountGiftProductIds",
+      "discountGiftDiscountType", "discountGiftDiscountValue"
+    FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
+  `.then((rows: any) => rows[0] ?? {}).catch(() => ({}));
+
+  const depositPercent = Number(settings.depositPercent ?? 50);
+  const freeShippingEnabled = !!settings.freeShippingEnabled;
+  const freeShippingThreshold = Number(settings.freeShippingThreshold ?? 0);
 
   const subtotal = resolvedItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  let discountAmount = 0;
-  if (settings.discountEnabled) {
-    if (settings.discountType === "percent") {
-      discountAmount = subtotal * Math.min(100, Math.max(0, Number(settings.discountValue))) / 100;
-    } else if (settings.discountType === "fixed") {
-      discountAmount = Math.min(subtotal, Math.max(0, Number(settings.discountValue)));
-    } else if (settings.discountType === "buy_get") {
-      const buyQty = Math.max(1, settings.discountBuyQuantity);
-      const getQty = Math.max(1, settings.discountGetQuantity);
-      const quantity = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
-      const freeUnits = Math.floor(quantity / (buyQty + getQty)) * getQty;
-      let remainingFreeUnits = freeUnits;
-      for (const item of [...resolvedItems].sort((a, b) => a.price - b.price)) {
-        const freeFromItem = Math.min(remainingFreeUnits, item.quantity);
-        discountAmount += freeFromItem * item.price;
-        remainingFreeUnits -= freeFromItem;
-        if (remainingFreeUnits === 0) break;
-      }
-    }
-  }
-  discountAmount = Math.min(subtotal, Math.max(0, Math.round(discountAmount * 100) / 100));
+  const offerRules = parseDiscountRules(settings.discountRulesJson);
+  const calculatedOffers = calculateDiscountOffers(resolvedItems, offerRules);
+  const legacyDiscount = calculateDiscount(resolvedItems, {
+    enabled: !!settings.discountEnabled,
+    type: settings.discountType ?? "none",
+    value: Number(settings.discountValue) || 0,
+    buyQuantity: Number(settings.discountBuyQuantity) || 2,
+    getQuantity: Number(settings.discountGetQuantity) || 1,
+    productIds: parseProductIds(settings.discountProductIds),
+    giftMode: settings.discountGiftMode ?? "same_product",
+    giftProductIds: parseProductIds(settings.discountGiftProductIds),
+    giftDiscountType: settings.discountGiftDiscountType ?? "free",
+    giftDiscountValue: Number(settings.discountGiftDiscountValue) || 100,
+  });
+  const discountAmount = Math.min(subtotal, Math.max(0, Math.round((offerRules.length ? calculatedOffers.amount : legacyDiscount.amount) * 100) / 100));
+  const activePriceRules = offerRules.filter((rule) => rule.enabled && rule.type !== "free_shipping");
+  const appliedDiscountType = discountAmount > 0
+    ? activePriceRules.length > 1 ? "multiple" : activePriceRules[0]?.type ?? settings.discountType ?? "none"
+    : "none";
   const qualifiesFreeShipping =
-    settings.freeShippingEnabled &&
-    Number(settings.freeShippingThreshold) > 0 &&
-    subtotal >= Number(settings.freeShippingThreshold);
+    (freeShippingEnabled && freeShippingThreshold > 0 && subtotal >= freeShippingThreshold) ||
+    (offerRules.length > 0 && calculatedOffers.freeShipping);
   const shippingFee = qualifiesFreeShipping ? 0 : Number(zone.fee);
-  const total = subtotal - discountAmount + shippingFee;
-  const minimumDeposit = (total * settings.depositPercent) / 100;
+  const discountedBase = subtotal - discountAmount + shippingFee;
+  const expectedServiceFee = paymentMethod === "vodafone_cash"
+    ? discountedBase < 1000 ? 5 : Math.floor(discountedBase / 1000) * 10
+    : 0;
+  const resolvedServiceFee = expectedServiceFee;
+  const total = discountedBase + resolvedServiceFee;
+  const minimumDeposit = (total * depositPercent) / 100;
   if (requestedDepositAmount !== undefined && requestedDepositAmount + 0.001 < minimumDeposit) {
     return NextResponse.json({ error: "Deposit amount is below the required minimum" }, { status: 400 });
   }
@@ -144,7 +157,18 @@ export async function POST(req: NextRequest) {
   }
   const depositAmount = requestedDepositAmount ?? minimumDeposit;
 
-  const order = await prisma.$transaction(async (tx) => {
+  type OrderCustomer = {
+    name: string;
+    phone: string | null;
+    whatsappNumber: string | null;
+    email: string | null;
+    address: string | null;
+    city: string | null;
+    governorate: string | null;
+  };
+  let order: { id: string; orderNo: number; paymentMethod: string | null; customer: OrderCustomer | null };
+  try {
+    order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         subtotal,
@@ -152,6 +176,7 @@ export async function POST(req: NextRequest) {
         shippingFee,
         total,
         depositAmount,
+        serviceFee: resolvedServiceFee,
         paymentMethod: paymentMethod || null,
         customer: {
           create: {
@@ -161,7 +186,7 @@ export async function POST(req: NextRequest) {
             email: customer.email || null,
             address: customer.address,
             governorate: customer.governorate,
-            city: customer.city,
+            city: customer.city || "",
           },
         },
         items: {
@@ -176,9 +201,23 @@ export async function POST(req: NextRequest) {
       },
       include: { items: true, customer: true },
     });
+    await tx.$executeRaw`UPDATE "Order" SET "discountType" = ${appliedDiscountType},
+      "discountGiftQuantity" = ${offerRules.length ? calculatedOffers.giftQuantity : legacyDiscount.giftQuantity}
+      WHERE id = ${created.id}`;
     await adjustStock(tx, resolvedItems, -1);
     return created;
-  });
+    });
+  } catch (error) {
+    if (error instanceof StockUnavailableError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    const errorId = crypto.randomUUID();
+    console.error(`[checkout:${errorId}] Failed to create order`, error);
+    return NextResponse.json(
+      { error: "We couldn't place your order right now. Please try again.", errorId },
+      { status: 500 }
+    );
+  }
 
   revalidateStorefront();
 
@@ -240,3 +279,4 @@ export async function GET() {
   });
   return NextResponse.json({ orders });
 }
+

@@ -29,7 +29,8 @@ export async function getHomeSections() {
     slug: s.slug,
     products: s.products
       .filter((sp) => sp.product.visible && sp.product.status !== "trash")
-      .map((sp) => serializeProduct(sp.product)),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((sp) => serializeProduct(sp.product as any)),
   }));
 }
 
@@ -46,6 +47,7 @@ export async function getHomeSectionBySlug(slug: string) {
     slug: section.slug,
     products: section.products
       .filter((sp) => sp.product.visible && sp.product.status !== "trash")
-      .map((sp) => serializeProduct(sp.product)),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((sp) => serializeProduct(sp.product as any)),
   };
 }

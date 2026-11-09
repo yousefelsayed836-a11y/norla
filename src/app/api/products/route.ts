@@ -4,10 +4,21 @@ import { getSession } from "@/lib/auth";
 import { uniqueProductSlug } from "@/lib/unique-slug";
 import { revalidateStorefront } from "@/lib/revalidate";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams.get("q");
+  const limit = Number(req.nextUrl.searchParams.get("limit")) || undefined;
+
   const products = await prisma.product.findMany({
-    include: { images: true, category: true, variants: true },
+    where: q
+      ? { title: { contains: q, mode: "insensitive" } }
+      : undefined,
+    include: {
+      images: { orderBy: { position: "asc" }, take: 1 },
+      category: true,
+      variants: { select: { id: true, label: true, price: true } },
+    },
     orderBy: { createdAt: "desc" },
+    take: limit,
   });
   return NextResponse.json({ products });
 }
@@ -34,7 +45,7 @@ export async function POST(req: NextRequest) {
       price: body.price,
       regularPrice: body.regularPrice || null,
       sku: body.sku || null,
-      stockStatus: body.stockStatus || "instock",
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus || "instock",
       stockQty: body.stockQty ?? null,
       categoryId: body.categoryId || null,
       images: body.images

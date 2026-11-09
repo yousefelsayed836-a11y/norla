@@ -9,7 +9,18 @@ export async function GET() {
     update: {},
     create: { id: "singleton" },
   });
-  return NextResponse.json({ settings });
+  const discountDetails = await prisma.$queryRaw<{
+    discountProductIds: string;
+    discountGiftMode: string;
+    discountGiftProductIds: string;
+    discountGiftDiscountType: string;
+    discountGiftDiscountValue: unknown;
+  }[]>`
+    SELECT "discountProductIds", "discountGiftMode", "discountGiftProductIds",
+      "discountGiftDiscountType", "discountGiftDiscountValue"
+    FROM "SiteSetting" WHERE id = 'singleton' LIMIT 1
+  `.then((rows) => rows[0] ?? null);
+  return NextResponse.json({ settings: { ...settings, ...discountDetails } });
 }
 
 export async function PUT(req: NextRequest) {
@@ -36,15 +47,13 @@ export async function PUT(req: NextRequest) {
     depositPercent,
     freeShippingEnabled,
     freeShippingThreshold,
-    discountEnabled,
-    discountType,
-    discountValue,
-    discountBuyQuantity,
-    discountGetQuantity,
+    checkoutPaymentNote,
+    checkoutPaymentNoteAr,
+    whatsappMessageTemplate,
+    checkoutTransferPhone,
+    checkoutAccountName,
+    checkoutDeliveryNote,
   } = await req.json();
-  const normalizedDiscountType = ["none", "percent", "fixed", "buy_get"].includes(discountType)
-    ? discountType
-    : "none";
   const data = {
     announcementText,
     announcementTextAr: announcementTextAr || null,
@@ -65,13 +74,15 @@ export async function PUT(req: NextRequest) {
     depositPercent: Math.min(100, Math.max(0, Math.floor(Number(depositPercent) || 0))),
     freeShippingEnabled,
     freeShippingThreshold,
-    discountEnabled: !!discountEnabled,
-    discountType: normalizedDiscountType,
-    discountValue: Math.min(normalizedDiscountType === "percent" ? 100 : 99_999_999.99, Math.max(0, Number(discountValue) || 0)),
-    discountBuyQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountBuyQuantity) || 1))),
-    discountGetQuantity: Math.min(1_000_000, Math.max(1, Math.floor(Number(discountGetQuantity) || 1))),
+    checkoutPaymentNote: checkoutPaymentNote || "",
+    checkoutPaymentNoteAr: checkoutPaymentNoteAr || "",
+    whatsappMessageTemplate: whatsappMessageTemplate || "",
+    checkoutTransferPhone: checkoutTransferPhone || "01027096110",
+    checkoutAccountName: checkoutAccountName || "",
+    checkoutDeliveryNote: checkoutDeliveryNote ?? "",
   };
-  const settings = await prisma.siteSetting.upsert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (prisma.siteSetting.upsert as any)({
     where: { id: "singleton" },
     update: data,
     create: { id: "singleton", ...data },
@@ -79,3 +90,4 @@ export async function PUT(req: NextRequest) {
   revalidateStorefront();
   return NextResponse.json({ settings });
 }
+

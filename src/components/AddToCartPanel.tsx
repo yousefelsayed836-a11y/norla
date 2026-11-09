@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import { hasAvailableStock } from "@/lib/stock-rules";
 
 type Variant = {
   id: string;
@@ -13,13 +14,20 @@ type Variant = {
   size: string | null;
   imageUrl: string | null;
   price: number | null;
+  regularPrice: number | null;
   stockStatus: string;
+  stockQty: number | null;
 };
+
+function variantAvailable(variant: Variant) {
+  return hasAvailableStock(variant.stockQty, variant.stockStatus);
+}
 
 export default function AddToCartPanel({
   productId,
   title,
   basePrice,
+  baseRegularPrice,
   image,
   variants,
   onColorImage,
@@ -27,6 +35,7 @@ export default function AddToCartPanel({
   productId: string;
   title: string;
   basePrice: number;
+  baseRegularPrice?: number | null;
   image?: string;
   variants: Variant[];
   onColorImage?: (url: string | null) => void;
@@ -42,6 +51,7 @@ export default function AddToCartPanel({
     new Set(
       variants
         .filter((v) => (selectedColor ? v.color === selectedColor : true))
+        .filter(variantAvailable)
         .map((v) => v.size)
         .filter(Boolean)
     )
@@ -53,6 +63,7 @@ export default function AddToCartPanel({
       new Set(
         variants
           .filter((v) => (selectedColor ? v.color === selectedColor : true))
+          .filter(variantAvailable)
           .map((v) => v.size)
           .filter(Boolean)
       )
@@ -74,12 +85,21 @@ export default function AddToCartPanel({
     variants[0];
 
   const price = selected?.price ?? basePrice;
+  const maxQuantity = selected?.stockQty ?? Number.POSITIVE_INFINITY;
+  const regularPrice = selected?.regularPrice ?? (selected?.price ? null : baseRegularPrice);
+  const showOldPrice = regularPrice != null && regularPrice > price;
   const outOfStock = selected
-    ? selected.stockStatus === "outofstock"
-    : variants.length > 0 && variants.every((v) => v.stockStatus === "outofstock");
+    ? !variantAvailable(selected)
+    : variants.length > 0 && variants.every((v) => !variantAvailable(v));
   const hasSwatches = variants.some((v) => v.colorHex);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep selected variant quantity within live stock
+    setQty((current) => Math.max(1, Math.min(current, maxQuantity)));
+  }, [selected?.id, maxQuantity]);
+
   function handleAdd() {
+    if (outOfStock || qty > maxQuantity) return;
     const label = [selectedColor, selectedSize].filter(Boolean).join(", ");
     addItem({
       productId,
@@ -96,7 +116,12 @@ export default function AddToCartPanel({
 
   return (
     <div className="text-center">
-      <p className="text-2xl font-semibold text-brand-dark mb-4">{formatEGP(price)}</p>
+      <div className="flex items-baseline justify-center gap-3 mb-4">
+        <p className="text-2xl font-semibold text-brand-dark">{formatEGP(price)}</p>
+        {showOldPrice && (
+          <p className="text-base text-foreground/40 line-through">{formatEGP(regularPrice!)}</p>
+        )}
+      </div>
 
       {colors.length > 0 && (
         <div className="mb-6">
@@ -107,16 +132,13 @@ export default function AddToCartPanel({
             <div className="flex flex-wrap justify-center gap-2">
               {colors.map((color) => {
                 const v = variants.find((vv) => vv.color === color);
-                const colorOutOfStock = variants
-                  .filter((vv) => vv.color === color)
-                  .every((vv) => vv.stockStatus === "outofstock");
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => !variantAvailable(vv));
                 return (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    disabled={colorOutOfStock}
                     title={color}
-                    className={`w-10 h-10 rounded-full border-2 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                    className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 overflow-hidden ${
                       selectedColor === color ? "border-brand-dark scale-110" : "border-transparent"
                     }`}
                   >
@@ -124,25 +146,42 @@ export default function AddToCartPanel({
                       className="block w-full h-full rounded-full border border-black/10"
                       style={{ backgroundColor: v?.colorHex ?? "#ccc" }}
                     />
+                    {colorOos && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <svg viewBox="0 0 40 40" className="w-full h-full" aria-hidden="true">
+                          <line x1="6" y1="6" x2="34" y2="34" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
           ) : (
             <div className="flex flex-wrap justify-center gap-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`px-4 py-2 rounded-full text-sm border transition-colors duration-200 ${
-                    selectedColor === color
-                      ? "bg-brand-dark text-white border-brand-dark"
-                      : "border-brand-light hover:border-brand-dark"
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
+              {colors.map((color) => {
+                const colorOos = variants.filter((vv) => vv.color === color).every((vv) => !variantAvailable(vv));
+                return (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`relative px-4 py-2 rounded-full text-sm border transition-colors duration-200 ${
+                      selectedColor === color
+                        ? "bg-brand-dark text-white border-brand-dark"
+                        : "border-brand-light hover:border-brand-dark"
+                    } ${colorOos ? "opacity-50" : ""}`}
+                  >
+                    {color}
+                    {colorOos && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-full">
+                        <svg viewBox="0 0 100 40" className="w-full h-full" aria-hidden="true" preserveAspectRatio="none">
+                          <line x1="4" y1="4" x2="96" y2="36" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -154,16 +193,16 @@ export default function AddToCartPanel({
             {t("product.size")} — {selectedSize}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {sizesForColor.map((size) => {
-              const sizeOutOfStock = variants.find(
-                (v) => v.color === selectedColor && v.size === size
-              )?.stockStatus === "outofstock";
-              return (
+            {sizesForColor
+              .filter((size) => {
+                const v = variants.find((vv) => vv.color === selectedColor && vv.size === size);
+                return !v || variantAvailable(v);
+              })
+              .map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  disabled={sizeOutOfStock}
-                  className={`min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                  className={`min-w-10 h-10 px-3 rounded-lg flex items-center justify-center text-center text-sm bg-white break-words transition-all duration-200 ${
                     selectedSize === size
                       ? "border-2 border-brand-dark text-brand-dark font-semibold"
                       : "border border-brand-dark text-foreground"
@@ -171,8 +210,7 @@ export default function AddToCartPanel({
                 >
                   {size}
                 </button>
-              );
-            })}
+              ))}
           </div>
         </div>
       )}
@@ -192,8 +230,10 @@ export default function AddToCartPanel({
           </button>
           <span className="w-8 text-center">{qty}</span>
           <button
-            className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-brand-light rounded-full"
-            onClick={() => setQty((q) => q + 1)}
+            onClick={() => setQty((q) => Math.min(maxQuantity, q + 1))}
+            disabled={qty >= maxQuantity}
+            aria-label="Increase quantity"
+            className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-brand-light rounded-full disabled:opacity-40"
           >
             +
           </button>

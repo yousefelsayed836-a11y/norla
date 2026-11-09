@@ -9,7 +9,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   const body = await req.json();
-  const variant = await prisma.productVariant.update({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variant = await (prisma.productVariant.update as any)({
     where: { id },
     data: {
       label: body.label,
@@ -17,9 +18,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       colorHex: body.colorHex || null,
       size: body.size || null,
       imageUrl: body.imageUrl || null,
+      position: body.position ?? 0,
       price: body.price || null,
       regularPrice: body.regularPrice || null,
-      stockStatus: body.stockStatus,
+      stockStatus: body.stockQty != null && Number(body.stockQty) <= 0 ? "outofstock" : body.stockStatus,
       stockQty: body.stockQty ?? null,
     },
   });

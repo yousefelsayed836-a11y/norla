@@ -24,12 +24,28 @@ const jost = Jost({
 export const metadata: Metadata = {
   title: "Norla Designs",
   description: "Norla Designs — Elegant abayas, dresses, skirts & blouses.",
+  metadataBase: new URL("https://norla-designs.com"),
+  openGraph: {
+    title: "Norla Designs",
+    description: "Norla Designs — Elegant abayas, dresses, skirts & blouses.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "Norla Designs" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/api/og"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Norla Admin",
   },
   icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/brand/cropped-favicon.webp", type: "image/webp" },
+    ],
+    shortcut: "/icons/icon-192.png",
     apple: "/icons/apple-touch-icon.png",
   },
   other: {
@@ -38,6 +54,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#d14f83",
 };
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { formatEGP } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n";
+import CartOfferNotice from "@/components/CartOfferNotice";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
@@ -79,6 +80,10 @@ export default function CartPage() {
         ))}
       </div>
 
+      <div className="mt-8">
+        <CartOfferNotice items={items} total={total} />
+      </div>
+
       <div className="mt-8 flex items-center justify-between">
         <span className="font-display text-2xl">{t("cart.total")}</span>
         <span className="font-display text-2xl text-brand-dark">{formatEGP(total)}</span>
@@ -93,3 +98,4 @@ export default function CartPage() {
     </div>
   );
 }
+
